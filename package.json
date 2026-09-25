@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "build:apk": "npm run build && npx cap sync android && cd android && gradlew.bat assembleDebug",
-    "build:release": "npm run build && npx cap sync android && cd android && gradlew.bat assembleRelease"
+    "build:apk": "npm run build && npx cap sync android && cd android && set \"JAVA_HOME=C:\\Program Files\\Java\\jdk-27\" && gradlew.bat assembleDebug",
+    "build:release": "npm run build && npx cap sync android && cd android && set \"JAVA_HOME=C:\\Program Files\\Java\\jdk-27\" && gradlew.bat assembleRelease"
   },
   "dependencies": {
     "@capacitor-community/speech-recognition": "^7.0.1",

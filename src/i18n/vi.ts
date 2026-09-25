@@ -329,4 +329,21 @@ export const vi = {
   scan_btn_confirm_expense: 'Xác nhận lưu Chi tiêu (+20 XP)',
   scan_btn_confirm_asset: 'Xác nhận lưu Thiết bị (+30 XP)',
   scan_camera_error: 'Không thể mở camera. Vui lòng cấp quyền truy cập camera hoặc tải ảnh hóa đơn.',
+
+  // Investments & Dividends
+  inv_title: 'Danh mục Đầu tư',
+  inv_subtitle: 'Theo dõi vị thế, tính lãi/lỗ & quản lý dòng tiền cổ tức',
+  inv_total_market_val: 'Tổng giá trị danh mục',
+  inv_invested_capital: 'Tổng vốn đầu tư',
+  inv_unrealized_pnl: 'Lãi/Lỗ chưa chốt',
+  inv_realized_pnl: 'Lãi/Lỗ đã chốt',
+  inv_total_dividends: 'Tổng cổ tức',
+  inv_holding_avg: 'Nắm giữ TB',
+  inv_holding_period: 'Thời gian nắm giữ',
+  inv_yield_on_cost: 'Tỷ suất cổ tức (YoC)',
+  inv_dividends_tab: 'Cổ tức & Dòng tiền',
+  inv_holdings_tab: 'Vị thế Nắm giữ',
+  inv_action_add_tx: 'Thêm lệnh',
+  inv_action_add_div: 'Thêm cổ tức',
+  inv_action_update_price: 'Cập nhật giá',
 };

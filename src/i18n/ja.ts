@@ -331,4 +331,21 @@ export const ja: typeof vi = {
   scan_btn_confirm_expense: '支出を保存 (+20 XP)',
   scan_btn_confirm_asset: '家電を登録 (+30 XP)',
   scan_camera_error: 'カメラを起動できませんでした。カメラ権限を許可するか、レシート画像をアップロードしてください。',
+
+  // Investments & Dividends
+  inv_title: '投資ポートフォリオ',
+  inv_subtitle: 'リアルタイム損益計算、保有期間、配当キャッシュフロー管理',
+  inv_total_market_val: '総評価額',
+  inv_invested_capital: '投資元本',
+  inv_unrealized_pnl: '評価損益 (含み損益)',
+  inv_realized_pnl: '確定損益',
+  inv_total_dividends: '累計配当金',
+  inv_holding_avg: '平均保有日数',
+  inv_holding_period: '保有期間',
+  inv_yield_on_cost: '配当利回り (YoC)',
+  inv_dividends_tab: '配当金・インカム',
+  inv_holdings_tab: '保有資産一覧',
+  inv_action_add_tx: '取引入力',
+  inv_action_add_div: '配当登録',
+  inv_action_update_price: '価格更新',
 };

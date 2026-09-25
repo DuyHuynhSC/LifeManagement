@@ -10,6 +10,7 @@ import { IoTTab } from './components/iot/IoTTab';
 import { FamilyTab } from './components/family/FamilyTab';
 import { GameTab } from './components/gamification/GameTab';
 import { SettingsTab } from './components/settings/SettingsTab';
+import { InvestmentTab } from './components/investments/InvestmentTab';
 import { AddExpenseModal } from './components/expenses/AddExpenseModal';
 import { AddAssetModal } from './components/assets/AddAssetModal';
 import { VoiceInputModal } from './components/common/VoiceInputModal';
@@ -142,6 +143,8 @@ export const App: React.FC = () => {
         {activeTab === 'family' && <FamilyTab />}
 
         {activeTab === 'game' && <GameTab />}
+
+        {activeTab === 'investments' && <InvestmentTab />}
 
         {activeTab === 'settings' && <SettingsTab />}
       </main>

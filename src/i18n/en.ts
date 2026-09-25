@@ -331,4 +331,21 @@ export const en: typeof vi = {
   scan_btn_confirm_expense: 'Confirm Expense (+20 XP)',
   scan_btn_confirm_asset: 'Confirm Appliance (+30 XP)',
   scan_camera_error: 'Unable to open camera. Please allow camera permission or upload a receipt photo.',
+
+  // Investments & Dividends
+  inv_title: 'Investment Portfolio',
+  inv_subtitle: 'Track positions, P&L in real-time & manage dividend cashflow',
+  inv_total_market_val: 'Total Portfolio Value',
+  inv_invested_capital: 'Total Capital Invested',
+  inv_unrealized_pnl: 'Unrealized P&L',
+  inv_realized_pnl: 'Realized P&L',
+  inv_total_dividends: 'Total Dividends',
+  inv_holding_avg: 'Avg Holding',
+  inv_holding_period: 'Holding Period',
+  inv_yield_on_cost: 'Yield on Cost (YoC)',
+  inv_dividends_tab: 'Dividends & Cashflow',
+  inv_holdings_tab: 'Holdings',
+  inv_action_add_tx: 'Add Order',
+  inv_action_add_div: 'Add Dividend',
+  inv_action_update_price: 'Update Price',
 };

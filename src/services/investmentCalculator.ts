@@ -173,9 +173,9 @@ export function calculateAssetPnL(
  */
 export const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
   stock: 'Cổ phiếu',
-  crypto: 'Tiền ảo (Crypto)',
-  gold: 'Vàng & Kim loại quý',
-  savings: 'Tiết kiệm & Trái phiếu',
+  crypto: 'Crypto',
+  gold: 'Vàng & KL quý',
+  savings: 'Tiết kiệm',
   fund: 'Chứng chỉ quỹ',
   real_estate: 'Bất động sản',
   other: 'Khác'

@@ -15,6 +15,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
+import { useInvestmentStore } from '../../store/useInvestmentStore';
 import { getTranslation } from '../../i18n';
 import { generateAIInsights } from '../../services/aiService';
 import { exportHouseholdReport } from '../../services/pdfService';
@@ -38,6 +39,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   onSelectAsset,
 }) => {
   const { assets, expenses, budgets, tasks, currentUser, settings, users } = useAppStore();
+  const { portfolioSummary } = useInvestmentStore();
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
 
   // Calculate urgent alerts based on settings.notifyDaysBeforeExpiry
@@ -283,6 +285,51 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           <span className="flex items-center gap-0.5 text-indigo-600 dark:text-indigo-400 font-semibold">
             {t('dash_view_details')} <ArrowUpRight size={12} />
           </span>
+        </div>
+      </div>
+
+      {/* Investment Portfolio Summary Card */}
+      <div 
+        onClick={() => onNavigateTab('investments')}
+        className="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-2xl p-4 border border-indigo-800/80 shadow-md cursor-pointer hover:border-indigo-400 transition space-y-2 text-white relative overflow-hidden"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-xl bg-white/10 flex items-center justify-center text-emerald-300">
+              <TrendingUp size={16} />
+            </div>
+            <span className="text-xs font-bold text-indigo-200 uppercase tracking-wider">
+              Danh mục Đầu tư
+            </span>
+          </div>
+          <span className={`text-[11px] font-black px-2 py-0.5 rounded-full ${
+            portfolioSummary.totalUnrealizedPnL >= 0 
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
+              : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+          }`}>
+            {portfolioSummary.totalUnrealizedPnL >= 0 ? '+' : ''}{portfolioSummary.unrealizedPnLPercent.toFixed(2)}%
+          </span>
+        </div>
+
+        <div className="flex items-baseline justify-between pt-1">
+          <div>
+            <div className="text-lg font-black tracking-tight text-white">
+              {portfolioSummary.currentMarketValue.toLocaleString('vi-VN')} đ
+            </div>
+            <div className="text-[11px] text-slate-300 font-medium">
+              Vốn: {portfolioSummary.totalInvested.toLocaleString('vi-VN')} đ
+            </div>
+          </div>
+          <div className="text-right">
+            <span className={`text-xs font-extrabold block ${
+              portfolioSummary.totalUnrealizedPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'
+            }`}>
+              {portfolioSummary.totalUnrealizedPnL >= 0 ? '+' : ''}{portfolioSummary.totalUnrealizedPnL.toLocaleString('vi-VN')} đ
+            </span>
+            <span className="text-[10px] text-indigo-300 flex items-center justify-end gap-0.5 mt-0.5 font-bold">
+              Xem chi tiết <ArrowUpRight size={10} />
+            </span>
+          </div>
         </div>
       </div>
 

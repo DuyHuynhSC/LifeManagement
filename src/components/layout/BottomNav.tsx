@@ -12,13 +12,14 @@ import {
   ChevronRight,
   Sparkles,
   Zap,
+  TrendingUp,
   Sliders,
   LucideIcon
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { getTranslation } from '../../i18n';
 
-export type TabType = 'dashboard' | 'assets' | 'expenses' | 'iot' | 'family' | 'game' | 'settings';
+export type TabType = 'dashboard' | 'assets' | 'expenses' | 'iot' | 'family' | 'game' | 'settings' | 'investments';
 
 interface BottomNavProps {
   activeTab: TabType;
@@ -35,16 +36,28 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const t = (key: any) => getTranslation(settings.language, key);
 
-  // 4 Core Main Tabs
+  // 4 Core Main Tabs (Đầu tư đặt ngay sau Chi tiêu, Gia đình chuyển vào menu Thêm)
   const primaryTabs: { id: TabType; label: string; icon: LucideIcon; badge?: number }[] = [
     { id: 'dashboard', label: t('nav_dashboard'), icon: LayoutDashboard },
     { id: 'assets', label: t('nav_assets'), icon: Tv2, badge: urgentAssetsCount },
     { id: 'expenses', label: t('nav_expenses'), icon: Wallet },
-    { id: 'family', label: t('nav_family'), icon: Users },
+    { 
+      id: 'investments', 
+      label: settings.language === 'vi' ? 'Đầu tư' : settings.language === 'ja' ? '投資' : 'Invest', 
+      icon: TrendingUp 
+    },
   ];
 
   // Secondary tabs inside "More" menu
   const secondaryTabs = [
+    { 
+      id: 'family' as TabType, 
+      label: settings.language === 'vi' ? 'Gia đình & Thành viên' : settings.language === 'ja' ? '家族とメンバー' : 'Family & Members', 
+      shortLabel: t('nav_family'), 
+      desc: settings.language === 'vi' ? 'Phân quyền, giao việc nhà và danh sách thành viên' : settings.language === 'ja' ? '権限設定、家事の割り当てとメンバー一覧' : 'Permissions, chores assignment & members list',
+      icon: Users,
+      color: 'bg-emerald-500'
+    },
     { 
       id: 'iot' as TabType, 
       label: settings.language === 'vi' ? 'IoT Nhà thông minh' : settings.language === 'ja' ? 'スマートホーム (IoT)' : 'Smart Home (IoT)', 
@@ -72,7 +85,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   ];
 
   // Determine the 5th button state
-  const isSecondaryActive = activeTab === 'iot' || activeTab === 'game' || activeTab === 'settings';
+  const isSecondaryActive = activeTab === 'family' || activeTab === 'iot' || activeTab === 'game' || activeTab === 'settings';
   const activeSecondary = secondaryTabs.find(t => t.id === activeTab);
 
   const fifthTabIcon = activeSecondary ? activeSecondary.icon : MoreHorizontal;
