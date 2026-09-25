@@ -98,7 +98,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
           <h1 className="text-lg font-bold text-slate-900 dark:text-white">
             {t('expense_title')}
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-slate-300 font-medium">
             Kiểm soát ngân sách & thu chi minh bạch
           </p>
         </div>
@@ -132,31 +132,31 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
 
       {/* Monthly Budget Summary Banner */}
       <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 rounded-3xl p-5 text-white shadow-xl space-y-3 relative overflow-hidden">
-        <div className="flex items-start justify-between relative z-10">
-          <div>
-            <div className="text-xs text-emerald-100 font-medium">
+        <div className="relative z-10 space-y-1.5">
+          {/* Header Row: Label & Budget Limit Chip */}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-xs text-emerald-100 font-medium tracking-wide">
               {t('dash_total_spent')}
-            </div>
-            <div className="text-2xl font-black mt-0.5 tracking-tight">
-              {totalSpent.toLocaleString('vi-VN')} đ
-            </div>
+            </span>
+            {canManage ? (
+              <button
+                onClick={() => setShowBudgetModal(true)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition text-xs text-emerald-50 font-medium backdrop-blur-sm border border-white/10"
+                title="Cài đặt hạn mức"
+              >
+                <span>{t('dash_budget_limit')}: <strong className="font-bold text-white">{totalBudget > 0 ? `${totalBudget.toLocaleString('vi-VN')} đ` : 'Chưa đặt'}</strong></span>
+                <Pencil size={11} className="opacity-80 shrink-0" />
+              </button>
+            ) : (
+              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 text-xs text-emerald-100 font-medium">
+                <span>{t('dash_budget_limit')}: <strong className="font-bold text-white">{totalBudget > 0 ? `${totalBudget.toLocaleString('vi-VN')} đ` : 'Chưa đặt'}</strong></span>
+              </div>
+            )}
           </div>
-          <div className="text-right">
-            <div className="flex items-center justify-end gap-1 text-xs text-emerald-100 font-medium">
-              <span>Hạn mức tháng</span>
-              {canManage && (
-                <button
-                  onClick={() => setShowBudgetModal(true)}
-                  className="p-1 hover:bg-white/20 rounded-lg transition text-emerald-100 hover:text-white"
-                  title="Cài đặt hạn mức"
-                >
-                  <Pencil size={12} />
-                </button>
-              )}
-            </div>
-            <div className="text-sm font-bold opacity-90">
-              {totalBudget.toLocaleString('vi-VN')} đ
-            </div>
+
+          {/* Main Amount */}
+          <div className="text-2xl sm:text-3xl font-black tracking-tight whitespace-nowrap">
+            {totalSpent.toLocaleString('vi-VN')} <span className="text-base sm:text-lg font-bold opacity-90">đ</span>
           </div>
         </div>
 
@@ -168,15 +168,16 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
           />
         </div>
 
-        <div className="flex items-center justify-between text-[11px] text-emerald-100 font-medium">
-          <span>
+        {/* Bottom Details Row */}
+        <div className="flex items-center justify-between text-[11px] sm:text-xs text-emerald-100 font-medium gap-2">
+          <span className="truncate">
             {totalBudget > 0 
               ? (totalSpent > totalBudget 
                   ? `Vượt: ${(totalSpent - totalBudget).toLocaleString('vi-VN')} đ` 
                   : `Còn dư: ${(totalBudget - totalSpent).toLocaleString('vi-VN')} đ`)
               : 'Chưa đặt hạn mức'}
           </span>
-          <span>
+          <span className="shrink-0 font-semibold text-white">
             {totalBudget > 0 ? `${percentSpent}% ngân sách` : 'Chưa có hạn mức'}
           </span>
         </div>
