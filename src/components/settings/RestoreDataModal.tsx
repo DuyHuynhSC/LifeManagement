@@ -12,7 +12,8 @@ import {
   Box,
   CreditCard,
   Users,
-  CheckSquare
+  CheckSquare,
+  TrendingUp
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { getTranslation } from '../../i18n';
@@ -293,6 +294,28 @@ export const RestoreDataModal: React.FC<RestoreDataModalProps> = ({ onClose }) =
                         </div>
                       </div>
                     </div>
+
+                    {/* Investment Portfolio Preview Card */}
+                    {(summary.investmentsCount > 0 || summary.investmentTransactionsCount > 0 || summary.dividendsCount > 0) && (
+                      <div className="col-span-2 p-3 rounded-xl bg-gradient-to-r from-indigo-50 to-indigo-100/50 dark:from-indigo-950/60 dark:to-indigo-900/30 border border-indigo-200 dark:border-indigo-800 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-indigo-600 text-white shadow-sm">
+                            <TrendingUp size={18} />
+                          </div>
+                          <div>
+                            <div className="text-sm font-extrabold text-slate-900 dark:text-white">
+                              {summary.investmentsCount} mã tài sản đầu tư
+                            </div>
+                            <div className="text-[11px] text-indigo-700 dark:text-indigo-300 font-medium">
+                              {summary.investmentTransactionsCount} lệnh giao dịch • {summary.dividendsCount} lượt cổ tức
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-indigo-200/80 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-200">
+                          Đầu tư
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {summary.exportedAt && (

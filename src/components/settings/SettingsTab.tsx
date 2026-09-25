@@ -21,6 +21,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { getTranslation } from '../../i18n';
 import { exportHouseholdReport } from '../../services/pdfService';
 import { exportBackupData } from '../../services/backupService';
+import { getInvestmentExportData, restoreInvestmentState } from '../../store/useInvestmentStore';
 import { UserManagementModal } from '../admin/UserManagementModal';
 import { RestoreDataModal } from './RestoreDataModal';
 
@@ -65,6 +66,7 @@ export const SettingsTab: React.FC = () => {
   const handleExportJSON = async () => {
     try {
       setIsExporting(true);
+      const invData = getInvestmentExportData();
       const data = {
         version: 2,
         appName: 'FamLife',
@@ -77,12 +79,20 @@ export const SettingsTab: React.FC = () => {
         iotDevices,
         badges,
         settings,
-        currentUserId: currentUser.id
+        currentUserId: currentUser.id,
+        investments: {
+          assets: invData.assets,
+          transactions: invData.transactions,
+          dividends: invData.dividends
+        },
+        investmentAssets: invData.assets,
+        investmentTransactions: invData.transactions,
+        investmentDividends: invData.dividends
       };
       const res = await exportBackupData(data);
       if (res.success) {
         if (res.method === 'download') {
-          alert('Tệp sao lưu JSON đã được tải về máy thành công!');
+          alert('Tệp sao lưu JSON (bao gồm Đồ dùng, Chi tiêu & Danh mục Đầu tư) đã được tải về máy thành công!');
         }
       } else if (res.message) {
         alert(res.message);
@@ -96,8 +106,9 @@ export const SettingsTab: React.FC = () => {
   };
 
   const handleClearData = () => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa hết đồ dùng, chi tiêu, công việc và thiết bị IoT? Thao tác này sẽ dọn sạch toàn bộ dữ liệu và giữ lại tài khoản thành viên.')) {
+    if (window.confirm('Bạn có chắc chắn muốn xóa hết đồ dùng, chi tiêu, công việc, thiết bị IoT và danh mục đầu tư? Thao tác này sẽ dọn sạch toàn bộ dữ liệu và giữ lại tài khoản thành viên.')) {
       clearAllData();
+      restoreInvestmentState({ assets: [], transactions: [], dividends: [] });
       alert('Đã dọn sạch toàn bộ dữ liệu thành công!');
     }
   };

@@ -8,6 +8,7 @@ import {
   initialBudgets, initialTasks, initialIoTDevices, 
   initialBadges, initialSettings 
 } from '../data/initialData';
+import { restoreInvestmentState } from './useInvestmentStore';
 
 const STORAGE_KEY = 'famlife_app_data_v2';
 
@@ -320,6 +321,7 @@ export const useAppStore = () => {
       badges: initialBadges,
       settings: initialSettings
     };
+    restoreInvestmentState({ assets: [], transactions: [], dividends: [] });
     if (initialSettings.theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
@@ -366,6 +368,15 @@ export const useAppStore = () => {
         ...globalState.settings,
         ...(backupData.settings || {})
       };
+
+      // Phục hồi dữ liệu danh mục đầu tư nếu có trong tệp sao lưu
+      if (backupData.investments || backupData.investmentAssets || backupData.investmentTransactions || backupData.investmentDividends) {
+        restoreInvestmentState({
+          assets: backupData.investments?.assets || backupData.investmentAssets,
+          transactions: backupData.investments?.transactions || backupData.investmentTransactions,
+          dividends: backupData.investments?.dividends || backupData.investmentDividends
+        });
+      }
 
       // Ensure valid currentUserId
       let nextCurrentUserId = backupData.currentUserId || globalState.currentUserId;

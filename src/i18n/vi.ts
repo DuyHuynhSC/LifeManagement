@@ -200,7 +200,7 @@ export const vi = {
   settings_backup_json: 'Sao lưu dữ liệu JSON',
   settings_backup_json_desc: 'Tải hoặc chia sẻ file sao lưu về máy để lưu trữ an toàn',
   settings_restore_json: 'Phục hồi từ JSON',
-  settings_restore_json_desc: 'Khôi phục đồ dùng, chi tiêu, thành viên từ file sao lưu',
+  settings_restore_json_desc: 'Khôi phục đồ dùng, chi tiêu, danh mục đầu tư & thành viên từ file sao lưu',
   restore_modal_title: 'Phục hồi dữ liệu từ bản sao lưu JSON',
   restore_select_file: 'Chọn tệp sao lưu (.json)',
   restore_paste_json: 'Hoặc dán nội dung JSON vào đây',

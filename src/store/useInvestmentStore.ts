@@ -293,6 +293,68 @@ export const useInvestmentStore = () => {
     deleteTransaction,
     addDividend,
     deleteDividend,
-    resetToInitialData
+    resetToInitialData,
+    restoreInvestments: restoreInvestmentState,
+    getExportData: getInvestmentExportData
   };
 };
+
+export function getInvestmentExportData(): {
+  assets: InvestmentAsset[];
+  transactions: InvestmentTransaction[];
+  dividends: DividendRecord[];
+} {
+  return {
+    assets: globalState.assets,
+    transactions: globalState.transactions,
+    dividends: globalState.dividends
+  };
+}
+
+export function restoreInvestmentState(backup: {
+  assets?: InvestmentAsset[];
+  transactions?: InvestmentTransaction[];
+  dividends?: DividendRecord[];
+}): void {
+  const assets: InvestmentAsset[] = Array.isArray(backup.assets) ? backup.assets : [];
+  const transactions: InvestmentTransaction[] = Array.isArray(backup.transactions) ? backup.transactions : [];
+  const dividends: DividendRecord[] = Array.isArray(backup.dividends) ? backup.dividends : [];
+
+  // Tự động đối soát lại số lượng và giá vốn từ sổ lệnh
+  const reconciledAssets = assets.map(asset => {
+    const assetTx = transactions
+      .filter(t => t.assetId === asset.id)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+    if (assetTx.length === 0) return asset;
+
+    let totalQty = 0;
+    let totalCost = 0;
+    assetTx.forEach(tx => {
+      if (tx.type === 'buy') {
+        totalCost += (tx.quantity * tx.pricePerUnit) + (tx.fees || 0);
+        totalQty += tx.quantity;
+      } else if (tx.type === 'sell') {
+        const avgCostBeforeSell = totalQty > 0 ? totalCost / totalQty : 0;
+        totalCost = Math.max(0, totalCost - (tx.quantity * avgCostBeforeSell));
+        totalQty = Math.max(0, totalQty - tx.quantity);
+      }
+    });
+
+    dividends.filter(d => d.assetId === asset.id && d.type === 'stock').forEach(d => {
+      totalQty += d.amountOrQuantity;
+    });
+
+    const avgBuyPrice = totalQty > 0 ? Math.round((totalCost / totalQty) * 100) / 100 : asset.avgBuyPrice;
+
+    return { ...asset, quantity: totalQty, avgBuyPrice };
+  });
+
+  globalState = {
+    assets: reconciledAssets,
+    transactions,
+    dividends
+  };
+  notify();
+}
+

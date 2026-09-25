@@ -1,4 +1,5 @@
 import { Asset, Expense, User, Budget, Task, IoTDevice, GamificationBadge, AppSettings } from '../types';
+import { InvestmentAsset, InvestmentTransaction, DividendRecord } from '../types/investment';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -16,6 +17,15 @@ export interface BackupData {
   badges?: GamificationBadge[];
   settings?: Partial<AppSettings>;
   currentUserId?: string;
+  // Danh mục Đầu tư & Tài chính
+  investments?: {
+    assets?: InvestmentAsset[];
+    transactions?: InvestmentTransaction[];
+    dividends?: DividendRecord[];
+  };
+  investmentAssets?: InvestmentAsset[];
+  investmentTransactions?: InvestmentTransaction[];
+  investmentDividends?: DividendRecord[];
 }
 
 export interface BackupSummary {
@@ -27,6 +37,9 @@ export interface BackupSummary {
   tasksCount: number;
   budgetsCount: number;
   iotDevicesCount: number;
+  investmentsCount: number;
+  investmentTransactionsCount: number;
+  dividendsCount: number;
 }
 
 export interface ExportResult {
@@ -162,13 +175,28 @@ export function validateBackupData(jsonString: string): {
     const hasTasks = Array.isArray(parsed.tasks);
     const hasBudgets = Array.isArray(parsed.budgets);
     const hasIoT = Array.isArray(parsed.iotDevices);
+    const hasInvestments = (parsed.investments && Array.isArray(parsed.investments.assets)) || Array.isArray(parsed.investmentAssets);
+    const hasInvestmentTx = (parsed.investments && Array.isArray(parsed.investments.transactions)) || Array.isArray(parsed.investmentTransactions);
+    const hasDividends = (parsed.investments && Array.isArray(parsed.investments.dividends)) || Array.isArray(parsed.investmentDividends);
 
-    if (!hasAssets && !hasExpenses && !hasUsers && !hasTasks && !hasBudgets && !hasIoT) {
+    if (!hasAssets && !hasExpenses && !hasUsers && !hasTasks && !hasBudgets && !hasIoT && !hasInvestments && !hasInvestmentTx && !hasDividends) {
       return { 
         valid: false, 
-        error: 'Tệp không chứa dữ liệu hợp lệ của ứng dụng FamLife (không tìm thấy đồ dùng, chi tiêu hoặc thành viên)' 
+        error: 'Tệp không chứa dữ liệu hợp lệ của ứng dụng FamLife (không tìm thấy đồ dùng, chi tiêu, đầu tư hoặc thành viên)' 
       };
     }
+
+    const investmentsCount = Array.isArray(parsed.investments?.assets) 
+      ? parsed.investments.assets.length 
+      : (Array.isArray(parsed.investmentAssets) ? parsed.investmentAssets.length : 0);
+
+    const investmentTransactionsCount = Array.isArray(parsed.investments?.transactions) 
+      ? parsed.investments.transactions.length 
+      : (Array.isArray(parsed.investmentTransactions) ? parsed.investmentTransactions.length : 0);
+
+    const dividendsCount = Array.isArray(parsed.investments?.dividends) 
+      ? parsed.investments.dividends.length 
+      : (Array.isArray(parsed.investmentDividends) ? parsed.investmentDividends.length : 0);
 
     const summary: BackupSummary = {
       version: parsed.version,
@@ -179,6 +207,9 @@ export function validateBackupData(jsonString: string): {
       tasksCount: hasTasks ? parsed.tasks.length : 0,
       budgetsCount: hasBudgets ? parsed.budgets.length : 0,
       iotDevicesCount: hasIoT ? parsed.iotDevices.length : 0,
+      investmentsCount,
+      investmentTransactionsCount,
+      dividendsCount
     };
 
     return {

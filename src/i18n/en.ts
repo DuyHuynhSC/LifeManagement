@@ -202,7 +202,7 @@ export const en: typeof vi = {
   settings_backup_json: 'Backup Data (JSON)',
   settings_backup_json_desc: 'Download or share backup file to device for safe keeping',
   settings_restore_json: 'Restore from JSON',
-  settings_restore_json_desc: 'Restore appliances, expenses, members from backup file',
+  settings_restore_json_desc: 'Restore appliances, expenses, investments & members from backup file',
   restore_modal_title: 'Restore Data from JSON Backup',
   restore_select_file: 'Select Backup File (.json)',
   restore_paste_json: 'Or paste JSON content here',
