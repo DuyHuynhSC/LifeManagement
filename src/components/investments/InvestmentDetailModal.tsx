@@ -12,11 +12,20 @@ import {
   ArrowUpRight,
   ShieldCheck,
   Target,
-  AlertTriangle
+  AlertTriangle,
+  PiggyBank,
+  Landmark
 } from 'lucide-react';
 import { useInvestmentStore } from '../../store/useInvestmentStore';
 import { InvestmentAsset, AssetPnL, InvestmentTransaction } from '../../types/investment';
-import { ASSET_CLASS_LABELS, ASSET_CLASS_COLORS } from '../../services/investmentCalculator';
+import { 
+  ASSET_CLASS_LABELS, 
+  ASSET_CLASS_COLORS,
+  getAssetClassLabel,
+  formatHoldingPeriodText
+} from '../../services/investmentCalculator';
+import { useAppStore } from '../../store/useAppStore';
+import { getTranslation } from '../../i18n';
 
 interface InvestmentDetailModalProps {
   asset: InvestmentAsset;
@@ -33,6 +42,9 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
   onOpenAddDividend,
   onQuickUpdatePrice
 }) => {
+  const { settings } = useAppStore();
+  const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
+
   const { 
     getAssetPnL, 
     getAssetTransactions, 
@@ -96,7 +108,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                     color: classColor
                   }}
                 >
-                  {ASSET_CLASS_LABELS[asset.assetClass]}
+                  {getAssetClassLabel(asset.assetClass, t)}
                 </span>
               </div>
               <p className="text-xs font-medium text-slate-500 dark:text-slate-300 truncate max-w-[200px]">
@@ -108,7 +120,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => onQuickUpdatePrice?.(asset)}
-              title="Sửa giá thị trường"
+              title={asset.assetClass === 'savings' ? t('inv_card_edit_savings') : t('inv_card_edit_price')}
               className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition"
             >
               <Edit3 size={15} />
@@ -132,7 +144,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            Tổng quan vị thế
+            {t('inv_detail_tab_overview')}
           </button>
           <button
             onClick={() => setActiveTab('history')}
@@ -142,7 +154,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            Lịch sử lệnh ({transactions.length})
+            {t('inv_detail_tab_history')} ({transactions.length})
           </button>
           <button
             onClick={() => setActiveTab('dividends')}
@@ -152,7 +164,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            Cổ tức ({dividends.length})
+            {t('inv_detail_tab_dividends')} ({dividends.length})
           </button>
         </div>
 
@@ -160,102 +172,185 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
         <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
           {activeTab === 'overview' && (
             <div className="space-y-3.5">
-              {/* Market Value & Unrealized P&L Card */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-500 dark:text-slate-300">
-                    Giá trị thị trường hiện tại
-                  </span>
-                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300">
-                    {asset.quantity.toLocaleString('vi-VN')} {asset.currency} @ {formatCurrency(asset.currentPrice)}
-                  </span>
-                </div>
-                <div className="text-2xl font-black text-slate-900 dark:text-white">
-                  {formatCurrency(pnl.currentValue)}
-                </div>
+              {asset.assetClass === 'savings' ? (
+                <>
+                  {/* Savings Principal & Maturity Total Card */}
+                  <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/60 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-slate-500 dark:text-slate-300">
+                        {t('inv_savings_deposit_principal')}
+                      </span>
+                      <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                        {asset.termMonths || 0} {t('inv_term_month_unit')} • {asset.interestRate || 0}%/{t('inv_year_unit')}
+                      </span>
+                    </div>
+                    <div className="text-2xl font-black text-slate-900 dark:text-white">
+                      {formatCurrency(asset.avgBuyPrice)}
+                    </div>
 
-                <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-300">
-                    Lãi/Lỗ chưa thực hiện:
-                  </span>
-                  <div className={`flex items-center gap-1 font-extrabold text-sm ${
-                    isProfitable ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
-                  }`}>
-                    {isProfitable ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-                    <span>{isProfitable ? '+' : ''}{formatCurrency(pnl.unrealizedPnL)}</span>
-                    <span>({isProfitable ? '+' : ''}{pnl.unrealizedPnLPercent.toFixed(2)}%)</span>
+                    <div className="pt-2 border-t border-amber-200/60 dark:border-amber-800/60 flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-300">
+                        {t('inv_savings_total_maturity')}
+                      </span>
+                      <div className="font-black text-base text-slate-900 dark:text-white">
+                        {formatCurrency(asset.avgBuyPrice + (asset.expectedInterest || 0))}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Metrics Grid */}
-              <div className="grid grid-cols-2 gap-2.5">
-                <div className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
-                    Giá vốn trung bình (DCA)
-                  </span>
-                  <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block">
-                    {formatCurrency(asset.avgBuyPrice)}
-                  </span>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
-                    Tổng vốn: {formatCurrency(pnl.investedValue)}
-                  </span>
-                </div>
+                  {/* Savings Metrics Grid */}
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
+                        {t('inv_savings_expected_interest')}
+                      </span>
+                      <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                        +{formatCurrency(asset.expectedInterest || 0)}
+                      </span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                        {t('inv_savings_interest_rate')}: {asset.interestRate || 0}%
+                      </span>
+                    </div>
 
-                <div className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
-                    Lãi/Lỗ đã chốt (Realized)
-                  </span>
-                  <span className={`text-sm font-extrabold mt-0.5 block ${
-                    pnl.realizedPnL >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
-                  }`}>
-                    {pnl.realizedPnL >= 0 ? '+' : ''}{formatCurrency(pnl.realizedPnL)}
-                  </span>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
-                    Từ các lệnh bán trước
-                  </span>
-                </div>
+                    <div className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
+                        {t('inv_savings_term_months')}
+                      </span>
+                      <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block">
+                        {asset.termMonths || 0} {t('inv_term_month_unit')}
+                      </span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                        {t('inv_savings_deposit_date')}: {asset.firstBuyDate || '-'}
+                      </span>
+                    </div>
 
-                <div className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
-                    Cổ tức đã thu
-                  </span>
-                  <span className="text-sm font-extrabold text-amber-500 dark:text-amber-400 mt-0.5 block">
-                    +{formatCurrency(pnl.totalDividends)}
-                  </span>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
-                    YoC: {pnl.yieldOnCost}%
-                  </span>
-                </div>
+                    <div className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
+                        {t('inv_savings_maturity_date')}
+                      </span>
+                      <span className="text-sm font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5 block">
+                        {asset.maturityDate || '-'}
+                      </span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                        {asset.termMonths || 0} {t('inv_term_month_unit')}
+                      </span>
+                    </div>
 
-                <div className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
-                    Lãi ròng toàn bộ (Net)
-                  </span>
-                  <span className={`text-sm font-extrabold mt-0.5 block ${
-                    pnl.allTimeNetProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
-                  }`}>
-                    {pnl.allTimeNetProfit >= 0 ? '+' : ''}{formatCurrency(pnl.allTimeNetProfit)}
-                  </span>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
-                    P&L + Chốt + Cổ tức
-                  </span>
-                </div>
-              </div>
+                    <div className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
+                        {t('inv_savings_interest_rate')}
+                      </span>
+                      <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block">
+                        {asset.interestRate || 0}% / {t('inv_year_unit')}
+                      </span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                        {t('inv_savings_interest_rate_hint')}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Market Value & Unrealized P&L Card */}
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-slate-500 dark:text-slate-300">
+                        {t('inv_detail_market_val')}
+                      </span>
+                      <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300">
+                        {asset.quantity.toLocaleString('vi-VN')} {asset.currency} @ {formatCurrency(asset.currentPrice)}
+                      </span>
+                    </div>
+                    <div className="text-2xl font-black text-slate-900 dark:text-white">
+                      {formatCurrency(pnl.currentValue)}
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-300">
+                        {t('inv_detail_unrealized_pnl')}
+                      </span>
+                      <div className={`flex items-center gap-1 font-extrabold text-sm ${
+                        isProfitable ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                      }`}>
+                        {isProfitable ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                        <span>{isProfitable ? '+' : ''}{formatCurrency(pnl.unrealizedPnL)}</span>
+                        <span>({isProfitable ? '+' : ''}{pnl.unrealizedPnLPercent.toFixed(2)}%)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Metrics Grid */}
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
+                        {t('inv_detail_avg_cost')}
+                      </span>
+                      <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block">
+                        {formatCurrency(asset.avgBuyPrice)}
+                      </span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                        {t('inv_detail_total_invested')} {formatCurrency(pnl.investedValue)}
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
+                        {t('inv_detail_realized_pnl')}
+                      </span>
+                      <span className={`text-sm font-extrabold mt-0.5 block ${
+                        pnl.realizedPnL >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                      }`}>
+                        {pnl.realizedPnL >= 0 ? '+' : ''}{formatCurrency(pnl.realizedPnL)}
+                      </span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                        {t('inv_detail_realized_desc')}
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
+                        {t('inv_detail_dividends_collected')}
+                      </span>
+                      <span className="text-sm font-extrabold text-amber-500 dark:text-amber-400 mt-0.5 block">
+                        +{formatCurrency(pnl.totalDividends)}
+                      </span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                        YoC: {pnl.yieldOnCost}%
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
+                        {t('inv_detail_net_profit')}
+                      </span>
+                      <span className={`text-sm font-extrabold mt-0.5 block ${
+                        pnl.allTimeNetProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                      }`}>
+                        {pnl.allTimeNetProfit >= 0 ? '+' : ''}{formatCurrency(pnl.allTimeNetProfit)}
+                      </span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                        {t('inv_detail_net_profit_desc')}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
 
               {/* Holding Period & Strategy Info */}
               <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
                     <Clock size={15} className="text-indigo-600 dark:text-indigo-400" />
-                    <span>Thời gian nắm giữ</span>
+                    <span>{t('inv_detail_holding_time')}</span>
                   </div>
                   <span className="text-xs font-extrabold text-indigo-600 dark:text-indigo-400">
-                    {pnl.holdingPeriodLabel} ({pnl.holdingDays} ngày)
+                    {pnl.holdingDays >= 30
+                      ? `${formatHoldingPeriodText(pnl.holdingDays, t)} (${t('inv_holding_days', { days: pnl.holdingDays })})`
+                      : formatHoldingPeriodText(pnl.holdingDays, t)}
                   </span>
                 </div>
                 <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium">
-                  Mở vị thế lần đầu vào ngày: <span className="font-bold text-slate-700 dark:text-slate-200">{asset.firstBuyDate}</span>
+                  {t('inv_detail_first_buy_date')}: <span className="font-bold text-slate-700 dark:text-slate-200">{asset.firstBuyDate}</span>
                 </div>
 
                 {asset.notes && (
@@ -271,20 +366,20 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-300">
-                  Lịch sử lệnh giao dịch
+                  {t('inv_detail_tab_history')}
                 </span>
                 <button
                   onClick={() => onOpenAddTransaction(asset.id)}
                   className="text-xs font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 hover:underline"
                 >
                   <PlusCircle size={14} />
-                  <span>Thêm lệnh</span>
+                  <span>{t('inv_detail_add_tx')}</span>
                 </button>
               </div>
 
               {transactions.length === 0 ? (
                 <div className="p-6 text-center text-xs text-slate-500 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
-                  Chưa có lịch sử lệnh nào cho mã này.
+                  {t('inv_detail_history_empty')}
                 </div>
               ) : (
                 transactions.map(tx => (
@@ -299,15 +394,28 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                             ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300'
                             : 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300'
                         }`}>
-                          {tx.type === 'buy' ? 'MUA' : 'BÁN'}
+                          {asset.assetClass === 'savings'
+                            ? (tx.type === 'buy' ? t('inv_savings_deposit_amount') : t('inv_savings_withdraw_btn'))
+                            : (tx.type === 'buy' ? t('inv_detail_badge_buy') : t('inv_detail_badge_sell'))}
                         </span>
                         <span className="text-xs font-bold text-slate-900 dark:text-white">
-                          {tx.quantity.toLocaleString('vi-VN')} @ {formatCurrency(tx.pricePerUnit)}
+                          {asset.assetClass === 'savings'
+                            ? formatCurrency(tx.totalAmount)
+                            : `${tx.quantity.toLocaleString('vi-VN')} @ ${formatCurrency(tx.pricePerUnit)}`}
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1 flex items-center gap-2">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1 flex flex-wrap items-center gap-2">
                         <span>{tx.date}</span>
-                        {tx.fees > 0 && <span>Phí: {formatCurrency(tx.fees)}</span>}
+                        {asset.assetClass === 'savings' && tx.termMonths && (
+                          <span>• {tx.termMonths} {t('inv_term_month_unit')}</span>
+                        )}
+                        {asset.assetClass === 'savings' && tx.interestRate && (
+                          <span>• {tx.interestRate}%/{t('inv_year_unit')}</span>
+                        )}
+                        {asset.assetClass === 'savings' && tx.expectedInterest && (
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">• +{formatCurrency(tx.expectedInterest)}</span>
+                        )}
+                        {tx.fees > 0 && <span>• {t('inv_detail_fee_label')}: {formatCurrency(tx.fees)}</span>}
                         {tx.notes && <span className="italic truncate max-w-[120px]">({tx.notes})</span>}
                       </div>
                     </div>
@@ -318,7 +426,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       </span>
                       <button
                         onClick={() => deleteTransaction(tx.id)}
-                        title="Xóa lệnh"
+                        title={t('inv_detail_delete_tx')}
                         className="text-slate-400 hover:text-rose-500 p-1"
                       >
                         <Trash2 size={13} />
@@ -334,7 +442,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-300">
-                  Lịch sử Cổ tức & Lợi tức
+                  {t('inv_detail_tab_dividends')}
                 </span>
                 {onOpenAddDividend && (
                   <button
@@ -342,14 +450,14 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                     className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 hover:underline"
                   >
                     <PlusCircle size={14} />
-                    <span>Ghi nhận cổ tức</span>
+                    <span>{t('inv_div_record_btn')}</span>
                   </button>
                 )}
               </div>
 
               {dividends.length === 0 ? (
                 <div className="p-6 text-center text-xs text-slate-500 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
-                  Chưa có lịch sử cổ tức cho tài sản này.
+                  {t('inv_detail_dividends_empty')}
                 </div>
               ) : (
                 dividends.map(div => (
@@ -360,16 +468,16 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300">
-                          {div.type === 'cash' ? 'TIỀN MẶT' : 'CỔ PHIẾU'}
+                          {div.type === 'cash' ? t('inv_detail_badge_cash') : t('inv_detail_badge_stock')}
                         </span>
                         <span className="text-xs font-bold text-slate-900 dark:text-white">
-                          {div.type === 'cash' ? `+${formatCurrency(div.amountOrQuantity)}` : `+${div.amountOrQuantity} CP`}
+                          {div.type === 'cash' ? `+${formatCurrency(div.amountOrQuantity)}` : `+${div.amountOrQuantity} ${t('inv_detail_unit_shares')}`}
                         </span>
                       </div>
                       <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1 flex items-center gap-2">
                         <span>{div.date}</span>
                         {div.taxDeducted && div.taxDeducted > 0 ? (
-                          <span>Thuế: {formatCurrency(div.taxDeducted)}</span>
+                          <span>{t('inv_div_tax_label') || t('inv_tx_tax')}: {formatCurrency(div.taxDeducted)}</span>
                         ) : null}
                         {div.notes && <span className="italic truncate max-w-[120px]">({div.notes})</span>}
                       </div>
@@ -388,7 +496,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
               <button
                 onClick={() => setShowDeleteConfirm(true)}
                 className="p-3 rounded-2xl border border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition"
-                title="Xóa mã này khỏi danh mục"
+                title={t('inv_detail_delete_asset')}
               >
                 <Trash2 size={18} />
               </button>
@@ -397,26 +505,26 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                 className="flex-1 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold text-sm shadow-md shadow-indigo-500/25 flex items-center justify-center gap-1.5 transition"
               >
                 <PlusCircle size={18} />
-                <span>Thêm lệnh Mua / Bán</span>
+                <span>{t('inv_detail_add_tx_btn')}</span>
               </button>
             </>
           ) : (
             <div className="w-full flex items-center justify-between p-2 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 gap-2">
               <span className="text-xs font-bold text-rose-700 dark:text-rose-300">
-                Xác nhận xóa tài sản này?
+                {t('inv_detail_confirm_delete')}
               </span>
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
                   className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
                 >
-                  Hủy
+                  {t('inv_price_cancel') || t('cancel')}
                 </button>
                 <button
                   onClick={handleDelete}
                   className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600 text-white"
                 >
-                  Xóa vĩnh viễn
+                  {t('inv_detail_delete_permanent')}
                 </button>
               </div>
             </div>

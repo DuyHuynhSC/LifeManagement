@@ -22,6 +22,8 @@ import {
 import { useInvestmentStore } from '../../store/useInvestmentStore';
 import { groupDividendsByMonth } from '../../services/investmentCalculator';
 import { DividendRecord, InvestmentAsset } from '../../types/investment';
+import { useAppStore } from '../../store/useAppStore';
+import { getTranslation } from '../../i18n';
 
 interface DividendTrackerViewProps {
   onOpenAddDividend: () => void;
@@ -32,6 +34,9 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
   onOpenAddDividend,
   onSelectAsset
 }) => {
+  const { settings } = useAppStore();
+  const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
+
   const { assets, dividends, deleteDividend, portfolioSummary } = useInvestmentStore();
 
   const currentYear = new Date().getFullYear();
@@ -71,7 +76,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
               <Coins size={18} />
             </div>
             <span className="text-xs uppercase font-extrabold tracking-wider text-amber-100">
-              Dòng tiền Cổ tức & Lợi tức
+              {t('inv_div_view_title')}
             </span>
           </div>
 
@@ -80,7 +85,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
             className="flex items-center gap-1 bg-white/20 hover:bg-white/30 active:scale-95 text-white font-extrabold text-xs px-2.5 py-1.5 rounded-xl backdrop-blur-sm border border-white/20 transition"
           >
             <Plus size={14} />
-            <span>Ghi nhận cổ tức</span>
+            <span>{t('inv_div_record_btn')}</span>
           </button>
         </div>
 
@@ -90,7 +95,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
             +{formatCurrency(portfolioSummary.totalDividendsReceived)}
           </div>
           <p className="text-xs text-amber-100 font-medium mt-0.5">
-            Tổng thu nhập thụ động đã tích lũy toàn bộ thời gian
+            {t('inv_div_hero_desc')}
           </p>
         </div>
 
@@ -98,7 +103,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
         <div className="grid grid-cols-3 gap-2 mt-4 pt-3.5 border-t border-white/15">
           <div>
             <span className="text-[11px] text-amber-200 font-medium block">
-              Trong năm {selectedYear}
+              {t('inv_div_in_year', { year: selectedYear })}
             </span>
             <span className="text-xs sm:text-sm font-extrabold text-white mt-0.5 block">
               +{formatCurrency(totalInYear)}
@@ -107,7 +112,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
 
           <div>
             <span className="text-[11px] text-amber-200 font-medium block">
-              TB mỗi tháng
+              {t('inv_div_monthly_avg')}
             </span>
             <span className="text-xs sm:text-sm font-extrabold text-white mt-0.5 block">
               +{formatCurrency(monthlyAvg)}
@@ -116,10 +121,10 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
 
           <div>
             <span className="text-[11px] text-amber-200 font-medium block">
-              Tỷ suất (YoC)
+              {t('inv_div_yoc_rate')}
             </span>
             <span className="text-xs sm:text-sm font-extrabold text-amber-200 mt-0.5 block">
-              {avgYieldOnCost.toFixed(2)}%/năm
+              {avgYieldOnCost.toFixed(2)}% / {t('inv_holding_years').replace('{years}', '').trim() || 'năm'}
             </span>
           </div>
         </div>
@@ -130,10 +135,10 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
-              <span>Biểu đồ Dòng tiền 12 Tháng</span>
+              <span>{t('inv_div_chart_title')}</span>
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-300 font-medium">
-              Dòng tiền cổ tức thực thu theo từng tháng
+              {t('inv_div_chart_subtitle')}
             </p>
           </div>
 
@@ -172,7 +177,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
                 tickFormatter={(val) => val >= 1000000 ? `${(val / 1000000).toFixed(1)}M` : `${(val / 1000).toFixed(0)}k`}
               />
               <Tooltip 
-                formatter={(val: any) => [formatCurrency(Number(val)), 'Cổ tức thực thu']}
+                formatter={(val: any) => [formatCurrency(Number(val)), t('inv_div_chart_received')]}
                 contentStyle={{
                   backgroundColor: '#1e293b',
                   borderColor: '#334155',
@@ -200,14 +205,14 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
-            Nhật ký Nhận Cổ tức năm {selectedYear} ({filteredDividends.length})
+            {t('inv_div_log_title', { year: selectedYear })} ({filteredDividends.length})
           </h3>
           <button
             onClick={onOpenAddDividend}
             className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 hover:underline"
           >
             <Plus size={14} />
-            <span>Thêm cổ tức</span>
+            <span>{t('inv_action_add_div')}</span>
           </button>
         </div>
 
@@ -215,10 +220,10 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
           <div className="p-8 text-center bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 space-y-1.5">
             <Coins size={32} className="mx-auto text-slate-400" />
             <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
-              Chưa có khoản cổ tức nào trong năm {selectedYear}
+              {t('inv_div_empty_year', { year: selectedYear })}
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-300">
-              Nhấn "+ Ghi nhận cổ tức" để lưu lại các khoản chia cổ tức hoặc lãi gửi tiết kiệm.
+              {t('inv_div_empty_year_desc')}
             </p>
           </div>
         ) : (
@@ -246,7 +251,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
                           ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
                           : 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300'
                       }`}>
-                        {div.type === 'cash' ? 'TIỀN MẶT' : 'CỔ PHIẾU'}
+                        {div.type === 'cash' ? t('inv_div_badge_cash') : t('inv_div_badge_stock')}
                       </span>
                       {div.reinvested && (
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300">
@@ -257,7 +262,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
                     <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium mt-0.5 flex items-center gap-2">
                       <span>{div.date}</span>
                       {div.taxDeducted && div.taxDeducted > 0 ? (
-                        <span>Thuế: {formatCurrency(div.taxDeducted)}</span>
+                        <span>{t('inv_div_tax_label')}: {formatCurrency(div.taxDeducted)}</span>
                       ) : null}
                       {div.notes && <span className="italic truncate max-w-[130px]">({div.notes})</span>}
                     </div>
@@ -271,7 +276,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
                     </span>
                     {div.type === 'cash' && div.taxDeducted && div.taxDeducted > 0 ? (
                       <span className="text-[10px] text-slate-400 font-medium block">
-                        Gốc: {formatCurrency(div.amountOrQuantity)}
+                        {t('inv_div_gross_label')}: {formatCurrency(div.amountOrQuantity)}
                       </span>
                     ) : null}
                   </div>

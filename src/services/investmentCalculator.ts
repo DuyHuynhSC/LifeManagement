@@ -52,6 +52,57 @@ export function calculateHoldingPeriod(
 }
 
 /**
+ * Format localized holding period string
+ */
+export function formatHoldingPeriodText(
+  days: number,
+  t: (key: any, params?: any) => string
+): string {
+  if (days >= 365) {
+    const years = Math.floor(days / 365);
+    const remainingDays = days % 365;
+    const months = Math.floor(remainingDays / 30);
+    return months > 0
+      ? `${t('inv_holding_years', { years })} ${t('inv_holding_months', { months })}`
+      : t('inv_holding_years', { years });
+  } else if (days >= 30) {
+    const months = Math.floor(days / 30);
+    const remainingDays = days % 30;
+    return remainingDays > 0
+      ? `${t('inv_holding_months', { months })} ${t('inv_holding_days', { days: remainingDays })}`
+      : t('inv_holding_months', { months });
+  }
+  return t('inv_holding_days', { days });
+}
+
+/**
+ * Get localized holding category label
+ */
+export function getHoldingCategoryLabel(
+  category: HoldingCategory,
+  t: (key: any) => string
+): string {
+  switch (category) {
+    case 'long_term':
+      return t('inv_term_long');
+    case 'medium_term':
+      return t('inv_term_medium');
+    default:
+      return t('inv_term_short');
+  }
+}
+
+/**
+ * Get localized asset class label
+ */
+export function getAssetClassLabel(
+  assetClass: AssetClass,
+  t: (key: any) => string
+): string {
+  return t(`inv_class_${assetClass}` as any) || ASSET_CLASS_LABELS[assetClass] || assetClass;
+}
+
+/**
  * Tính lại giá vốn trung bình (DCA - Dollar Cost Averaging) khi thực hiện lệnh Mua mới
  */
 export function calculateNewDCAPrice(

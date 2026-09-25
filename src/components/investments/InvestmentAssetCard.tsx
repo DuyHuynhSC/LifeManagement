@@ -9,10 +9,18 @@ import {
   ShieldCheck,
   Zap,
   Building,
-  CircleDollarSign
+  CircleDollarSign,
+  Calendar,
+  PiggyBank
 } from 'lucide-react';
 import { InvestmentAsset, AssetPnL, AssetClass } from '../../types/investment';
-import { ASSET_CLASS_LABELS, ASSET_CLASS_COLORS } from '../../services/investmentCalculator';
+import { 
+  ASSET_CLASS_COLORS, 
+  getAssetClassLabel, 
+  formatHoldingPeriodText 
+} from '../../services/investmentCalculator';
+import { useAppStore } from '../../store/useAppStore';
+import { getTranslation } from '../../i18n';
 
 interface InvestmentAssetCardProps {
   asset: InvestmentAsset;
@@ -27,31 +35,36 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
   onSelectAsset,
   onQuickUpdatePrice
 }) => {
+  const { settings } = useAppStore();
+  const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
+
   const isProfitable = pnl.unrealizedPnL >= 0;
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
   };
 
+  const holdingPeriodStr = formatHoldingPeriodText(pnl.holdingDays, t);
+
   const getHoldingBadge = () => {
     switch (pnl.holdingCategory) {
       case 'long_term':
         return {
-          label: `Dài hạn (${pnl.holdingPeriodLabel})`,
+          label: `${t('inv_term_long')} (${holdingPeriodStr})`,
           bgColor: 'bg-emerald-50 dark:bg-emerald-950/60',
           textColor: 'text-emerald-700 dark:text-emerald-300',
           borderColor: 'border-emerald-200 dark:border-emerald-800'
         };
       case 'medium_term':
         return {
-          label: `Trung hạn (${pnl.holdingPeriodLabel})`,
+          label: `${t('inv_term_medium')} (${holdingPeriodStr})`,
           bgColor: 'bg-blue-50 dark:bg-blue-950/60',
           textColor: 'text-blue-700 dark:text-blue-300',
           borderColor: 'border-blue-200 dark:border-blue-800'
         };
       default:
         return {
-          label: `Ngắn hạn (${pnl.holdingPeriodLabel})`,
+          label: `${t('inv_term_short')} (${holdingPeriodStr})`,
           bgColor: 'bg-amber-50 dark:bg-amber-950/60',
           textColor: 'text-amber-700 dark:text-amber-300',
           borderColor: 'border-amber-200 dark:border-amber-800'
@@ -89,7 +102,7 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
                   color: classColor
                 }}
               >
-                {ASSET_CLASS_LABELS[asset.assetClass]}
+                {getAssetClassLabel(asset.assetClass, t)}
               </span>
             </div>
             <p className="text-xs font-medium text-slate-500 dark:text-slate-300 truncate max-w-[170px] sm:max-w-xs mt-0.5">
@@ -104,65 +117,111 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
             e.stopPropagation();
             onQuickUpdatePrice?.(asset);
           }}
-          title="Sửa giá thị trường"
+          title={asset.assetClass === 'savings' ? t('inv_card_edit_savings') : t('inv_card_edit_price')}
           className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 flex items-center justify-center transition shrink-0"
         >
           <Edit3 size={15} />
         </button>
       </div>
 
-      {/* Middle Row: Quantity & Current Value */}
-      <div className="grid grid-cols-2 gap-3 my-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/80">
-        <div>
-          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
-            Đang nắm giữ
-          </span>
-          <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block">
-            {asset.quantity.toLocaleString('vi-VN')} {asset.currency}
-          </span>
-          <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium">
-            Giá vốn: {formatCurrency(asset.avgBuyPrice)}
-          </span>
-        </div>
+      {/* Middle Row: Quantity & Current Value (or Savings Details) */}
+      {asset.assetClass === 'savings' ? (
+        <div className="grid grid-cols-2 gap-3 my-3 p-3 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40">
+          <div>
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
+              {t('inv_savings_deposit_principal')}
+            </span>
+            <span className="text-sm font-black text-slate-900 dark:text-white mt-0.5 block">
+              {formatCurrency(asset.avgBuyPrice)}
+            </span>
+            <span className="text-[10px] text-amber-700 dark:text-amber-400 font-bold">
+              {asset.termMonths || 0} {t('inv_term_month_unit')} • {asset.interestRate || 0}%/{t('inv_year_unit')}
+            </span>
+          </div>
 
-        <div className="text-right">
-          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
-            Giá trị thị trường
-          </span>
-          <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block">
-            {formatCurrency(pnl.currentValue)}
-          </span>
-          <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium">
-            Giá TT: {formatCurrency(asset.currentPrice)}
-          </span>
+          <div className="text-right">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
+              {t('inv_savings_total_maturity')}
+            </span>
+            <span className="text-sm font-black text-slate-900 dark:text-white mt-0.5 block">
+              {formatCurrency(asset.avgBuyPrice + (asset.expectedInterest || 0))}
+            </span>
+            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+              +{formatCurrency(asset.expectedInterest || 0)} {t('inv_savings_expected_interest')}
+            </span>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 my-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/80">
+          <div>
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
+              {t('inv_card_holding')}
+            </span>
+            <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block">
+              {asset.quantity.toLocaleString('vi-VN')} {asset.currency}
+            </span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium">
+              {t('inv_card_avg_cost')}: {formatCurrency(asset.avgBuyPrice)}
+            </span>
+          </div>
+
+          <div className="text-right">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
+              {t('inv_card_market_val')}
+            </span>
+            <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block">
+              {formatCurrency(pnl.currentValue)}
+            </span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium">
+              {t('inv_card_market_price')}: {formatCurrency(asset.currentPrice)}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Bottom Row: P&L Pill, Holding Period Badge, Dividend Info */}
       <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-700/60">
-        {/* P&L */}
-        <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-extrabold ${
-          isProfitable 
-            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' 
-            : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
-        }`}>
-          {isProfitable ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-          <span>{isProfitable ? '+' : ''}{formatCurrency(pnl.unrealizedPnL)}</span>
-          <span>({isProfitable ? '+' : ''}{pnl.unrealizedPnLPercent.toFixed(2)}%)</span>
-        </div>
+        {asset.assetClass === 'savings' ? (
+          <>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+              <PiggyBank size={14} />
+              <span>+{formatCurrency(asset.expectedInterest || 0)}</span>
+            </div>
 
-        {/* Holding Period Badge */}
-        <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold border ${holdingBadge.bgColor} ${holdingBadge.textColor} ${holdingBadge.borderColor}`}>
-          <Clock size={12} />
-          <span>{holdingBadge.label}</span>
-        </div>
+            {asset.maturityDate && (
+              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                <Calendar size={13} />
+                <span>{t('inv_savings_maturity_short')}: {asset.maturityDate}</span>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {/* P&L */}
+            <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-extrabold ${
+              isProfitable 
+                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' 
+                : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+            }`}>
+              {isProfitable ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+              <span>{isProfitable ? '+' : ''}{formatCurrency(pnl.unrealizedPnL)}</span>
+              <span>({isProfitable ? '+' : ''}{pnl.unrealizedPnLPercent.toFixed(2)}%)</span>
+            </div>
 
-        {/* Dividend Yield on Cost (if > 0) */}
-        {pnl.totalDividends > 0 && (
-          <div className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-lg border border-amber-200 dark:border-amber-800">
-            <Coins size={12} />
-            <span>Cổ tức: +{formatCurrency(pnl.totalDividends)} (YoC: {pnl.yieldOnCost}%)</span>
-          </div>
+            {/* Holding Period Badge */}
+            <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold border ${holdingBadge.bgColor} ${holdingBadge.textColor} ${holdingBadge.borderColor}`}>
+              <Clock size={12} />
+              <span>{holdingBadge.label}</span>
+            </div>
+
+            {/* Dividend Yield on Cost (if > 0) */}
+            {pnl.totalDividends > 0 && (
+              <div className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-lg border border-amber-200 dark:border-amber-800">
+                <Coins size={12} />
+                <span>{t('inv_total_dividends')}: +{formatCurrency(pnl.totalDividends)} ({t('inv_card_dividend_yoc')}: {pnl.yieldOnCost}%)</span>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

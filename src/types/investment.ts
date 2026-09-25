@@ -35,6 +35,12 @@ export interface InvestmentAsset {
   targetPrice?: number;       // Giá mục tiêu chốt lời
   stopLossPrice?: number;     // Giá cắt lỗ
   iconUrl?: string;
+
+  // Thuộc tính riêng cho Tiết kiệm ngân hàng / Tiền gửi có kỳ hạn
+  interestRate?: number;       // Lãi suất năm (%/năm, ví dụ: 5.5)
+  termMonths?: number;         // Kỳ hạn gửi tính theo tháng (ví dụ: 1, 3, 6, 12...)
+  maturityDate?: string;       // Ngày đáo hạn (YYYY-MM-DD)
+  expectedInterest?: number;   // Tiền lãi dự kiến khi tới kỳ (VND)
 }
 
 export interface InvestmentTransaction {
@@ -48,6 +54,12 @@ export interface InvestmentTransaction {
   tax: number;                // Thuế TNCN (nếu có)
   totalAmount: number;        // Tổng số tiền giao dịch
   notes?: string;
+
+  // Thuộc tính riêng cho Tiết kiệm
+  interestRate?: number;       // Lãi suất năm (%/năm)
+  termMonths?: number;         // Kỳ hạn gửi (tháng)
+  maturityDate?: string;       // Ngày đáo hạn (YYYY-MM-DD)
+  expectedInterest?: number;   // Tiền lãi dự kiến khi tới kỳ (VND)
 }
 
 export interface DividendRecord {

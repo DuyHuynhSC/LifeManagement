@@ -7,14 +7,19 @@ import {
   Tooltip 
 } from 'recharts';
 import { PortfolioSummary, AssetClass } from '../../types/investment';
-import { ASSET_CLASS_COLORS } from '../../services/investmentCalculator';
+import { ASSET_CLASS_COLORS, getAssetClassLabel } from '../../services/investmentCalculator';
 import { PieChart as PieChartIcon } from 'lucide-react';
+import { useAppStore } from '../../store/useAppStore';
+import { getTranslation } from '../../i18n';
 
 interface AssetAllocationChartProps {
   summary: PortfolioSummary;
 }
 
 export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summary }) => {
+  const { settings } = useAppStore();
+  const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
+
   const data = summary.allocationByClass.filter(item => item.value > 0);
 
   const formatCurrency = (val: number) => {
@@ -24,7 +29,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summ
   if (data.length === 0) {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700/80 shadow-sm text-center">
-        <p className="text-xs text-slate-500 dark:text-slate-300 font-medium">Chưa có dữ liệu danh mục để phân bổ</p>
+        <p className="text-xs text-slate-500 dark:text-slate-300 font-medium">{t('inv_chart_no_data')}</p>
       </div>
     );
   }
@@ -32,17 +37,17 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summ
   return (
     <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-3">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-7 h-7 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
             <PieChartIcon size={16} />
           </div>
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
-            Cơ cấu Phân bổ Danh mục
+          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
+            {t('inv_chart_title')}
           </h3>
         </div>
-        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300">
-          {data.length} nhóm tài sản
+        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300 shrink-0 whitespace-nowrap bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-lg">
+          {data.length} {t('inv_chart_subtitle')}
         </span>
       </div>
 
@@ -51,7 +56,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summ
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Tooltip 
-              formatter={(value: any) => [formatCurrency(Number(value)), 'Giá trị']}
+              formatter={(value: any) => [formatCurrency(Number(value)), t('inv_chart_value')]}
               contentStyle={{
                 backgroundColor: '#1e293b',
                 borderColor: '#334155',
@@ -85,7 +90,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summ
         {/* Center text inside Donut */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
           <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-300 leading-tight">
-            Tỷ trọng
+            {t('inv_chart_proportion')}
           </span>
           <span className="text-xs font-black text-slate-900 dark:text-white">
             100%
@@ -109,7 +114,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summ
                   style={{ backgroundColor: color }} 
                 />
                 <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                  {item.label}
+                  {getAssetClassLabel(item.assetClass as AssetClass, t)}
                 </span>
               </div>
 

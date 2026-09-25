@@ -14,8 +14,11 @@ import { useInvestmentStore } from '../../store/useInvestmentStore';
 import { InvestmentAsset } from '../../types/investment';
 import { 
   calculateStockDividendAdjustment, 
-  ASSET_CLASS_LABELS 
+  ASSET_CLASS_LABELS,
+  getAssetClassLabel
 } from '../../services/investmentCalculator';
+import { useAppStore } from '../../store/useAppStore';
+import { getTranslation } from '../../i18n';
 
 interface AddDividendModalProps {
   initialAssetId?: string;
@@ -28,6 +31,9 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
   onClose,
   onSuccess
 }) => {
+  const { settings } = useAppStore();
+  const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
+
   const { assets, addDividend } = useInvestmentStore();
 
   const [selectedAssetId, setSelectedAssetId] = useState<string>(
@@ -74,11 +80,11 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
     setError('');
 
     if (!selectedAssetId) {
-      setError('Vui lòng chọn tài sản nhận cổ tức');
+      setError(t('inv_div_require_asset'));
       return;
     }
     if (numAmount <= 0) {
-      setError(`Vui lòng nhập ${divType === 'cash' ? 'số tiền cổ tức' : 'số lượng cổ phiếu nhận thêm'} hợp lệ`);
+      setError(t('inv_div_invalid_amount'));
       return;
     }
 
@@ -117,10 +123,10 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">
-                Ghi nhận Cổ tức & Lợi tức
+                {t('inv_div_title')}
               </h3>
               <p className="text-xs font-medium text-slate-500 dark:text-slate-300">
-                Thu nhập thụ động từ cổ tức tiền mặt, cổ phiếu hoặc staking
+                {t('inv_div_subtitle')}
               </p>
             </div>
           </div>
@@ -144,7 +150,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
             }`}
           >
             <Coins size={16} />
-            <span>Tiền mặt / Tiền lãi</span>
+            <span>{t('inv_div_type_cash')}</span>
           </button>
 
           <button
@@ -157,7 +163,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
             }`}
           >
             <Layers size={16} />
-            <span>Cổ phiếu / Thưởng CP</span>
+            <span>{t('inv_div_type_stock')}</span>
           </button>
         </div>
 
@@ -165,7 +171,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
           {/* Select Asset */}
           <div>
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
-              Chọn Tài sản
+              {t('inv_div_select_asset')}
             </label>
             <select
               value={selectedAssetId}
@@ -174,7 +180,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
             >
               {assets.map(a => (
                 <option key={a.id} value={a.id}>
-                  {a.symbol} - {a.name} ({ASSET_CLASS_LABELS[a.assetClass]})
+                  {a.symbol} - {a.name} ({getAssetClassLabel(a.assetClass, t)})
                 </option>
               ))}
             </select>
@@ -183,7 +189,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
           {/* Date Picker */}
           <div>
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
-              Ngày nhận cổ tức / tiền lãi
+              {t('inv_div_date_label')}
             </label>
             <input
               type="date"
@@ -198,7 +204,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
             <>
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
-                  Số tiền cổ tức nhận được (đ) *
+                  {t('inv_div_cash_amount_label')}
                 </label>
                 <input
                   type="text"
@@ -213,14 +219,14 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
-                    Thuế TNCN khấu trừ (đ)
+                    {t('inv_div_tax_label')}
                   </label>
                   <button
                     type="button"
                     onClick={handleApply5PercentTax}
                     className="text-[11px] font-bold text-amber-600 dark:text-amber-400 hover:underline"
                   >
-                    Áp dụng 5% thuế (cổ phiếu VN)
+                    {t('inv_div_apply_tax_btn')}
                   </button>
                 </div>
                 <input
@@ -236,7 +242,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
               {/* Net Cash Preview */}
               {numAmount > 0 && (
                 <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-between text-xs">
-                  <span className="font-bold text-amber-900 dark:text-amber-200">Thực thu về ví:</span>
+                  <span className="font-bold text-amber-900 dark:text-amber-200">{t('inv_div_net_received')}:</span>
                   <span className="font-black text-amber-800 dark:text-amber-300 text-sm">
                     +{formatCurrency(netReceived)}
                   </span>
@@ -253,10 +259,10 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
                 />
                 <div>
                   <span className="text-xs font-bold text-slate-900 dark:text-white block">
-                    Tái đầu tư (DRIP)
+                    {t('inv_div_drip_label')}
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-slate-300 font-medium">
-                    Tự động dùng tiền cổ tức mua tích sản thêm cổ phiếu/token
+                    {t('inv_div_drip_desc')}
                   </span>
                 </div>
               </label>
@@ -266,7 +272,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
             <>
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
-                  Số lượng Cổ phiếu / Token nhận thêm *
+                  {t('inv_div_stock_amount_label')}
                 </label>
                 <input
                   type="text"
@@ -282,19 +288,19 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
               {stockDilutionPreview && selectedAsset && (
                 <div className="p-3 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-1.5 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-slate-600 dark:text-slate-300">Số lượng mới:</span>
+                    <span className="font-semibold text-slate-600 dark:text-slate-300">{t('inv_div_new_qty_label')}:</span>
                     <span className="font-black text-slate-900 dark:text-white">
                       {selectedAsset.quantity.toLocaleString('vi-VN')} ➔ {stockDilutionPreview.newQuantity.toLocaleString('vi-VN')} CP
                     </span>
                   </div>
                   <div className="flex items-center justify-between pt-1 border-t border-indigo-100 dark:border-indigo-900">
-                    <span className="font-semibold text-slate-600 dark:text-slate-300">Giá vốn pha loãng (DCA mới):</span>
+                    <span className="font-semibold text-slate-600 dark:text-slate-300">{t('inv_div_new_dca_label')}:</span>
                     <span className="font-black text-indigo-700 dark:text-indigo-300">
                       {formatCurrency(stockDilutionPreview.newAvgPrice)} / CP
                     </span>
                   </div>
                   <p className="text-[10px] text-slate-500 dark:text-slate-300 font-medium italic mt-1">
-                    * Giá vốn trung bình tự động giảm do tổng vốn đầu tư không đổi nhưng số lượng cổ phần tăng.
+                    {t('inv_div_dilution_note')}
                   </p>
                 </div>
               )}
@@ -304,13 +310,13 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
           {/* Notes */}
           <div>
             <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
-              Ghi chú (Đợt chi trả, tỷ lệ %)
+              {t('inv_div_notes_label')}
             </label>
             <input
               type="text"
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              placeholder="VD: Cổ tức đợt 2/2025 (tỷ lệ 15% tiền mặt)"
+              placeholder={t('inv_div_notes_placeholder')}
               className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
@@ -326,14 +332,14 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
               onClick={onClose}
               className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition"
             >
-              Hủy
+              {t('inv_div_cancel_btn')}
             </button>
             <button
               type="submit"
               className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-amber-500/25 flex items-center justify-center gap-1.5 transition"
             >
               <Check size={16} />
-              <span>Lưu Cổ tức</span>
+              <span>{t('inv_div_save_btn')}</span>
             </button>
           </div>
         </form>

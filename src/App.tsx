@@ -20,7 +20,25 @@ import { Asset, Expense, ExpenseCategory } from './types';
 
 export const App: React.FC = () => {
   const { assets, settings, addExpense, addAsset, currentUser } = useAppStore();
-  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    try {
+      const saved = localStorage.getItem('famlife_active_tab') as TabType;
+      if (saved && ['dashboard', 'assets', 'expenses', 'investments', 'iot', 'family', 'game', 'settings'].includes(saved)) {
+        return saved;
+      }
+    } catch {
+      // ignore
+    }
+    return 'dashboard';
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('famlife_active_tab', activeTab);
+    } catch {
+      // ignore
+    }
+  }, [activeTab]);
 
   // Modals state
   const [showAddExpense, setShowAddExpense] = useState(false);

@@ -115,11 +115,44 @@ export const useInvestmentStore = () => {
   };
 
   const updateAsset = (id: string, updates: Partial<InvestmentAsset>) => {
+    const targetAsset = globalState.assets.find(a => a.id === id);
+    let updatedTransactions = globalState.transactions;
+
+    if (targetAsset && targetAsset.assetClass === 'savings') {
+      // Synchronize latest transaction for savings
+      updatedTransactions = globalState.transactions.map(t => {
+        if (t.assetId === id) {
+          const newPrincipal = updates.avgBuyPrice !== undefined ? updates.avgBuyPrice : t.totalAmount;
+          return {
+            ...t,
+            pricePerUnit: newPrincipal,
+            totalAmount: newPrincipal,
+            interestRate: updates.interestRate !== undefined ? updates.interestRate : t.interestRate,
+            termMonths: updates.termMonths !== undefined ? updates.termMonths : t.termMonths,
+            maturityDate: updates.maturityDate !== undefined ? updates.maturityDate : t.maturityDate,
+            expectedInterest: updates.expectedInterest !== undefined ? updates.expectedInterest : t.expectedInterest,
+            date: updates.firstBuyDate !== undefined ? updates.firstBuyDate : t.date,
+            notes: updates.notes !== undefined ? updates.notes : t.notes
+          };
+        }
+        return t;
+      });
+    }
+
+    let updatedAsset: InvestmentAsset | undefined;
     globalState = {
       ...globalState,
-      assets: globalState.assets.map(a => a.id === id ? { ...a, ...updates } : a)
+      assets: globalState.assets.map(a => {
+        if (a.id === id) {
+          updatedAsset = { ...a, ...updates };
+          return updatedAsset;
+        }
+        return a;
+      }),
+      transactions: updatedTransactions
     };
     notify();
+    return updatedAsset;
   };
 
   const updateAssetPrice = (id: string, currentPrice: number) => {
@@ -171,8 +204,18 @@ export const useInvestmentStore = () => {
 
     const avgBuyPrice = totalQty > 0 ? Math.round((totalCost / totalQty) * 100) / 100 : asset.avgBuyPrice;
 
+    const latestTx = assetTx[assetTx.length - 1];
+    const extraUpdates: Partial<InvestmentAsset> = {};
+    if (asset.assetClass === 'savings' && latestTx) {
+      if (latestTx.interestRate !== undefined) extraUpdates.interestRate = latestTx.interestRate;
+      if (latestTx.termMonths !== undefined) extraUpdates.termMonths = latestTx.termMonths;
+      if (latestTx.maturityDate !== undefined) extraUpdates.maturityDate = latestTx.maturityDate;
+      if (latestTx.expectedInterest !== undefined) extraUpdates.expectedInterest = latestTx.expectedInterest;
+      extraUpdates.currentPrice = avgBuyPrice;
+    }
+
     globalState.assets = globalState.assets.map(a => 
-      a.id === assetId ? { ...a, quantity: totalQty, avgBuyPrice } : a
+      a.id === assetId ? { ...a, quantity: totalQty, avgBuyPrice, ...extraUpdates } : a
     );
   };
 

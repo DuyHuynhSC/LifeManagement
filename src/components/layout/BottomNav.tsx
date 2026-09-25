@@ -43,7 +43,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     { id: 'expenses', label: t('nav_expenses'), icon: Wallet },
     { 
       id: 'investments', 
-      label: settings.language === 'vi' ? 'Đầu tư' : settings.language === 'ja' ? '投資' : 'Invest', 
+      label: t('nav_investments'), 
       icon: TrendingUp 
     },
   ];

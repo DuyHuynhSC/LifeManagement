@@ -1,15 +1,15 @@
 import React from 'react';
-import { 
-  AlertTriangle, 
-  PlusCircle, 
-  Mic, 
-  QrCode, 
-  FileText, 
-  Sparkles, 
-  ChevronRight, 
-  ArrowUpRight, 
-  Wrench, 
-  CheckCircle2, 
+import {
+  AlertTriangle,
+  PlusCircle,
+  Mic,
+  QrCode,
+  FileText,
+  Sparkles,
+  ChevronRight,
+  ArrowUpRight,
+  Wrench,
+  CheckCircle2,
   ShieldAlert,
   Zap,
   TrendingUp
@@ -44,7 +44,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
   // Calculate urgent alerts based on settings.notifyDaysBeforeExpiry
   const today = new Date();
-  
+
   // 1. Warranty expiring items
   const warrantyExpiringAssets = assets.filter(asset => {
     const exp = new Date(asset.warrantyExpiryDate);
@@ -233,7 +233,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
       </div>
 
       {/* Monthly Budget Summary Card */}
-      <div 
+      <div
         onClick={() => onNavigateTab('expenses')}
         className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-indigo-400 transition space-y-3"
       >
@@ -250,15 +250,14 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
             </div>
           </div>
           <div className="text-right">
-            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-              totalBudget === 0
-                ? 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
-                : budgetRatio >= 90 
-                ? 'bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400' 
-                : budgetRatio >= 70 
-                ? 'bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400'
-                : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400'
-            }`}>
+            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${totalBudget === 0
+              ? 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+              : budgetRatio >= 90
+                ? 'bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400'
+                : budgetRatio >= 70
+                  ? 'bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400'
+                  : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400'
+              }`}>
               {totalBudget > 0 ? `${budgetRatio}%` : 'Chưa đặt'}
             </span>
           </div>
@@ -266,20 +265,19 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
         {/* Progress bar */}
         <div className="w-full bg-slate-100 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
-          <div 
-            className={`h-full rounded-full transition-all duration-500 ${
-              budgetRatio >= 90 ? 'bg-rose-500' : budgetRatio >= 70 ? 'bg-amber-500' : 'bg-indigo-600'
-            }`}
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${budgetRatio >= 90 ? 'bg-rose-500' : budgetRatio >= 70 ? 'bg-amber-500' : 'bg-indigo-600'
+              }`}
             style={{ width: `${totalBudget > 0 ? budgetRatio : 0}%` }}
           />
         </div>
 
         <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-300 pt-0.5">
           <span>
-            {totalBudget > 0 
+            {totalBudget > 0
               ? (currentMonthExpenses > totalBudget
-                  ? `Vượt: ${(currentMonthExpenses - totalBudget).toLocaleString('vi-VN')} đ`
-                  : `${t('dash_remaining_budget')}: ${(totalBudget - currentMonthExpenses).toLocaleString('vi-VN')} đ`)
+                ? `Vượt: ${(currentMonthExpenses - totalBudget).toLocaleString('vi-VN')} đ`
+                : `${t('dash_remaining_budget')}: ${(totalBudget - currentMonthExpenses).toLocaleString('vi-VN')} đ`)
               : 'Chưa thiết lập ngân sách'}
           </span>
           <span className="flex items-center gap-0.5 text-indigo-600 dark:text-indigo-400 font-semibold">
@@ -289,7 +287,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
       </div>
 
       {/* Investment Portfolio Summary Card */}
-      <div 
+      <div
         onClick={() => onNavigateTab('investments')}
         className="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-2xl p-4 border border-indigo-800/80 shadow-md cursor-pointer hover:border-indigo-400 transition space-y-2 text-white relative overflow-hidden"
       >
@@ -299,14 +297,13 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
               <TrendingUp size={16} />
             </div>
             <span className="text-xs font-bold text-indigo-200 uppercase tracking-wider">
-              Danh mục Đầu tư
+              {t('inv_dash_card_title')}
             </span>
           </div>
-          <span className={`text-[11px] font-black px-2 py-0.5 rounded-full ${
-            portfolioSummary.totalUnrealizedPnL >= 0 
-              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
-              : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-          }`}>
+          <span className={`text-[11px] font-black px-2 py-0.5 rounded-full ${portfolioSummary.totalUnrealizedPnL >= 0
+            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+            : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+            }`}>
             {portfolioSummary.totalUnrealizedPnL >= 0 ? '+' : ''}{portfolioSummary.unrealizedPnLPercent.toFixed(2)}%
           </span>
         </div>
@@ -317,17 +314,16 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
               {portfolioSummary.currentMarketValue.toLocaleString('vi-VN')} đ
             </div>
             <div className="text-[11px] text-slate-300 font-medium">
-              Vốn: {portfolioSummary.totalInvested.toLocaleString('vi-VN')} đ
+              {t('inv_invested_capital')}: {portfolioSummary.totalInvested.toLocaleString('vi-VN')} đ
             </div>
           </div>
           <div className="text-right">
-            <span className={`text-xs font-extrabold block ${
-              portfolioSummary.totalUnrealizedPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'
-            }`}>
+            <span className={`text-xs font-extrabold block ${portfolioSummary.totalUnrealizedPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'
+              }`}>
               {portfolioSummary.totalUnrealizedPnL >= 0 ? '+' : ''}{portfolioSummary.totalUnrealizedPnL.toLocaleString('vi-VN')} đ
             </span>
             <span className="text-[10px] text-indigo-300 flex items-center justify-end gap-0.5 mt-0.5 font-bold">
-              Xem chi tiết <ArrowUpRight size={10} />
+              {t('dash_view_details')} <ArrowUpRight size={10} />
             </span>
           </div>
         </div>
