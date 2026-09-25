@@ -146,7 +146,7 @@ export const QuickUpdatePriceModal: React.FC<QuickUpdatePriceModalProps> = ({
               onChange={handleInputChange}
               placeholder="Nhập giá mới..."
               autoFocus
-              className="w-full text-base sm:text-lg font-bold px-4 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+              className="w-full h-10 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
             />
           </div>
           {fetchNotice && (
@@ -180,20 +180,20 @@ export const QuickUpdatePriceModal: React.FC<QuickUpdatePriceModalProps> = ({
         </div>
 
         {/* Save button */}
-        <div className="flex items-center gap-2 pt-2">
+        <div className="flex items-center gap-2 pt-1">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+            className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition"
           >
             Hủy
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="flex-1 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold text-sm shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-1.5 transition"
+            className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-indigo-500/25 flex items-center justify-center gap-1.5 transition"
           >
-            <Check size={18} />
+            <Check size={16} />
             <span>Lưu thay đổi</span>
           </button>
         </div>

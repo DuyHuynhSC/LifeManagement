@@ -181,44 +181,44 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         </div>
 
         {/* Transaction Type Switcher */}
-        <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+        <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
           <button
             type="button"
             onClick={() => setTxType('buy')}
-            className={`py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition ${
+            className={`py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition ${
               txType === 'buy'
                 ? 'bg-indigo-600 text-white shadow-md'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <TrendingUp size={16} />
-            <span>Lệnh Mua (Buy / DCA)</span>
+            <TrendingUp size={15} />
+            <span className="whitespace-nowrap">Lệnh Mua (Buy)</span>
           </button>
 
           <button
             type="button"
             onClick={() => setTxType('sell')}
-            className={`py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition ${
+            className={`py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition ${
               txType === 'sell'
                 ? 'bg-rose-600 text-white shadow-md'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <TrendingDown size={16} />
-            <span>Lệnh Bán (Sell)</span>
+            <TrendingDown size={15} />
+            <span className="whitespace-nowrap">Lệnh Bán (Sell)</span>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3.5">
+        <form onSubmit={handleSubmit} className="space-y-3">
           {/* Asset Selection */}
           <div>
-            <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1.5">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
               Chọn Tài sản
             </label>
             <select
               value={selectedAssetId}
               onChange={e => setSelectedAssetId(e.target.value)}
-              className="w-full text-base px-3.5 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+              className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
             >
               {assets.map(a => (
                 <option key={a.id} value={a.id}>
@@ -231,28 +231,28 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
           {/* New Asset Fields (if "+ Thêm mã mới" selected) */}
           {isCreatingNewAsset && (
-            <div className="p-3.5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 space-y-3">
-              <div className="grid grid-cols-2 gap-2.5">
+            <div className="p-3 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 space-y-2.5">
+              <div className="grid grid-cols-2 gap-2.5 items-start">
                 <div>
-                  <label className="text-[11px] font-bold text-slate-700 dark:text-slate-200 block mb-1">
-                    Mã Ticker (VNM, BTC...) *
+                  <label className="text-[11px] font-bold text-slate-700 dark:text-slate-200 block mb-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                    Mã Ticker *
                   </label>
                   <input
                     type="text"
                     value={newSymbol}
                     onChange={e => setNewSymbol(e.target.value)}
-                    placeholder="VD: HPG"
-                    className="w-full text-base uppercase px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold"
+                    placeholder="VD: HPG, BTC..."
+                    className="w-full h-10 text-xs sm:text-sm uppercase px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold placeholder:normal-case placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-slate-700 dark:text-slate-200 block mb-1">
+                  <label className="text-[11px] font-bold text-slate-700 dark:text-slate-200 block mb-1 whitespace-nowrap overflow-hidden text-ellipsis">
                     Loại tài sản *
                   </label>
                   <select
                     value={newClass}
                     onChange={e => setNewClass(e.target.value as AssetClass)}
-                    className="w-full text-base px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
+                    className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     <option value="stock">Cổ phiếu</option>
                     <option value="crypto">Crypto</option>
@@ -273,7 +273,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
                   placeholder="VD: Tập đoàn Hòa Phát"
-                  className="w-full text-base px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
             </div>
@@ -281,36 +281,36 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
           {/* Date Picker */}
           <div>
-            <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1.5">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
               Ngày khớp lệnh
             </label>
             <input
               type="date"
               value={date}
               onChange={e => setDate(e.target.value)}
-              className="w-full text-base px-3.5 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+              className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
             />
           </div>
 
           {/* Quantity and Price */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5 items-start">
             <div>
-              <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1.5">
-                Số lượng khớp
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1 truncate">
+                Số lượng khớp *
               </label>
               <input
                 type="text"
                 inputMode="decimal"
                 value={quantityStr}
                 onChange={e => setQuantityStr(e.target.value.replace(/[^0-9.]/g, ''))}
-                placeholder="VD: 100 hoặc 0.05"
-                className="w-full text-base px-3.5 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="VD: 100"
+                className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div>
-              <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1.5">
-                Đơn giá (đ)
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1 truncate">
+                Đơn giá (đ) *
               </label>
               <input
                 type="text"
@@ -318,15 +318,15 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 value={priceStr}
                 onChange={e => setPriceStr(e.target.value.replace(/[^0-9.]/g, ''))}
                 placeholder="VD: 32000"
-                className="w-full text-base px-3.5 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>
 
           {/* Fees and Tax */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5 items-start">
             <div>
-              <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1.5">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1 truncate">
                 Phí giao dịch (đ)
               </label>
               <input
@@ -335,12 +335,12 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 value={feesStr}
                 onChange={e => setFeesStr(e.target.value.replace(/[^0-9]/g, ''))}
                 placeholder="0"
-                className="w-full text-base px-3.5 py-2 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div>
-              <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1.5">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1 truncate">
                 Thuế TNCN (đ)
               </label>
               <input
@@ -349,28 +349,28 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 value={taxStr}
                 onChange={e => setTaxStr(e.target.value.replace(/[^0-9]/g, ''))}
                 placeholder="0"
-                className="w-full text-base px-3.5 py-2 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>
 
           {/* Notes */}
           <div>
-            <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1.5">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
               Ghi chú chiến lược (tùy chọn)
             </label>
             <input
               type="text"
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              placeholder="VD: Mua gom vùng hỗ trợ, chốt lời 30%..."
-              className="w-full text-sm px-3.5 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="VD: Mua gom vùng hỗ trợ, chốt lời..."
+              className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
           {/* Live Preview Box */}
           {numQuantity > 0 && numPrice > 0 && (
-            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2">
+            <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-slate-500 dark:text-slate-300">Tổng thanh toán:</span>
                 <span className="font-black text-slate-900 dark:text-white text-sm">
@@ -401,23 +401,23 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           )}
 
           {/* Action buttons */}
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex items-center gap-2 pt-1">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+              className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className={`flex-1 py-3 rounded-2xl text-white font-extrabold text-sm shadow-lg flex items-center justify-center gap-1.5 transition active:scale-95 ${
+              className={`flex-1 py-2.5 rounded-xl text-white font-extrabold text-xs sm:text-sm shadow-md flex items-center justify-center gap-1.5 transition active:scale-95 ${
                 txType === 'buy' 
                   ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/25' 
                   : 'bg-rose-600 hover:bg-rose-700 shadow-rose-500/25'
               }`}
             >
-              <Check size={18} />
+              <Check size={16} />
               <span>Xác nhận {txType === 'buy' ? 'Mua' : 'Bán'}</span>
             </button>
           </div>

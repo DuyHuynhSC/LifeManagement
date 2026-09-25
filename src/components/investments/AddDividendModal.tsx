@@ -164,13 +164,13 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-3.5">
           {/* Select Asset */}
           <div>
-            <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1.5">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
               Chọn Tài sản
             </label>
             <select
               value={selectedAssetId}
               onChange={e => setSelectedAssetId(e.target.value)}
-              className="w-full text-base px-3.5 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-semibold"
+              className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-semibold"
             >
               {assets.map(a => (
                 <option key={a.id} value={a.id}>
@@ -182,14 +182,14 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
 
           {/* Date Picker */}
           <div>
-            <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1.5">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
               Ngày nhận cổ tức / tiền lãi
             </label>
             <input
               type="date"
               value={date}
               onChange={e => setDate(e.target.value)}
-              className="w-full text-base px-3.5 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-semibold"
+              className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-semibold"
             />
           </div>
 
@@ -197,7 +197,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
           {divType === 'cash' ? (
             <>
               <div>
-                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1.5">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
                   Số tiền cổ tức nhận được (đ) *
                 </label>
                 <input
@@ -206,13 +206,13 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
                   value={amountStr}
                   onChange={e => setAmountStr(e.target.value.replace(/[^0-9.]/g, ''))}
                   placeholder="VD: 1500000"
-                  className="w-full text-base font-bold px-3.5 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full h-10 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
                     Thuế TNCN khấu trừ (đ)
                   </label>
                   <button
@@ -229,7 +229,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
                   value={taxStr}
                   onChange={e => setTaxStr(e.target.value.replace(/[^0-9]/g, ''))}
                   placeholder="0"
-                  className="w-full text-base font-medium px-3.5 py-2 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full h-10 text-xs sm:text-sm font-medium px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
@@ -252,7 +252,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
                   className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500"
                 />
                 <div>
-                  <span className="text-xs font-extrabold text-slate-900 dark:text-white block">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white block">
                     Tái đầu tư (DRIP)
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-slate-300 font-medium">
@@ -265,7 +265,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
             /* If Stock Dividend */
             <>
               <div>
-                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1.5">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
                   Số lượng Cổ phiếu / Token nhận thêm *
                 </label>
                 <input
@@ -274,13 +274,13 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
                   value={amountStr}
                   onChange={e => setAmountStr(e.target.value.replace(/[^0-9.]/g, ''))}
                   placeholder="VD: 200"
-                  className="w-full text-base font-bold px-3.5 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full h-10 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               {/* Live Preview of Diluted Average Price */}
               {stockDilutionPreview && selectedAsset && (
-                <div className="p-3.5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-1.5 text-xs">
+                <div className="p-3 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-1.5 text-xs">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-slate-600 dark:text-slate-300">Số lượng mới:</span>
                     <span className="font-black text-slate-900 dark:text-white">
@@ -303,7 +303,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
 
           {/* Notes */}
           <div>
-            <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200 block mb-1.5">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
               Ghi chú (Đợt chi trả, tỷ lệ %)
             </label>
             <input
@@ -311,7 +311,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="VD: Cổ tức đợt 2/2025 (tỷ lệ 15% tiền mặt)"
-              className="w-full text-sm px-3.5 py-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
 
@@ -320,19 +320,19 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
           )}
 
           {/* Actions */}
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex items-center gap-2 pt-1">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+              className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs sm:text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="flex-1 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-extrabold text-sm shadow-lg shadow-amber-500/25 flex items-center justify-center gap-1.5 transition"
+              className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-amber-500/25 flex items-center justify-center gap-1.5 transition"
             >
-              <Check size={18} />
+              <Check size={16} />
               <span>Lưu Cổ tức</span>
             </button>
           </div>
