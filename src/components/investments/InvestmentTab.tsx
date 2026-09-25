@@ -216,11 +216,6 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
           {/* Hero Card: Net Worth, P&L, ROI, Dividends */}
           <InvestmentHeroCard
             summary={portfolioSummary}
-            onOpenQuickUpdate={() => {
-              if (assets.length > 0) {
-                setEditingPriceAsset(assets[0]);
-              }
-            }}
             onOpenAddTransaction={() => handleOpenAddTx()}
             onSyncMarketPrices={handleSyncAllPrices}
             isSyncing={isSyncingPrices}

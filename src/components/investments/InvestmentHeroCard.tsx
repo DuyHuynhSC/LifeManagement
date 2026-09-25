@@ -6,8 +6,7 @@ import {
   PiggyBank,
   Coins,
   Clock,
-  RefreshCw,
-  Edit3
+  RefreshCw
 } from 'lucide-react';
 import { PortfolioSummary } from '../../types/investment';
 import { useAppStore } from '../../store/useAppStore';
@@ -15,7 +14,6 @@ import { getTranslation } from '../../i18n';
 
 interface InvestmentHeroCardProps {
   summary: PortfolioSummary;
-  onOpenQuickUpdate?: () => void;
   onOpenAddTransaction?: () => void;
   onSyncMarketPrices?: () => void;
   isSyncing?: boolean;
@@ -23,7 +21,6 @@ interface InvestmentHeroCardProps {
 
 export const InvestmentHeroCard: React.FC<InvestmentHeroCardProps> = ({
   summary,
-  onOpenQuickUpdate,
   onOpenAddTransaction,
   onSyncMarketPrices,
   isSyncing = false
@@ -61,23 +58,11 @@ export const InvestmentHeroCard: React.FC<InvestmentHeroCardProps> = ({
               onClick={onSyncMarketPrices}
               disabled={isSyncing}
               title={t('inv_action_sync_online')}
-              className="h-7 sm:h-7.5 px-2 sm:px-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 active:scale-95 transition text-[10px] sm:text-[11px] font-bold text-emerald-200 border border-emerald-400/30 backdrop-blur-sm disabled:opacity-50 flex items-center gap-1 whitespace-nowrap"
+              className="h-7 sm:h-7.5 px-2.5 sm:px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 active:scale-95 transition text-[11px] font-bold text-emerald-200 border border-emerald-400/30 backdrop-blur-sm disabled:opacity-50 flex items-center gap-1.5 whitespace-nowrap"
             >
-              <RefreshCw size={11} className={`shrink-0 ${isSyncing ? 'animate-spin' : ''}`} />
+              <RefreshCw size={12} className={`shrink-0 ${isSyncing ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">{isSyncing ? t('inv_syncing') : t('inv_action_sync_online')}</span>
               <span className="sm:hidden">{isSyncing ? t('inv_syncing_short') : t('inv_action_sync_short')}</span>
-            </button>
-          )}
-
-          {onOpenQuickUpdate && (
-            <button
-              onClick={onOpenQuickUpdate}
-              title={t('inv_action_update_price')}
-              className="h-7 sm:h-7.5 px-2 sm:px-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 transition text-[10px] sm:text-[11px] font-bold text-indigo-100 backdrop-blur-sm border border-white/15 flex items-center gap-1 whitespace-nowrap"
-            >
-              <Edit3 size={11} className="shrink-0 text-indigo-200" />
-              <span className="hidden sm:inline">{t('inv_action_update_price')}</span>
-              <span className="sm:hidden">{t('inv_action_update_short')}</span>
             </button>
           )}
         </div>
