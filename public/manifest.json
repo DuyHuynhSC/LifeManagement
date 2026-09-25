@@ -1,0 +1,27 @@
+{
+  "short_name": "FamLife",
+  "name": "FamLife - Gia Đình Thông Minh",
+  "description": "Quản lý đồ dùng, linh kiện và chi tiêu gia đình thông minh",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#1c1a4c",
+  "theme_color": "#1c1a4c",
+  "display": "standalone",
+  "orientation": "portrait"
+}
