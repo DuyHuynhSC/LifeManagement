@@ -82,7 +82,7 @@ export const App: React.FC = () => {
       category: parsed.category,
       date: new Date().toISOString().split('T')[0],
       payerId: currentUser.id,
-      notes: 'Nhập bằng giọng nói (Voice Recognition)'
+      // notes: 'Nhập bằng giọng nói (Voice Recognition)'
     });
   };
 
@@ -147,7 +147,7 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'expenses' && (
-          <ExpenseTab 
+          <ExpenseTab
             onOpenVoiceInput={() => setShowVoiceInput(true)}
             onOpenQRScanner={() => {
               setQrScannerInitialType('expense');

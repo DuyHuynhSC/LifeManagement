@@ -10,7 +10,9 @@ import {
   ArrowDownRight,
   Filter,
   Pencil,
-  QrCode
+  QrCode,
+  Calendar,
+  RotateCcw
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -41,21 +43,24 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [showBudgetModal, setShowBudgetModal] = useState(false);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'yesterday' | 'week' | 'this_month' | 'last_month' | 'custom'>('all');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
 
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
 
   const canManage = currentUser.role === 'admin' || currentUser.role === 'manager';
 
-  // Category labels and colors
-  const categoryConfig: Record<ExpenseCategory, { label: string; color: string }> = {
-    food: { label: t('cat_food'), color: '#10b981' },
-    utilities: { label: t('cat_utilities'), color: '#3b82f6' },
-    appliances: { label: t('cat_appliances'), color: '#8b5cf6' },
-    maintenance: { label: t('cat_maintenance'), color: '#f59e0b' },
-    healthcare: { label: t('cat_healthcare'), color: '#ef4444' },
-    education: { label: t('cat_education'), color: '#ec4899' },
-    entertainment: { label: t('cat_entertainment'), color: '#06b6d4' },
-    other: { label: t('cat_other'), color: '#64748b' },
+  // Category labels, colors and icons
+  const categoryConfig: Record<ExpenseCategory, { label: string; color: string; icon: string }> = {
+    food: { label: t('cat_food'), color: '#10b981', icon: '🍔' },
+    utilities: { label: t('cat_utilities'), color: '#3b82f6', icon: '💡' },
+    appliances: { label: t('cat_appliances'), color: '#8b5cf6', icon: '📺' },
+    maintenance: { label: t('cat_maintenance'), color: '#f59e0b', icon: '🔧' },
+    healthcare: { label: t('cat_healthcare'), color: '#ef4444', icon: '💊' },
+    education: { label: t('cat_education'), color: '#ec4899', icon: '📚' },
+    entertainment: { label: t('cat_entertainment'), color: '#06b6d4', icon: '🎬' },
+    other: { label: t('cat_other'), color: '#64748b', icon: '📦' },
   };
 
   const userMap = Object.fromEntries(users.map(u => [u.id, u.name]));
@@ -79,10 +84,64 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
     };
   }).filter(d => d.total > 0);
 
-  // Filtered transactions
-  const filteredExpenses = selectedCategoryFilter === 'all'
-    ? expenses
-    : expenses.filter(e => e.category === selectedCategoryFilter);
+  const formatLocalDate = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Filtered transactions (filtered by category and date, sorted by date descending)
+  const filteredExpenses = expenses.filter(exp => {
+    // 1. Category Filter
+    if (selectedCategoryFilter !== 'all' && exp.category !== selectedCategoryFilter) {
+      return false;
+    }
+
+    // 2. Date Filter
+    if (dateFilter === 'all') return true;
+
+    const today = new Date();
+    const todayStr = formatLocalDate(today);
+
+    if (dateFilter === 'today') {
+      return exp.date === todayStr;
+    }
+
+    if (dateFilter === 'yesterday') {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      return exp.date === formatLocalDate(yesterday);
+    }
+
+    if (dateFilter === 'week') {
+      const weekAgo = new Date(today);
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return exp.date >= formatLocalDate(weekAgo) && exp.date <= todayStr;
+    }
+
+    if (dateFilter === 'this_month') {
+      const currentMonthPrefix = todayStr.substring(0, 7); // 'YYYY-MM'
+      return exp.date.startsWith(currentMonthPrefix);
+    }
+
+    if (dateFilter === 'last_month') {
+      const lastMonthDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const lastMonthPrefix = formatLocalDate(lastMonthDate).substring(0, 7);
+      return exp.date.startsWith(lastMonthPrefix);
+    }
+
+    if (dateFilter === 'custom') {
+      if (startDate && exp.date < startDate) return false;
+      if (endDate && exp.date > endDate) return false;
+      return true;
+    }
+
+    return true;
+  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const isFiltered = selectedCategoryFilter !== 'all' || dateFilter !== 'all' || Boolean(startDate) || Boolean(endDate);
+  const filteredTotalSpent = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
 
   const handleDelete = (id: string, title: string) => {
     if (window.confirm(`Xóa khoản chi tiêu "${title}"?`)) {
@@ -225,32 +284,161 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
       )}
 
       {/* Transaction History Section */}
-      <div className="space-y-2.5">
+      <div className="space-y-3">
+        {/* Section Header: Title, Active Filter Badge & Reset Button */}
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-            {t('expense_history')} ({filteredExpenses.length})
-          </h2>
+          <div className="flex items-center gap-1.5">
+            <h2 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              {t('expense_history')} ({filteredExpenses.length})
+            </h2>
+            {isFiltered && (
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-700/60">
+                Đang lọc
+              </span>
+            )}
+          </div>
 
-          <select
-            value={selectedCategoryFilter}
-            onChange={e => setSelectedCategoryFilter(e.target.value)}
-            className="text-[11px] p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none"
-          >
-            <option value="all">Tất cả danh mục</option>
-            {Object.entries(categoryConfig).map(([key, val]) => (
-              <option key={key} value={key}>{val.label}</option>
-            ))}
-          </select>
+          {isFiltered && (
+            <button
+              onClick={() => {
+                setSelectedCategoryFilter('all');
+                setDateFilter('all');
+                setStartDate('');
+                setEndDate('');
+              }}
+              className="text-[11px] text-slate-500 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 font-medium flex items-center gap-1 transition"
+            >
+              <RotateCcw size={12} />
+              <span>Đặt lại</span>
+            </button>
+          )}
         </div>
 
+        {/* Filter Controls: Category & Date Dropdowns */}
+        <div className="grid grid-cols-2 gap-2">
+          {/* Category Filter */}
+          <div className="relative">
+            <select
+              value={selectedCategoryFilter}
+              onChange={e => setSelectedCategoryFilter(e.target.value)}
+              className="w-full text-[11px] py-2 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium outline-none truncate shadow-xs"
+            >
+              <option value="all">📁 Tất cả danh mục</option>
+              {Object.entries(categoryConfig).map(([key, val]) => (
+                <option key={key} value={key}>{val.icon} {val.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Date Filter */}
+          <div className="relative">
+            <select
+              value={dateFilter}
+              onChange={e => {
+                const val = e.target.value as any;
+                setDateFilter(val);
+                if (val !== 'custom') {
+                  setStartDate('');
+                  setEndDate('');
+                }
+              }}
+              className="w-full text-[11px] py-2 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium outline-none truncate shadow-xs"
+            >
+              <option value="all">📅 Tất cả thời gian</option>
+              <option value="today">⚡ Hôm nay</option>
+              <option value="yesterday">⏪ Hôm qua</option>
+              <option value="week">🗓️ 7 ngày qua</option>
+              <option value="this_month">📆 Tháng này</option>
+              <option value="last_month">⏮️ Tháng trước</option>
+              <option value="custom">🔍 Chọn khoảng ngày...</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Custom Date Range Picker (shown when 'custom' selected) */}
+        {dateFilter === 'custom' && (
+          <div className="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2 animate-in fade-in">
+            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-700 dark:text-slate-200">
+              <span className="flex items-center gap-1.5">
+                <Calendar size={13} className="text-emerald-500" />
+                Khoảng ngày giao dịch:
+              </span>
+              {(startDate || endDate) && (
+                <button
+                  type="button"
+                  onClick={() => { setStartDate(''); setEndDate(''); }}
+                  className="text-[10px] text-rose-500 dark:text-rose-400 hover:underline font-medium"
+                >
+                  Xóa ngày
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <label className="block text-[10px] text-slate-500 dark:text-slate-300 font-medium mb-1">
+                  Từ ngày:
+                </label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={e => setStartDate(e.target.value)}
+                  className="w-full text-[11px] p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] text-slate-500 dark:text-slate-300 font-medium mb-1">
+                  Đến ngày:
+                </label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={e => setEndDate(e.target.value)}
+                  className="w-full text-[11px] p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Filter Summary Row */}
+        {isFiltered && filteredExpenses.length > 0 && (
+          <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] text-slate-600 dark:text-slate-300 font-medium border border-slate-200/60 dark:border-slate-700/60">
+            <span>Tổng chi tiêu đang lọc:</span>
+            <span className="font-extrabold text-rose-600 dark:text-rose-400">
+              -{filteredTotalSpent.toLocaleString('vi-VN')} đ
+            </span>
+          </div>
+        )}
+
         {filteredExpenses.length === 0 ? (
-          <div className="text-center py-10 text-slate-400 text-xs bg-white dark:bg-slate-800/60 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 p-6 space-y-2">
+          <div className="text-center py-10 text-slate-500 dark:text-slate-300 text-xs bg-white dark:bg-slate-800/60 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 p-6 space-y-2">
             <Wallet size={36} className="mx-auto text-slate-300 dark:text-slate-600" />
-            <p className="font-semibold">Chưa có giao dịch chi tiêu nào.</p>
-            <p className="text-[11px]">Bấm "+ Thêm" hoặc dùng giọng nói để ghi lại khoản chi của bạn.</p>
+            <p className="font-semibold text-slate-700 dark:text-slate-200">
+              {isFiltered ? 'Không có chi tiêu nào phù hợp bộ lọc.' : 'Chưa có giao dịch chi tiêu nào.'}
+            </p>
+            <p className="text-[11px]">
+              {isFiltered 
+                ? 'Hãy thử chọn khoảng thời gian hoặc danh mục khác.' 
+                : 'Bấm "+ Thêm" hoặc dùng giọng nói để ghi lại khoản chi của bạn.'}
+            </p>
+            {isFiltered && (
+              <button
+                onClick={() => {
+                  setSelectedCategoryFilter('all');
+                  setDateFilter('all');
+                  setStartDate('');
+                  setEndDate('');
+                }}
+                className="mt-2 inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium text-xs hover:bg-slate-200 dark:hover:bg-slate-600 transition"
+              >
+                <RotateCcw size={12} />
+                <span>Xóa bộ lọc</span>
+              </button>
+            )}
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {filteredExpenses.map(exp => {
               const cat = categoryConfig[exp.category] || categoryConfig.other;
               const payerName = userMap[exp.payerId] || exp.payerId;
@@ -259,58 +447,100 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
               return (
                 <div
                   key={exp.id}
-                  className="p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between"
+                  className="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 shadow-sm hover:shadow-md transition-all space-y-2.5"
                 >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center text-base shrink-0 shadow-sm"
-                      style={{ backgroundColor: `${cat.color}20`, color: cat.color }}
-                    >
-                      <Wallet size={18} />
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">
-                        {exp.title}
+                  {/* Top Row: Category Icon + Title (+ Notes) & Amount */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                      {/* Category Icon */}
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 shadow-sm mt-0.5"
+                        style={{
+                          backgroundColor: `${cat.color}15`,
+                          border: `1px solid ${cat.color}35`
+                        }}
+                      >
+                        <span>{cat.icon || '💳'}</span>
                       </div>
-                      <div className="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
-                        <span>{exp.date}</span>
-                        <span>•</span>
-                        <span>{payerName}</span>
-                        {linkedAsset && (
-                          <>
-                            <span>•</span>
-                            <span className="text-indigo-600 dark:text-indigo-400 font-semibold truncate max-w-[100px]">
-                              {linkedAsset}
-                            </span>
-                          </>
+
+                      {/* Title & Notes */}
+                      <div className="min-w-0 flex-1 pt-0.5">
+                        <h3
+                          className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white line-clamp-2 leading-snug break-words"
+                          title={exp.title}
+                        >
+                          {exp.title}
+                        </h3>
+                        {exp.notes && (
+                          <p className="text-[11px] text-slate-500 dark:text-slate-300 font-normal line-clamp-1 mt-0.5 italic">
+                            {exp.notes}
+                          </p>
                         )}
+                      </div>
+                    </div>
+
+                    {/* Amount */}
+                    <div className="shrink-0 text-right pl-1 pt-0.5">
+                      <div className="text-xs sm:text-sm font-black text-rose-600 dark:text-rose-400 whitespace-nowrap tracking-tight">
+                        -{exp.amount.toLocaleString('vi-VN')} đ
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    <div className="text-right">
-                      <div className="text-xs font-extrabold text-slate-900 dark:text-white">
-                        -{exp.amount.toLocaleString('vi-VN')} đ
-                      </div>
-                      <div className="text-[9px] font-bold px-1.5 py-0.2 rounded-full inline-block" style={{ backgroundColor: `${cat.color}20`, color: cat.color }}>
+                  {/* Bottom Row: Metadata Badges + Action Buttons */}
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-700/60">
+                    <div className="flex items-center gap-1.5 flex-wrap min-w-0 text-[11px] text-slate-500 dark:text-slate-300 font-medium">
+                      {/* Category Pill */}
+                      <span
+                        className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
+                        style={{
+                          backgroundColor: `${cat.color}15`,
+                          color: cat.color,
+                          border: `1px solid ${cat.color}30`
+                        }}
+                      >
                         {cat.label}
-                      </div>
+                      </span>
+
+                      <span className="shrink-0 text-slate-500 dark:text-slate-300">
+                        {exp.date}
+                      </span>
+
+                      <span className="text-slate-300 dark:text-slate-600 text-[10px] shrink-0">•</span>
+
+                      <span className="truncate max-w-[85px] text-slate-600 dark:text-slate-300 font-medium" title={payerName}>
+                        {payerName}
+                      </span>
+
+                      {linkedAsset && (
+                        <>
+                          <span className="text-slate-300 dark:text-slate-600 text-[10px] shrink-0">•</span>
+                          <span
+                            className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60 truncate max-w-[120px]"
+                            title={linkedAsset}
+                          >
+                            📦 {linkedAsset}
+                          </span>
+                        </>
+                      )}
                     </div>
 
+                    {/* Action Buttons */}
                     {canManage && (
-                      <div className="flex items-center gap-0.5">
+                      <div className="flex items-center gap-1 shrink-0 ml-auto">
                         <button
                           onClick={() => setEditingExpense(exp)}
-                          className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 transition"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition active:scale-95"
                           title="Chỉnh sửa chi tiêu"
+                          aria-label="Chỉnh sửa chi tiêu"
                         >
                           <Pencil size={14} />
                         </button>
                         <button
                           onClick={() => handleDelete(exp.id, exp.title)}
-                          className="text-slate-400 hover:text-rose-500 p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition active:scale-95"
                           title="Xóa chi tiêu"
+                          aria-label="Xóa chi tiêu"
                         >
                           <Trash2 size={14} />
                         </button>
