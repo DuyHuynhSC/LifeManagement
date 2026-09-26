@@ -270,10 +270,10 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                         onChange={e => setNewRole(e.target.value as UserRole)}
                         className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs outline-none focus:border-indigo-500 font-semibold"
                       >
-                        <option value="manager">{t('admin_role_badge_manager')} ({t('role_manager')})</option>
-                        <option value="member">{t('admin_role_badge_member')} ({t('role_member')})</option>
-                        <option value="guest">{t('admin_role_badge_guest')} ({t('role_guest')})</option>
-                        <option value="admin">{t('admin_role_badge_admin')} ({t('role_admin')})</option>
+                        <option value="manager">{t('admin_role_badge_manager')}</option>
+                        <option value="member">{t('admin_role_badge_member')}</option>
+                        <option value="guest">{t('admin_role_badge_guest')}</option>
+                        <option value="admin">{t('admin_role_badge_admin')}</option>
                       </select>
                     </div>
 
@@ -359,10 +359,10 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                         onChange={e => setEditRole(e.target.value as UserRole)}
                         className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs outline-none focus:border-amber-500 font-semibold"
                       >
-                        <option value="admin">{t('admin_role_badge_admin')} ({t('role_admin')})</option>
-                        <option value="manager">{t('admin_role_badge_manager')} ({t('role_manager')})</option>
-                        <option value="member">{t('admin_role_badge_member')} ({t('role_member')})</option>
-                        <option value="guest">{t('admin_role_badge_guest')} ({t('role_guest')})</option>
+                        <option value="admin">{t('admin_role_badge_admin')}</option>
+                        <option value="manager">{t('admin_role_badge_manager')}</option>
+                        <option value="member">{t('admin_role_badge_member')}</option>
+                        <option value="guest">{t('admin_role_badge_guest')}</option>
                       </select>
                     </div>
 
