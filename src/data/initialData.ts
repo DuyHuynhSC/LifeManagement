@@ -28,7 +28,99 @@ export const initialBudgets: Budget[] = [
 
 export const initialTasks: Task[] = [];
 
-export const initialIoTDevices: IoTDevice[] = [];
+export const initialIoTDevices: IoTDevice[] = [
+  {
+    id: 'iot-purifier-1',
+    name: 'Máy lọc nước Karofi Smart Hydrogen',
+    type: 'water_purifier',
+    location: 'Bếp tầng 1',
+    provider: 'tuya',
+    isOnline: true,
+    powerUsageKwh: 0.28,
+    powerUsageKwhToday: 0.28,
+    powerUsageKwhMonth: 8.4,
+    currentWattage: 35,
+    lastUpdated: 'Vừa xong',
+    metrics: [
+      { label: 'TDS đầu ra (uống)', value: 14, unit: 'ppm', status: 'normal' },
+      { label: 'TDS nước cấp vào', value: 185, unit: 'ppm', status: 'normal' },
+      { label: 'Tuổi thọ Lõi 1', value: 82, unit: '%', status: 'normal' },
+      { label: 'Tuổi thọ Lõi RO', value: 94, unit: '%', status: 'normal' }
+    ],
+    waterPurifier: {
+      tdsInPpm: 185,
+      tdsOutPpm: 14,
+      filter1LifePercent: 82,
+      filterRoLifePercent: 94,
+      filterMineralPercent: 90,
+      isLeaking: false,
+      litersToday: 9.2
+    },
+    alerts: []
+  },
+  {
+    id: 'iot-fridge-1',
+    name: 'Tủ lạnh Samsung Inverter Family',
+    type: 'fridge',
+    location: 'Phòng ăn tầng 1',
+    provider: 'smartthings',
+    isOnline: true,
+    powerUsageKwh: 1.42,
+    powerUsageKwhToday: 1.42,
+    powerUsageKwhMonth: 42.6,
+    currentWattage: 95,
+    lastUpdated: '1 phút trước',
+    metrics: [
+      { label: 'Nhiệt độ ngăn mát', value: 3, unit: '°C', status: 'normal' },
+      { label: 'Nhiệt độ ngăn đông', value: -18, unit: '°C', status: 'normal' },
+      { label: 'Cửa tủ lạnh', value: 'Đóng kín', status: 'normal' },
+      { label: 'Chế độ', value: 'Eco Tiết kiệm', status: 'normal' }
+    ],
+    fridge: {
+      fridgeTemp: 3,
+      freezerTemp: -18,
+      doorAjar: false,
+      fastFreezing: false,
+      ecoMode: true
+    },
+    alerts: []
+  },
+  {
+    id: 'iot-washer-1',
+    name: 'Máy giặt LG AI DD Inverter 10kg',
+    type: 'washing_machine',
+    location: 'Ban công tầng 2',
+    provider: 'lg_thinq',
+    isOnline: true,
+    powerUsageKwh: 0.68,
+    powerUsageKwhToday: 0.68,
+    powerUsageKwhMonth: 19.5,
+    currentWattage: 380,
+    lastUpdated: 'Vừa xong',
+    metrics: [
+      { label: 'Trạng thái', value: 'Đang giặt (Cotton)', status: 'normal' },
+      { label: 'Thời gian còn lại', value: 24, unit: 'phút', status: 'normal' },
+      { label: 'Cửa máy giặt', value: 'Khóa an toàn', status: 'normal' },
+      { label: 'Vệ sinh lồng giặt', value: 'Tốt (14/30 lần)', status: 'normal' }
+    ],
+    washingMachine: {
+      state: 'washing',
+      remainingMinutes: 24,
+      programName: 'Cotton Chăm sóc dịu nhẹ',
+      doorLocked: true,
+      drumCleanCycleCount: 14
+    },
+    alerts: [
+      {
+        id: 'alert-wash-1',
+        level: 'info',
+        message: 'Chu trình giặt Cotton đang chạy, dự kiến hoàn thành sau 24 phút.',
+        timestamp: 'Vừa xong',
+        actionRequired: 'Chuẩn bị phơi đồ khi hoàn tất'
+      }
+    ]
+  }
+];
 
 export const initialBadges: GamificationBadge[] = [
   {
@@ -78,5 +170,6 @@ export const initialBadges: GamificationBadge[] = [
 export const initialSettings: AppSettings = {
   notifyDaysBeforeExpiry: 7, // Mặc định 1 tuần (7 ngày)
   theme: 'light',
-  language: 'vi'
+  language: 'vi',
+  electricityPricePerKwh: 2500
 };

@@ -9,6 +9,7 @@ import {
   initialBadges, initialSettings 
 } from '../data/initialData';
 import { restoreInvestmentState } from './useInvestmentStore';
+import { SimulationService } from '../services/iot';
 
 const STORAGE_KEY = 'famlife_app_data_v2';
 
@@ -36,7 +37,7 @@ function getStoredState(): AppStoreState {
         expenses: parsed.expenses || initialExpenses,
         budgets: parsed.budgets || initialBudgets,
         tasks: parsed.tasks || initialTasks,
-        iotDevices: parsed.iotDevices || initialIoTDevices,
+        iotDevices: (parsed.iotDevices && parsed.iotDevices.length > 0) ? parsed.iotDevices : initialIoTDevices,
         badges: parsed.badges || initialBadges,
         settings: {
           ...initialSettings,
@@ -270,6 +271,127 @@ export const useAppStore = () => {
     return { success: true };
   };
 
+  // IoT Actions
+  const addIoTDevice = (deviceData: Omit<IoTDevice, 'id'>) => {
+    const newDevice: IoTDevice = {
+      ...deviceData,
+      id: `iot-${Date.now()}`
+    };
+    globalState.iotDevices = [newDevice, ...globalState.iotDevices];
+    awardUserPoints(globalState.currentUserId, 15);
+    notify();
+    return newDevice;
+  };
+
+  const updateIoTDevice = (id: string, updates: Partial<IoTDevice>) => {
+    globalState.iotDevices = globalState.iotDevices.map(d => 
+      d.id === id ? { ...d, ...updates } : d
+    );
+    notify();
+  };
+
+  const deleteIoTDevice = (id: string) => {
+    globalState.iotDevices = globalState.iotDevices.filter(d => d.id !== id);
+    notify();
+  };
+
+  const toggleIoTDeviceOnline = (id: string) => {
+    globalState.iotDevices = globalState.iotDevices.map(d => 
+      d.id === id ? { ...d, isOnline: !d.isOnline } : d
+    );
+    notify();
+  };
+
+  const setIoTDevices = (devices: IoTDevice[]) => {
+    globalState.iotDevices = devices;
+    notify();
+  };
+
+  const syncIoTTelemetry = () => {
+    const { updatedDevices, newAlerts } = SimulationService.simulateTelemetryStep(globalState.iotDevices);
+    globalState.iotDevices = updatedDevices;
+
+    // Tự động kiểm tra liên kết với Asset & Linh kiện
+    updatedDevices.forEach(device => {
+      if (device.linkedAssetId && device.type === 'water_purifier' && device.waterPurifier) {
+        const asset = globalState.assets.find(a => a.id === device.linkedAssetId);
+        if (asset && asset.components && asset.components.length > 0) {
+          const f1Life = device.waterPurifier.filter1LifePercent;
+          if (f1Life <= 15) {
+            asset.components = asset.components.map((c, idx) => 
+              idx === 0 ? { ...c, status: 'expired' } : c
+            );
+          }
+        }
+      }
+    });
+
+    notify();
+    return { updatedDevices, newAlerts };
+  };
+
+  const createTaskFromIoT = (deviceId: string, title: string, xpReward: number = 15) => {
+    const device = globalState.iotDevices.find(d => d.id === deviceId);
+    const newTask = addTask({
+      title,
+      description: `Tự động tạo từ cảnh báo cảm biến IoT của "${device?.name || 'Thiết bị thông minh'}"`,
+      assignedToId: globalState.currentUserId,
+      dueDate: new Date().toISOString().split('T')[0],
+      status: 'todo',
+      xpReward,
+      assetId: device?.linkedAssetId
+    });
+
+    if (device && device.alerts) {
+      device.alerts = device.alerts.map(a => ({ ...a, taskCreated: true }));
+      notify();
+    }
+    return newTask;
+  };
+
+  const convertIoTEnergyToExpense = (customPrice?: number) => {
+    const price = customPrice || globalState.settings.electricityPricePerKwh || 2500;
+    const totalKwh = globalState.iotDevices.reduce((sum, d) => {
+      return sum + (d.powerUsageKwhMonth || (d.powerUsageKwhToday || d.powerUsageKwh) * 30);
+    }, 0);
+
+    const totalAmount = Math.round(totalKwh * price);
+    const breakdown = globalState.iotDevices
+      .map(d => `${d.name}: ${(d.powerUsageKwhMonth || (d.powerUsageKwhToday || d.powerUsageKwh) * 30).toFixed(1)} kWh`)
+      .join(', ');
+
+    const newExpense = addExpense({
+      title: 'Hóa đơn tiền điện sinh hoạt (IoT)',
+      amount: totalAmount > 0 ? totalAmount : 250000,
+      category: 'utilities',
+      date: new Date().toISOString().split('T')[0],
+      notes: `Hệ thống IoT ghi nhận tổng ${totalKwh.toFixed(1)} kWh (~${price.toLocaleString()}đ/kWh). Chi tiết: ${breakdown}`,
+      payerId: globalState.currentUserId
+    });
+
+    return {
+      success: true,
+      amount: totalAmount > 0 ? totalAmount : 250000,
+      kwh: totalKwh,
+      expense: newExpense
+    };
+  };
+
+  const updateAppSettings = (updates: Partial<AppSettings>) => {
+    globalState.settings = {
+      ...globalState.settings,
+      ...updates
+    };
+    if (updates.theme) {
+      if (updates.theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+    notify();
+  };
+
   // Clear all operational data (assets, expenses, tasks, iot) keeping admin and settings
   const clearAllData = () => {
     globalState.assets = [];
@@ -433,7 +555,16 @@ export const useAppStore = () => {
     setNotifyDaysBeforeExpiry,
     setTheme,
     setLanguage,
+    updateAppSettings,
     resetToDefaultData,
-    restoreData
+    restoreData,
+    addIoTDevice,
+    updateIoTDevice,
+    deleteIoTDevice,
+    toggleIoTDeviceOnline,
+    setIoTDevices,
+    syncIoTTelemetry,
+    createTaskFromIoT,
+    convertIoTEnergyToExpense
   };
 };

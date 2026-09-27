@@ -121,6 +121,9 @@ export const ja: typeof vi = {
   iot_no_devices: '同期されたスマートデバイスはありません',
   iot_empty_state: '接続されたIoT機器はありません。',
   iot_empty_desc: '浄水器、ロボット掃除機、エアコン、スマート冷蔵庫に対応しています。',
+  iot_add_device: 'IoTデバイスを追加',
+  iot_cloud_config: 'クラウドAPI設定',
+  iot_record_expense: '支出に記録',
 
   // Family & Collaboration
   family_title: '家族タスク・お手伝い',

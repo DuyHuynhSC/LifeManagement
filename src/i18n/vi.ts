@@ -118,7 +118,10 @@ export const vi = {
   iot_sensors_stable: 'Tất cả cảm biến vi điều khiển IoT đang truyền dữ liệu ổn định',
   iot_no_devices: 'Chưa có thiết bị thông minh nào được đồng bộ',
   iot_empty_state: 'Chưa kết nối thiết bị IoT nào.',
-  iot_empty_desc: 'Hệ thống hỗ trợ kết nối máy lọc nước, robot hút bụi, điều hòa, tủ lạnh thông minh.',
+  iot_empty_desc: 'Hỗ trợ kết nối máy lọc nước Karofi, tủ lạnh Samsung, máy giặt LG để giám sát & tự động nhắc việc.',
+  iot_add_device: 'Thêm thiết bị IoT',
+  iot_cloud_config: 'Cấu hình Cloud API',
+  iot_record_expense: 'Ghi vào Chi tiêu',
 
   // Family & Collaboration
   family_title: 'Cộng tác & Việc nhà',

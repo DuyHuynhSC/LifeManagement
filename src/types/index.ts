@@ -78,19 +78,66 @@ export interface Task {
   xpReward: number;
 }
 
+export type IoTProviderType = 'smartthings' | 'tuya' | 'lg_thinq' | 'simulation';
+
+export interface WaterPurifierMetrics {
+  tdsInPpm: number;
+  tdsOutPpm: number;
+  filter1LifePercent: number;
+  filterRoLifePercent: number;
+  filterMineralPercent: number;
+  isLeaking: boolean;
+  litersToday: number;
+}
+
+export interface WashingMachineMetrics {
+  state: 'idle' | 'washing' | 'rinsing' | 'spinning' | 'completed' | 'error';
+  remainingMinutes: number;
+  programName: string;
+  doorLocked: boolean;
+  drumCleanCycleCount: number;
+}
+
+export interface FridgeMetrics {
+  fridgeTemp: number;
+  freezerTemp: number;
+  doorAjar: boolean;
+  fastFreezing: boolean;
+  ecoMode: boolean;
+}
+
+export interface IoTAlert {
+  id: string;
+  level: 'info' | 'warning' | 'danger';
+  message: string;
+  timestamp: string;
+  actionRequired?: string;
+  taskCreated?: boolean;
+}
+
 export interface IoTDevice {
   id: string;
   name: string;
   type: 'water_purifier' | 'robot_vacuum' | 'fridge' | 'washing_machine' | 'air_conditioner';
   location: string;
+  provider: IoTProviderType;
+  externalDeviceId?: string;
+  linkedAssetId?: string;
   isOnline: boolean;
   powerUsageKwh: number;
+  powerUsageKwhToday?: number;
+  powerUsageKwhMonth?: number;
+  currentWattage?: number;
   metrics: {
     label: string;
     value: string | number;
     unit?: string;
     status: 'normal' | 'warning' | 'alert';
   }[];
+  waterPurifier?: WaterPurifierMetrics;
+  washingMachine?: WashingMachineMetrics;
+  fridge?: FridgeMetrics;
+  alerts?: IoTAlert[];
   lastUpdated: string;
 }
 
@@ -101,6 +148,11 @@ export interface AppSettings {
   notifyDaysBeforeExpiry: number; // 1, 3, 7, 14, 30
   theme: ThemeMode;
   language: LanguageCode;
+  electricityPricePerKwh?: number;
+  smartThingsToken?: string;
+  tuyaClientId?: string;
+  tuyaClientSecret?: string;
+  lgThinqToken?: string;
 }
 
 export interface GamificationBadge {

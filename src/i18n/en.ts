@@ -121,6 +121,9 @@ export const en: typeof vi = {
   iot_no_devices: 'No smart devices synchronized yet',
   iot_empty_state: 'No IoT devices connected.',
   iot_empty_desc: 'Supports connecting water purifiers, robot vacuums, ACs, smart refrigerators.',
+  iot_add_device: 'Add IoT Device',
+  iot_cloud_config: 'Cloud API Config',
+  iot_record_expense: 'Record to Expenses',
 
   // Family & Collaboration
   family_title: 'Family Tasks & Chores',
