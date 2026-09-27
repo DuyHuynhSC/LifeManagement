@@ -89,6 +89,11 @@ export class SimulationService {
 
       // 3. Máy giặt (Washing Machine)
       if (device.type === 'washing_machine' && device.washingMachine) {
+        // Nếu đang ở chế độ kết nối trực tiếp Live API với LG ThinQ, giữ nguyên trạng thái từ máy thật
+        if (device.washingMachine.dataSource === 'live_api') {
+          return updated;
+        }
+
         let { state, remainingMinutes, drumCleanCycleCount, programName, doorLocked } = device.washingMachine;
 
         if (state === 'washing' || state === 'rinsing' || state === 'spinning') {

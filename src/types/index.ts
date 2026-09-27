@@ -96,6 +96,8 @@ export interface WashingMachineMetrics {
   programName: string;
   doorLocked: boolean;
   drumCleanCycleCount: number;
+  dataSource?: 'live_api' | 'simulator';
+  isPoweredOn?: boolean;
 }
 
 export interface FridgeMetrics {

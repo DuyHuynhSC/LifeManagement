@@ -1,6 +1,7 @@
-import React from 'react';
-import { Shirt, Power, CheckCircle2, RotateCw, Sparkles, Zap, Trash2, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Shirt, Power, CheckCircle2, RotateCw, Sparkles, Zap, Trash2, Clock, Cloud, RefreshCw, AlertCircle } from 'lucide-react';
 import { IoTDevice } from '../../types';
+import { useAppStore } from '../../store/useAppStore';
 
 interface WasherCardProps {
   device: IoTDevice;
@@ -19,14 +20,20 @@ export const WasherCard: React.FC<WasherCardProps> = ({
   onCreateTask,
   isLinkedToAsset
 }) => {
+  const { settings, syncLGWasherLiveState } = useAppStore();
+  const [isSyncingLive, setIsSyncingLive] = useState(false);
+  const [liveNotice, setLiveNotice] = useState<string | null>(null);
+
   const w = device.washingMachine || {
-    state: 'washing',
-    remainingMinutes: 24,
-    programName: 'Cotton Chăm sóc dịu nhẹ',
-    doorLocked: true,
-    drumCleanCycleCount: 14
+    state: 'idle',
+    remainingMinutes: 0,
+    programName: 'Chờ lệnh giặt',
+    doorLocked: false,
+    drumCleanCycleCount: 14,
+    dataSource: 'live_api'
   };
 
+  const isLiveMode = w.dataSource !== 'simulator' && Boolean(settings.lgThinqToken);
   const isCompleted = w.state === 'completed';
   const isRunning = w.state === 'washing' || w.state === 'rinsing' || w.state === 'spinning';
 
@@ -36,7 +43,7 @@ export const WasherCard: React.FC<WasherCardProps> = ({
       case 'rinsing': return 'Đang xả nước';
       case 'spinning': return 'Đang vắt cực khô';
       case 'completed': return 'Đã giặt xong';
-      default: return 'Sẵn sàng';
+      default: return w.isPoweredOn ? 'Bật nguồn - Chờ bấm giặt' : 'Sẵn sàng / Tắt nguồn';
     }
   };
 
@@ -44,17 +51,69 @@ export const WasherCard: React.FC<WasherCardProps> = ({
     switch (w.state) {
       case 'completed': return 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300';
       case 'spinning': return 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300';
-      default: return 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300';
+      case 'washing':
+      case 'rinsing': return 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300';
+      default: return 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300';
     }
   };
 
-  const handleStartCycle = () => {
+  // Đồng bộ thời gian thực từ LG ThinQ Cloud
+  const handleSyncFromLG = async () => {
+    setIsSyncingLive(true);
+    setLiveNotice(null);
+
+    const res = await syncLGWasherLiveState(device.id);
+    setIsSyncingLive(false);
+
+    if (res.success) {
+      setLiveNotice(res.message);
+    } else {
+      setLiveNotice(res.message || 'Chưa nhận được phản hồi từ máy giặt LG.');
+    }
+
+    setTimeout(() => {
+      setLiveNotice(null);
+    }, 6000);
+  };
+
+  // Chuyển sang chế độ mô phỏng hoặc live
+  const toggleDataSourceMode = (mode: 'live_api' | 'simulator') => {
+    if (mode === 'simulator') {
+      onUpdateMetrics(device.id, {
+        washingMachine: {
+          ...w,
+          dataSource: 'simulator',
+          state: 'washing',
+          remainingMinutes: 30,
+          doorLocked: true,
+          programName: 'Cotton Tiêu chuẩn (Mô phỏng)'
+        }
+      });
+      setLiveNotice('Đã chuyển sang chế độ Mô phỏng (Simulator) với chu trình 30 phút chạy thử.');
+    } else {
+      onUpdateMetrics(device.id, {
+        washingMachine: {
+          ...w,
+          dataSource: 'live_api'
+        }
+      });
+      handleSyncFromLG();
+    }
+
+    setTimeout(() => {
+      setLiveNotice(null);
+    }, 4000);
+  };
+
+  const handleStartSimulatedCycle = () => {
     onUpdateMetrics(device.id, {
       washingMachine: {
         ...w,
+        dataSource: 'simulator',
         state: 'washing',
         remainingMinutes: 30,
-        doorLocked: true
+        doorLocked: true,
+        programName: 'Cotton Chăm sóc dịu nhẹ (Mô phỏng)'
       }
     });
   };
@@ -130,6 +189,38 @@ export const WasherCard: React.FC<WasherCardProps> = ({
 
       {device.isOnline && (
         <div className="mt-4 space-y-3.5">
+          {/* Mode Badge & Switcher */}
+          <div className="flex items-center justify-between p-2 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 text-xs">
+            <div className="flex items-center gap-1.5">
+              {isLiveMode ? (
+                <span className="inline-flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <Cloud size={13} />
+                  <span>LG ThinQ Live Cloud API</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 font-bold text-purple-600 dark:text-purple-400">
+                  <span>🧪 Chế độ Mô phỏng (Simulator)</span>
+                </span>
+              )}
+            </div>
+
+            <button
+              onClick={() => toggleDataSourceMode(isLiveMode ? 'simulator' : 'live_api')}
+              className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+            >
+              {isLiveMode ? 'Đổi sang Mô phỏng' : 'Đổi sang Live LG API'}
+            </button>
+          </div>
+
+          {/* Live Notification Banner */}
+          {liveNotice && (
+            <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 text-xs text-indigo-900 dark:text-indigo-200 flex items-start gap-2 animate-fadeIn">
+              <CheckCircle2 size={16} className="text-indigo-500 shrink-0 mt-0.5" />
+              <span>{liveNotice}</span>
+            </div>
+          )}
+
           {/* Status & Progress Banner */}
           <div className="p-3.5 rounded-2xl bg-gradient-to-r from-purple-500/10 via-indigo-500/5 to-transparent border border-purple-200/60 dark:border-purple-800/40">
             <div className="flex items-center justify-between">
@@ -158,8 +249,10 @@ export const WasherCard: React.FC<WasherCardProps> = ({
                       <span>Chu trình giặt hoàn tất! Cần phơi đồ ngay.</span>
                     </div>
                   ) : (
-                    <span className="text-sm font-semibold text-slate-500">
-                      Đang ở trạng thái chờ lệnh giặt
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      {isLiveMode
+                        ? 'Máy giặt ở nhà bạn hiện đang TẮT NGUỒN hoặc ở trạng thái CHỜ'
+                        : 'Đang ở trạng thái chờ lệnh giặt'}
                     </span>
                   )}
                 </div>
@@ -183,40 +276,53 @@ export const WasherCard: React.FC<WasherCardProps> = ({
             )}
           </div>
 
-          {/* Quick Actions Bar */}
-          {isCompleted ? (
-            <div className="flex items-center gap-2">
+          {/* Quick Actions & Live Sync */}
+          <div className="space-y-2">
+            {isLiveMode ? (
               <button
-                onClick={() => {
-                  onCreateTask(device.id, `Lấy đồ trong ${device.name} đem phơi`, 10);
-                  handleDoneTakingClothes();
-                }}
-                className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition"
+                onClick={handleSyncFromLG}
+                disabled={isSyncingLive}
+                className="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition disabled:opacity-50"
               >
-                <Sparkles size={14} />
-                <span>Nhận việc: Đem phơi quần áo (+10 XP)</span>
+                <RefreshCw size={14} className={isSyncingLive ? 'animate-spin' : ''} />
+                <span>
+                  {isSyncingLive ? 'Đang hỏi LG ThinQ Cloud...' : '🔄 Kiểm tra trạng thái máy thật từ LG ThinQ'}
+                </span>
               </button>
-            </div>
-          ) : !isRunning ? (
-            <button
-              onClick={handleStartCycle}
-              className="w-full py-2 px-3 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-purple-100 transition"
-            >
-              <RotateCw size={14} />
-              <span>Chạy thử chu trình giặt Cotton (30 phút)</span>
-            </button>
-          ) : (
-            <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-              <span>Khóa cửa an toàn: {w.doorLocked ? 'Đang khóa' : 'Mở'}</span>
-              <span>Lồng giặt: {w.drumCleanCycleCount}/30 lần giặt</span>
-            </div>
-          )}
+            ) : isCompleted ? (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    onCreateTask(device.id, `Lấy đồ trong ${device.name} đem phơi`, 10);
+                    handleDoneTakingClothes();
+                  }}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition"
+                >
+                  <Sparkles size={14} />
+                  <span>Nhận việc: Đem phơi quần áo (+10 XP)</span>
+                </button>
+              </div>
+            ) : !isRunning ? (
+              <button
+                onClick={handleStartSimulatedCycle}
+                className="w-full py-2 px-3 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-purple-100 transition"
+              >
+                <RotateCw size={14} />
+                <span>Chạy thử chu trình giặt mô phỏng (30 phút)</span>
+              </button>
+            ) : (
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span>Khóa cửa an toàn: {w.doorLocked ? 'Đang khóa' : 'Mở'}</span>
+                <span>Lồng giặt: {w.drumCleanCycleCount}/30 lần giặt</span>
+              </div>
+            )}
+          </div>
 
           {/* Bottom Bar: Power & Clean Status */}
           <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-700/80 text-[11px]">
             <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium">
               <Zap size={13} className="text-amber-400" />
-              <span>{isRunning ? (device.currentWattage || 380) : 2}W (~{device.powerUsageKwhToday || device.powerUsageKwh} kWh/ngày)</span>
+              <span>{isRunning ? (device.currentWattage || 380) : 0}W (~{device.powerUsageKwhToday || device.powerUsageKwh} kWh/ngày)</span>
             </div>
 
             <button

@@ -9,7 +9,7 @@ import {
   initialBadges, initialSettings 
 } from '../data/initialData';
 import { restoreInvestmentState } from './useInvestmentStore';
-import { SimulationService } from '../services/iot';
+import { SimulationService, LGThinQService } from '../services/iot';
 
 const STORAGE_KEY = 'famlife_app_data_v2';
 
@@ -330,6 +330,76 @@ export const useAppStore = () => {
     return { updatedDevices, newAlerts };
   };
 
+  const syncLGWasherLiveState = async (deviceId: string) => {
+    const device = globalState.iotDevices.find(d => d.id === deviceId);
+    if (!device || device.type !== 'washing_machine') {
+      return { success: false, message: 'Thiết bị không phải máy giặt.' };
+    }
+
+    const token = globalState.settings.lgThinqToken;
+    if (!token) {
+      return { success: false, message: 'Chưa có Token LG ThinQ trong Cài đặt Cloud API.' };
+    }
+
+    const res = await LGThinQService.fetchWasherLiveState(token, device.externalDeviceId);
+    const m = res.metrics;
+
+    const stateLabel = m.state === 'washing' ? 'Đang giặt' :
+                       m.state === 'rinsing' ? 'Đang xả nước' :
+                       m.state === 'spinning' ? 'Đang vắt cực khô' :
+                       m.state === 'completed' ? 'Đã giặt xong' : 'Chờ lệnh giặt';
+
+    const isRunning = m.state === 'washing' || m.state === 'rinsing' || m.state === 'spinning';
+
+    const updatedDevice: IoTDevice = {
+      ...device,
+      lastUpdated: 'Vừa xong (Live LG ThinQ)',
+      currentWattage: isRunning ? 380 : (m.isPoweredOn ? 5 : 0),
+      washingMachine: {
+        ...m,
+        dataSource: 'live_api'
+      },
+      metrics: [
+        { label: 'Trạng thái', value: `${stateLabel} (${m.programName})`, status: m.state === 'completed' ? 'warning' : 'normal' },
+        { label: 'Thời gian còn lại', value: m.remainingMinutes, unit: 'phút', status: 'normal' },
+        { label: 'Cửa máy giặt', value: m.doorLocked ? 'Khóa an toàn' : 'Mở khóa', status: 'normal' },
+        { label: 'Vệ sinh lồng giặt', value: `${m.drumCleanCycleCount}/30 lần`, status: m.drumCleanCycleCount > 25 ? 'warning' : 'normal' }
+      ]
+    };
+
+    if (m.state === 'completed' && (!device.alerts || !device.alerts.some(a => a.id.includes('alert-wash-live')))) {
+      const alert = {
+        id: `alert-wash-live-${Date.now()}`,
+        level: 'info' as const,
+        message: `Máy giặt thật "${device.name}" đã hoàn thành chu trình giặt! Hãy lấy đồ đem phơi.`,
+        timestamp: 'Vừa xong',
+        actionRequired: 'Lấy đồ đem phơi'
+      };
+      updatedDevice.alerts = [alert, ...(updatedDevice.alerts || [])];
+    }
+
+    globalState.iotDevices = globalState.iotDevices.map(d => d.id === deviceId ? updatedDevice : d);
+    notify();
+
+    return {
+      success: true,
+      message: res.message,
+      state: m.state,
+      remainingMinutes: m.remainingMinutes,
+      programName: m.programName,
+      isPoweredOn: m.isPoweredOn
+    };
+  };
+
+  const discoverLGDevices = async () => {
+    const token = globalState.settings.lgThinqToken;
+    if (!token) {
+      return { success: false, message: 'Chưa có Token LG ThinQ. Vui lòng nhập token trước.' };
+    }
+    const devices = await LGThinQService.fetchUserDevices(token);
+    return { success: true, devices };
+  };
+
   const createTaskFromIoT = (deviceId: string, title: string, xpReward: number = 15) => {
     const device = globalState.iotDevices.find(d => d.id === deviceId);
     const newTask = addTask({
@@ -564,6 +634,8 @@ export const useAppStore = () => {
     toggleIoTDeviceOnline,
     setIoTDevices,
     syncIoTTelemetry,
+    syncLGWasherLiveState,
+    discoverLGDevices,
     createTaskFromIoT,
     convertIoTEnergyToExpense
   };

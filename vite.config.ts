@@ -17,6 +17,12 @@ export default defineConfig({
         target: 'https://api.binance.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/binance/, '')
+      },
+      '/api/thinq': {
+        target: 'https://api-gateway.thinq.developer.lge.com',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api\/thinq/, '')
       }
     }
   }
