@@ -205,6 +205,7 @@ export const AddDeviceModal: React.FC<AddDeviceModalProps> = ({
               <option value="smartthings">Samsung SmartThings Cloud API</option>
               <option value="tuya">Tuya / SmartLife OpenAPI (Karofi/Kangaroo)</option>
               <option value="lg_thinq">LG ThinQ Connect API</option>
+              <option value="tsmartlife">Toshiba TSmartLife Cloud (Tủ lạnh, Máy giặt Toshiba)</option>
               <option value="simulation">Mô phỏng Telemetry thông minh (Simulation)</option>
             </select>
           </div>

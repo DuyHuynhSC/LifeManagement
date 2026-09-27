@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Key, Zap, CheckCircle2, AlertCircle, Save, ExternalLink } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
-import { SmartThingsService, TuyaService, LGThinQService } from '../../services/iot';
+import { SmartThingsService, TuyaService, LGThinQService, TSmartLifeService } from '../../services/iot';
 
 interface CloudConfigModalProps {
   isOpen: boolean;
@@ -19,6 +19,8 @@ export const CloudConfigModal: React.FC<CloudConfigModalProps> = ({
   const [tuyaClientId, setTuyaClientId] = useState(settings.tuyaClientId || '');
   const [tuyaClientSecret, setTuyaClientSecret] = useState(settings.tuyaClientSecret || '');
   const [lgThinqToken, setLgThinqToken] = useState(settings.lgThinqToken || '');
+  const [tsmartlifeAccount, setTsmartlifeAccount] = useState(settings.tsmartlifeAccount || '');
+  const [tsmartlifeToken, setTsmartlifeToken] = useState(settings.tsmartlifeToken || '');
 
   const [testResult, setTestResult] = useState<{ provider: string; message: string; success: boolean } | null>(null);
   const [isTesting, setIsTesting] = useState(false);
@@ -62,6 +64,18 @@ export const CloudConfigModal: React.FC<CloudConfigModalProps> = ({
     setIsTesting(false);
   };
 
+  const handleTestTSmartLife = async () => {
+    setIsTesting(true);
+    setTestResult(null);
+    const res = await TSmartLifeService.testConnection(tsmartlifeAccount, tsmartlifeToken);
+    setTestResult({
+      provider: 'Toshiba TSmartLife',
+      message: res.message,
+      success: res.success
+    });
+    setIsTesting(false);
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     updateAppSettings({
@@ -69,7 +83,9 @@ export const CloudConfigModal: React.FC<CloudConfigModalProps> = ({
       smartThingsToken: smartThingsToken.trim(),
       tuyaClientId: tuyaClientId.trim(),
       tuyaClientSecret: tuyaClientSecret.trim(),
-      lgThinqToken: lgThinqToken.trim()
+      lgThinqToken: lgThinqToken.trim(),
+      tsmartlifeAccount: tsmartlifeAccount.trim(),
+      tsmartlifeToken: tsmartlifeToken.trim()
     });
     setSavedSuccess(true);
     setTimeout(() => {
@@ -220,6 +236,42 @@ export const CloudConfigModal: React.FC<CloudConfigModalProps> = ({
               placeholder="Nhập LG ThinQ Token..."
               className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
             />
+          </div>
+
+          {/* Toshiba TSmartLife */}
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-slate-800 dark:text-white">
+                Toshiba TSmartLife (Tủ lạnh, Máy giặt Toshiba)
+              </span>
+              <button
+                type="button"
+                disabled={isTesting || (!tsmartlifeAccount && !tsmartlifeToken)}
+                onClick={handleTestTSmartLife}
+                className="text-[11px] text-red-600 dark:text-red-400 font-bold hover:underline disabled:opacity-40"
+              >
+                Kiểm tra kết nối
+              </button>
+            </div>
+            <div className="space-y-1.5">
+              <input
+                type="text"
+                value={tsmartlifeAccount}
+                onChange={e => setTsmartlifeAccount(e.target.value)}
+                placeholder="Email hoặc SĐT đăng nhập TSmartLife..."
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+              />
+              <input
+                type="password"
+                value={tsmartlifeToken}
+                onChange={e => setTsmartlifeToken(e.target.value)}
+                placeholder="Mật khẩu hoặc Token TSmartLife..."
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+              />
+            </div>
+            <p className="text-[10px] text-slate-400">
+              Kết nối trực tiếp thiết bị qua ứng dụng Toshiba TSmartLife (Tủ lạnh OriginFresh, Máy giặt GreatWaves).
+            </p>
           </div>
 
           {/* Action buttons */}

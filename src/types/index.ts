@@ -78,7 +78,7 @@ export interface Task {
   xpReward: number;
 }
 
-export type IoTProviderType = 'smartthings' | 'tuya' | 'lg_thinq' | 'simulation';
+export type IoTProviderType = 'smartthings' | 'tuya' | 'lg_thinq' | 'tsmartlife' | 'simulation';
 
 export interface WaterPurifierMetrics {
   tdsInPpm: number;
@@ -153,6 +153,8 @@ export interface AppSettings {
   tuyaClientId?: string;
   tuyaClientSecret?: string;
   lgThinqToken?: string;
+  tsmartlifeAccount?: string;
+  tsmartlifeToken?: string;
 }
 
 export interface GamificationBadge {
