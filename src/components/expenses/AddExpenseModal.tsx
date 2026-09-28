@@ -418,13 +418,10 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
               {t('expense_category')} *
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-base">
-                {getCategoryInfo(category).icon}
-              </div>
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value)}
-                className="w-full py-2.5 pl-10 pr-9 text-base sm:text-xs rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-emerald-500 outline-none appearance-none cursor-pointer"
+                className="w-full py-2.5 pl-3.5 pr-9 text-base sm:text-xs rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-emerald-500 outline-none appearance-none cursor-pointer"
               >
                 {categories.map(cat => (
                   <option key={cat.id} value={cat.id} className="py-1">
