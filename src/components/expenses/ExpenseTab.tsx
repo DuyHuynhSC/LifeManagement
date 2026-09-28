@@ -54,19 +54,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
 
   const canManage = currentUser.role === 'admin' || currentUser.role === 'manager';
 
-  // Category labels, colors and icons mapped dynamically from categories
-  const categoryConfig: Record<string, { label: string; color: string; icon: string }> = useMemo(() => {
-    const map: Record<string, { label: string; color: string; icon: string }> = {};
-    categories.forEach(c => {
-      map[c.id] = {
-        label: c.name,
-        color: c.color || '#10b981',
-        icon: c.icon || '🏷️'
-      };
-    });
-    return map;
-  }, [categories]);
-
+  const categoryMap = Object.fromEntries(categories.map(c => [c.id, c]));
   const userMap = Object.fromEntries(users.map(u => [u.id, u.name]));
   const assetMap = Object.fromEntries(assets.map(a => [a.id, a.name]));
 
@@ -467,7 +455,8 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
         ) : (
           <div className="space-y-2.5">
             {filteredExpenses.map(exp => {
-              const cat = categoryConfig[exp.category] || { label: exp.category, color: '#64748b', icon: '📦' };
+              const itemCat = categoryMap[exp.category];
+              const cat = { label: itemCat?.name || exp.category, color: itemCat?.color || '#64748b', icon: itemCat?.icon || '📦' };
               const payerName = userMap[exp.payerId] || exp.payerId;
               const linkedAsset = exp.assetId ? assetMap[exp.assetId] : null;
 

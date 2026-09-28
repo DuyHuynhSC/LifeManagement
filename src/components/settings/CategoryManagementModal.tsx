@@ -7,11 +7,7 @@ import {
   Check, 
   Tags, 
   AlertCircle, 
-  Layers, 
-  Palette, 
-  RotateCcw,
-  Sparkles,
-  ArrowRight
+  Sparkles
 } from 'lucide-react';
 import { CategoryItem } from '../../types';
 import { useAppStore } from '../../store/useAppStore';
@@ -84,7 +80,7 @@ export const CategoryManagementModal: React.FC<CategoryManagementModalProps> = (
     setName('');
   };
 
-  const handleSaveAdd = (e: React.FormEvent) => {
+  const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) {
@@ -92,48 +88,26 @@ export const CategoryManagementModal: React.FC<CategoryManagementModalProps> = (
       return;
     }
 
-    // Check duplicate name
-    if (categories.some(c => c.name.toLowerCase() === trimmed.toLowerCase())) {
+    if (categories.some(c => c.id !== editingId && c.name.toLowerCase() === trimmed.toLowerCase())) {
       showStatus('Danh mục này đã tồn tại!', 'error');
       return;
     }
 
-    const selectedIcon = customEmoji.trim() || icon;
-    addCategory({
+    const payload = {
       name: trimmed,
-      icon: selectedIcon,
+      icon: customEmoji.trim() || icon,
       color
-    });
+    };
 
-    handleCancelForm();
-    showStatus(`Đã thêm danh mục "${trimmed}" thành công!`);
-  };
-
-  const handleSaveEdit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingId) return;
-
-    const trimmed = name.trim();
-    if (!trimmed) {
-      showStatus('Vui lòng nhập tên danh mục!', 'error');
-      return;
+    if (editingId) {
+      updateCategory(editingId, payload);
+      showStatus(`Đã cập nhật danh mục "${trimmed}" thành công!`);
+    } else {
+      addCategory(payload);
+      showStatus(`Đã thêm danh mục "${trimmed}" thành công!`);
     }
 
-    // Check duplicate name on other categories
-    if (categories.some(c => c.id !== editingId && c.name.toLowerCase() === trimmed.toLowerCase())) {
-      showStatus('Tên danh mục này đã trùng với một danh mục khác!', 'error');
-      return;
-    }
-
-    const selectedIcon = customEmoji.trim() || icon;
-    updateCategory(editingId, {
-      name: trimmed,
-      icon: selectedIcon,
-      color
-    });
-
     handleCancelForm();
-    showStatus(`Đã cập nhật danh mục "${trimmed}" thành công!`);
   };
 
   const handlePromptDelete = (cat: CategoryItem) => {
@@ -206,71 +180,69 @@ export const CategoryManagementModal: React.FC<CategoryManagementModalProps> = (
         <div className="p-4 space-y-4 overflow-y-auto flex-1 text-xs">
 
           {/* Delete with Reassignment Confirmation Dialog */}
-          {deletingCategory && (
-            <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 space-y-3 animate-in fade-in">
-              <div className="flex items-start gap-2.5">
-                <span className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-900 text-rose-600 dark:text-rose-300 shrink-0">
-                  <Trash2 size={16} />
-                </span>
-                <div>
-                  <h3 className="font-bold text-rose-900 dark:text-rose-200 text-xs">
-                    Xác nhận xóa danh mục "{deletingCategory.icon} {deletingCategory.name}"
-                  </h3>
-                  {(() => {
-                    const count = expenses.filter(e => e.category === deletingCategory.id).length;
-                    return (
-                      <p className="text-[11px] text-rose-700 dark:text-rose-300 font-medium mt-0.5">
-                        {count > 0 
-                          ? `Danh mục này đang có ${count} giao dịch. Vui lòng chọn danh mục chuyển tiếp để không làm mất lịch sử chi tiêu:`
-                          : 'Danh mục này chưa có giao dịch nào liên kết. Bạn có thể xóa an toàn.'}
-                      </p>
-                    );
-                  })()}
+          {deletingCategory && (() => {
+            const linkedCount = expenses.filter(e => e.category === deletingCategory.id).length;
+            return (
+              <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 space-y-3 animate-in fade-in">
+                <div className="flex items-start gap-2.5">
+                  <span className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-900 text-rose-600 dark:text-rose-300 shrink-0">
+                    <Trash2 size={16} />
+                  </span>
+                  <div>
+                    <h3 className="font-bold text-rose-900 dark:text-rose-200 text-xs">
+                      Xác nhận xóa danh mục "{deletingCategory.icon} {deletingCategory.name}"
+                    </h3>
+                    <p className="text-[11px] text-rose-700 dark:text-rose-300 font-medium mt-0.5">
+                      {linkedCount > 0 
+                        ? `Danh mục này đang có ${linkedCount} giao dịch. Vui lòng chọn danh mục chuyển tiếp để không làm mất lịch sử chi tiêu:`
+                        : 'Danh mục này chưa có giao dịch nào liên kết. Bạn có thể xóa an toàn.'}
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              {expenses.filter(e => e.category === deletingCategory.id).length > 0 && (
-                <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-rose-900 dark:text-rose-200">
-                    Chuyển các giao dịch sang:
-                  </label>
-                  <select
-                    value={fallbackId}
-                    onChange={e => setFallbackId(e.target.value)}
-                    className="w-full p-2 rounded-xl border border-rose-300 dark:border-rose-800 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs font-medium outline-none focus:ring-2 focus:ring-rose-500"
+                {linkedCount > 0 && (
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-rose-900 dark:text-rose-200">
+                      Chuyển các giao dịch sang:
+                    </label>
+                    <select
+                      value={fallbackId}
+                      onChange={e => setFallbackId(e.target.value)}
+                      className="w-full p-2 rounded-xl border border-rose-300 dark:border-rose-800 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs font-medium outline-none focus:ring-2 focus:ring-rose-500"
+                    >
+                      {categories.filter(c => c.id !== deletingCategory.id).map(c => (
+                        <option key={c.id} value={c.id}>
+                          {c.icon} {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setDeletingCategory(null)}
+                    className="flex-1 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-50 transition"
                   >
-                    {categories.filter(c => c.id !== deletingCategory.id).map(c => (
-                      <option key={c.id} value={c.id}>
-                        {c.icon} {c.name}
-                      </option>
-                    ))}
-                  </select>
+                    Hủy bỏ
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmDelete}
+                    className="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-sm transition"
+                  >
+                    Đồng ý xóa
+                  </button>
                 </div>
-              )}
-
-              <div className="flex gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setDeletingCategory(null)}
-                  className="flex-1 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-50 transition"
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  type="button"
-                  onClick={handleConfirmDelete}
-                  className="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-sm transition"
-                >
-                  Đồng ý xóa
-                </button>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Add / Edit Form */}
           {(isAdding || editingId) && (
             <form 
-              onSubmit={isAdding ? handleSaveAdd : handleSaveEdit} 
+              onSubmit={handleSave} 
               className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-3.5 shadow-sm animate-in fade-in"
             >
               <div className="flex items-center justify-between pb-1 border-b border-slate-200 dark:border-slate-700">

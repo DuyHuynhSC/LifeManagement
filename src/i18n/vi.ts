@@ -363,6 +363,13 @@ export const vi = {
   inv_sync_no_assets: 'Danh mục hiện tại chưa có mã cổ phiếu hoặc crypto nào để lấy giá.',
   inv_sync_generic_error: 'Đã xảy ra lỗi trong quá trình đồng bộ giá thị trường.',
 
+  // Pull to refresh
+  inv_pull_refresh_hint: 'Kéo xuống để cập nhật giá cổ phiếu',
+  inv_pull_refresh_release: 'Thả ra để cập nhật giá cổ phiếu',
+  inv_pull_refresh_loading: 'Đang tải lại giá cổ phiếu...',
+  inv_pull_refresh_success: 'Đã cập nhật giá mới nhất',
+  inv_pull_refresh_top_tip: 'Nắm kéo xuống để tải lại giá',
+
   // Asset Classes
   inv_class_all: 'Tất cả',
   inv_class_stock: 'Cổ phiếu',

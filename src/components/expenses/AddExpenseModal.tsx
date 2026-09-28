@@ -50,14 +50,6 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const getCategoryInfo = (catId: ExpenseCategory) => {
-    const found = categories.find(c => c.id === catId);
-    if (found) {
-      return { id: found.id, label: found.name, icon: found.icon || '🏷️', color: found.color };
-    }
-    return { id: 'other', label: 'Khác', icon: '📦', color: '#64748b' };
-  };
-
   interface TitleSuggestion {
     title: string;
     category: ExpenseCategory;
@@ -379,7 +371,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                 </div>
                 <div className="divide-y divide-slate-100 dark:divide-slate-700/60">
                   {filteredTitleSuggestions.map((item, idx) => {
-                    const catInfo = getCategoryInfo(item.category);
+                    const itemCat = categories.find(c => c.id === item.category);
                     return (
                       <button
                         key={`${item.title}-${idx}`}
@@ -389,7 +381,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                         className="w-full px-3 py-2.5 text-left flex items-center justify-between hover:bg-emerald-50/70 dark:hover:bg-slate-700/80 transition group"
                       >
                         <div className="flex items-center gap-2 min-w-0">
-                          <span className="text-base shrink-0">{catInfo.icon}</span>
+                          <span className="text-base shrink-0">{itemCat?.icon || '🏷️'}</span>
                           <span className="font-semibold text-xs text-slate-800 dark:text-slate-100 truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
                             {item.title}
                           </span>
@@ -401,7 +393,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                             </span>
                           )}
                           <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium">
-                            {catInfo.label}
+                            {itemCat?.name || item.category}
                           </span>
                         </div>
                       </button>

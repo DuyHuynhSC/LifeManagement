@@ -365,6 +365,13 @@ export const en: typeof vi = {
   inv_sync_no_assets: 'No stocks or crypto found in portfolio to sync.',
   inv_sync_generic_error: 'An error occurred while syncing market prices.',
 
+  // Pull to refresh
+  inv_pull_refresh_hint: 'Pull down to refresh stock prices',
+  inv_pull_refresh_release: 'Release to refresh stock prices',
+  inv_pull_refresh_loading: 'Updating stock prices...',
+  inv_pull_refresh_success: 'Stock prices updated successfully',
+  inv_pull_refresh_top_tip: 'Pull down to refresh prices',
+
   // Asset Classes
   inv_class_all: 'All',
   inv_class_stock: 'Stocks',

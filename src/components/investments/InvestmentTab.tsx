@@ -24,6 +24,7 @@ import { DividendTrackerView } from './DividendTrackerView';
 import { InvestmentAsset, AssetClass } from '../../types/investment';
 import { ASSET_CLASS_LABELS } from '../../services/investmentCalculator';
 import { syncAllMarketPrices } from '../../services/marketPriceService';
+import { PullToRefresh } from '../common/PullToRefresh';
 import { useAppStore } from '../../store/useAppStore';
 import { getTranslation } from '../../i18n';
 
@@ -130,7 +131,15 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-24">
+    <PullToRefresh
+      onRefresh={handleSyncAllPrices}
+      isRefreshing={isSyncingPrices}
+      pullDownText={t('inv_pull_refresh_hint')}
+      releaseText={t('inv_pull_refresh_release')}
+      refreshingText={t('inv_pull_refresh_loading')}
+      successText={t('inv_pull_refresh_success')}
+      className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-24"
+    >
       {/* Top Bar with Title & Actions */}
       <div className="flex items-center justify-between gap-2.5">
         <div className="min-w-0 flex-1">
@@ -367,6 +376,6 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
           }}
         />
       )}
-    </div>
+    </PullToRefresh>
   );
 };

@@ -365,6 +365,13 @@ export const ja: typeof vi = {
   inv_sync_no_assets: '同期可能な株式や仮想通貨の保有データがありません。',
   inv_sync_generic_error: '相場同期中にエラーが発生しました。',
 
+  // Pull to refresh
+  inv_pull_refresh_hint: '下に引っ張って株価を更新',
+  inv_pull_refresh_release: '離して株価を更新',
+  inv_pull_refresh_loading: '最新の株価を取得中...',
+  inv_pull_refresh_success: '最新価格に更新しました',
+  inv_pull_refresh_top_tip: '下に引っ張って価格を更新',
+
   // Asset Classes
   inv_class_all: 'すべて',
   inv_class_stock: '株式',

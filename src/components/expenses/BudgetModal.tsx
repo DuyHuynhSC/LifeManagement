@@ -13,14 +13,12 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({ onClose }) => {
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
 
   // Map initial values
-  const [limits, setLimits] = useState<Record<string, string>>(() => {
-    const map: Record<string, string> = {};
-    categories.forEach(cat => {
+  const [limits, setLimits] = useState<Record<string, string>>(() =>
+    Object.fromEntries(categories.map(cat => {
       const b = budgets.find(item => item.category === cat.id);
-      map[cat.id] = b && b.monthlyLimit > 0 ? String(b.monthlyLimit) : '';
-    });
-    return map;
-  });
+      return [cat.id, b && b.monthlyLimit > 0 ? String(b.monthlyLimit) : ''];
+    }))
+  );
 
   const handleLimitChange = (catId: string, val: string) => {
     const digits = val.replace(/\D/g, '').replace(/^0+(?=\d)/, '');
