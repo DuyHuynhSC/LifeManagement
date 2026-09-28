@@ -1,4 +1,4 @@
-import { User, Asset, Expense, Budget, Task, IoTDevice, GamificationBadge, AppSettings } from '../types';
+import { User, Asset, Expense, Budget, Task, IoTDevice, GamificationBadge, AppSettings, CategoryItem } from '../types';
 
 export const initialUsers: User[] = [
   {
@@ -9,6 +9,17 @@ export const initialUsers: User[] = [
     points: 0,
     badges: []
   }
+];
+
+export const initialCategories: CategoryItem[] = [
+  { id: 'food', name: 'Ăn uống', icon: '🍔', color: '#10b981', isSystem: true },
+  { id: 'utilities', name: 'Điện nước & Net', icon: '💡', color: '#3b82f6', isSystem: true },
+  { id: 'appliances', name: 'Mua thiết bị', icon: '📺', color: '#8b5cf6', isSystem: true },
+  { id: 'maintenance', name: 'Bảo trì linh kiện', icon: '🔧', color: '#f59e0b', isSystem: true },
+  { id: 'healthcare', name: 'Y tế & Thuốc men', icon: '💊', color: '#ef4444', isSystem: true },
+  { id: 'education', name: 'Học tập & Giáo dục', icon: '📚', color: '#ec4899', isSystem: true },
+  { id: 'entertainment', name: 'Giải trí', icon: '🎬', color: '#06b6d4', isSystem: true },
+  { id: 'other', name: 'Chi tiêu khác', icon: '📦', color: '#64748b', isSystem: true },
 ];
 
 export const initialAssets: Asset[] = [];

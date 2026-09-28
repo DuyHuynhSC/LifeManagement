@@ -9,24 +9,13 @@ interface BudgetModalProps {
 }
 
 export const BudgetModal: React.FC<BudgetModalProps> = ({ onClose }) => {
-  const { budgets, updateBudget, settings } = useAppStore();
+  const { budgets, updateBudget, categories, settings } = useAppStore();
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
-
-  const categoryConfig: { id: ExpenseCategory; label: string; icon: string }[] = [
-    { id: 'food', label: t('cat_food'), icon: '🍔' },
-    { id: 'utilities', label: t('cat_utilities'), icon: '💡' },
-    { id: 'appliances', label: t('cat_appliances'), icon: '📺' },
-    { id: 'maintenance', label: t('cat_maintenance'), icon: '🔧' },
-    { id: 'healthcare', label: t('cat_healthcare'), icon: '💊' },
-    { id: 'education', label: t('cat_education'), icon: '📚' },
-    { id: 'entertainment', label: t('cat_entertainment'), icon: '🎬' },
-    { id: 'other', label: t('cat_other'), icon: '📦' },
-  ];
 
   // Map initial values
   const [limits, setLimits] = useState<Record<string, string>>(() => {
     const map: Record<string, string> = {};
-    categoryConfig.forEach(cat => {
+    categories.forEach(cat => {
       const b = budgets.find(item => item.category === cat.id);
       map[cat.id] = b && b.monthlyLimit > 0 ? String(b.monthlyLimit) : '';
     });
@@ -42,7 +31,7 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({ onClose }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    categoryConfig.forEach(cat => {
+    categories.forEach(cat => {
       const val = Number(limits[cat.id]) || 0;
       updateBudget(cat.id, val);
     });
@@ -88,7 +77,7 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({ onClose }) => {
           </div>
 
           <div className="space-y-2">
-            {categoryConfig.map(cat => (
+            {categories.map(cat => (
               <div
                 key={cat.id}
                 className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-700 gap-2"
@@ -96,7 +85,7 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({ onClose }) => {
                 <div className="flex items-center gap-2 min-w-[130px]">
                   <span className="text-lg">{cat.icon}</span>
                   <span className="font-semibold text-slate-800 dark:text-slate-200 text-xs">
-                    {cat.label}
+                    {cat.name}
                   </span>
                 </div>
                 <div className="relative flex-1 max-w-[170px]">

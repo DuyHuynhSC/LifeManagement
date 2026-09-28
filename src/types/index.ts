@@ -39,15 +39,15 @@ export interface Asset {
   components: AssetComponent[];
 }
 
-export type ExpenseCategory = 
-  | 'food' 
-  | 'utilities' 
-  | 'appliances' 
-  | 'maintenance' 
-  | 'healthcare' 
-  | 'education' 
-  | 'entertainment' 
-  | 'other';
+export interface CategoryItem {
+  id: string;
+  name: string;
+  icon?: string;
+  color?: string;
+  isSystem?: boolean;
+}
+
+export type ExpenseCategory = string;
 
 export interface Expense {
   id: string;

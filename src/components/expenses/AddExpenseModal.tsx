@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { X, Wallet, Mic, Plus, Pencil, QrCode, Sparkles, Clock } from 'lucide-react';
+import { X, Wallet, Mic, Plus, Pencil, QrCode, Sparkles, Clock, ChevronDown } from 'lucide-react';
 import { ExpenseCategory, Expense } from '../../types';
 import { useAppStore } from '../../store/useAppStore';
 import { getTranslation } from '../../i18n';
@@ -23,7 +23,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
   prefillTitle,
   expenseToEdit
 }) => {
-  const { addExpense, updateExpense, assets, users, currentUser, settings, expenses } = useAppStore();
+  const { addExpense, updateExpense, assets, users, currentUser, settings, expenses, categories } = useAppStore();
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
 
   const [title, setTitle] = useState(expenseToEdit?.title || prefillTitle || '');
@@ -32,22 +32,13 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
   const [amountStr, setAmountStr] = useState<string>(
     expenseToEdit ? String(expenseToEdit.amount) : (prefillAmount ? String(prefillAmount) : '')
   );
-  const [category, setCategory] = useState<ExpenseCategory>(expenseToEdit?.category || prefillCategory || 'food');
+  const [category, setCategory] = useState<ExpenseCategory>(
+    expenseToEdit?.category || prefillCategory || (categories.length > 0 ? categories[0].id : 'food')
+  );
   const [date, setDate] = useState(expenseToEdit?.date || new Date().toISOString().split('T')[0]);
   const [payerId, setPayerId] = useState(expenseToEdit?.payerId || currentUser.id);
   const [assetId, setAssetId] = useState(expenseToEdit?.assetId || '');
   const [notes, setNotes] = useState(expenseToEdit?.notes || '');
-
-  const categories: { id: ExpenseCategory; label: string; icon: string }[] = [
-    { id: 'food', label: t('cat_food'), icon: '🍔' },
-    { id: 'utilities', label: t('cat_utilities'), icon: '💡' },
-    { id: 'appliances', label: t('cat_appliances'), icon: '📺' },
-    { id: 'maintenance', label: t('cat_maintenance'), icon: '🔧' },
-    { id: 'healthcare', label: t('cat_healthcare'), icon: '💊' },
-    { id: 'education', label: t('cat_education'), icon: '📚' },
-    { id: 'entertainment', label: t('cat_entertainment'), icon: '🎬' },
-    { id: 'other', label: t('cat_other'), icon: '📦' },
-  ];
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -60,7 +51,11 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
   }, []);
 
   const getCategoryInfo = (catId: ExpenseCategory) => {
-    return categories.find(c => c.id === catId) || { id: 'other' as ExpenseCategory, label: t('cat_other'), icon: '📦' };
+    const found = categories.find(c => c.id === catId);
+    if (found) {
+      return { id: found.id, label: found.name, icon: found.icon || '🏷️', color: found.color };
+    }
+    return { id: 'other', label: 'Khác', icon: '📦', color: '#64748b' };
   };
 
   interface TitleSuggestion {
@@ -417,32 +412,29 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
             )}
           </div>
 
-          {/* Category Chips */}
+          {/* Category Combobox */}
           <div>
-            <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-              {t('expense_category')}
+            <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">
+              {t('expense_category')} *
             </label>
-            <div className="grid grid-cols-4 gap-1.5">
-              {categories.map(cat => {
-                const isSelected = category === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setCategory(cat.id)}
-                    className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${
-                      isSelected
-                        ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 font-bold shadow-sm'
-                        : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300'
-                    }`}
-                  >
-                    <span className="text-base">{cat.icon}</span>
-                    <span className="text-[10px] leading-tight text-center truncate w-full">
-                      {cat.label}
-                    </span>
-                  </button>
-                );
-              })}
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-base">
+                {getCategoryInfo(category).icon}
+              </div>
+              <select
+                value={category}
+                onChange={e => setCategory(e.target.value)}
+                className="w-full py-2.5 pl-10 pr-9 text-base sm:text-xs rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-emerald-500 outline-none appearance-none cursor-pointer"
+              >
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id} className="py-1">
+                    {cat.icon ? `${cat.icon} ` : ''}{cat.name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                <ChevronDown size={16} />
+              </div>
             </div>
           </div>
 

@@ -15,7 +15,8 @@ import {
   Crown,
   Trash2,
   Users,
-  UploadCloud
+  UploadCloud,
+  Tags
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { getTranslation } from '../../i18n';
@@ -24,6 +25,7 @@ import { exportBackupData } from '../../services/backupService';
 import { getInvestmentExportData, restoreInvestmentState } from '../../store/useInvestmentStore';
 import { UserManagementModal } from '../admin/UserManagementModal';
 import { RestoreDataModal } from './RestoreDataModal';
+import { CategoryManagementModal } from './CategoryManagementModal';
 
 export const SettingsTab: React.FC = () => {
   const { 
@@ -36,6 +38,7 @@ export const SettingsTab: React.FC = () => {
     currentUser,
     assets,
     expenses,
+    categories,
     users,
     budgets,
     tasks,
@@ -44,6 +47,7 @@ export const SettingsTab: React.FC = () => {
   } = useAppStore();
 
   const [showUserManagementModal, setShowUserManagementModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -73,6 +77,7 @@ export const SettingsTab: React.FC = () => {
         exportedAt: new Date().toISOString(),
         assets,
         expenses,
+        categories,
         users,
         budgets,
         tasks,
@@ -294,6 +299,60 @@ export const SettingsTab: React.FC = () => {
         </div>
       </div>
 
+      {/* SECTION: EXPENSE CATEGORIES MANAGEMENT */}
+      <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+        <div className="flex items-start gap-3">
+          <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 shrink-0">
+            <Tags size={20} />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+              Danh mục Chi tiêu
+            </h2>
+            <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+              Tùy chỉnh, thêm mới, sửa hoặc xóa các nhóm danh mục chi tiêu ({categories.length} nhóm)
+            </p>
+          </div>
+        </div>
+
+        {/* Category Preview Chips */}
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          {categories.map(cat => (
+            <span
+              key={cat.id}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-600"
+            >
+              <span>{cat.icon}</span>
+              <span>{cat.name}</span>
+            </span>
+          ))}
+        </div>
+
+        <div className="pt-1">
+          <button
+            onClick={() => setShowCategoryModal(true)}
+            className="w-full flex items-center justify-between p-3 rounded-xl border border-teal-200 dark:border-teal-800/80 bg-teal-50/50 dark:bg-teal-950/30 hover:bg-teal-100/60 dark:hover:bg-teal-900/40 transition text-left group active:scale-98"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-teal-500 text-white shadow-sm">
+                <Sliders size={16} />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-teal-900 dark:text-teal-200 group-hover:text-teal-700 dark:group-hover:text-teal-100">
+                  Quản lý Thêm / Sửa / Xóa Danh mục
+                </div>
+                <div className="text-[10px] text-teal-700/90 dark:text-teal-300/90 font-medium">
+                  Bấm để mở bảng điều khiển quản lý danh mục
+                </div>
+              </div>
+            </div>
+            <span className="text-xs font-bold text-teal-600 dark:text-teal-400">
+              Chi tiết →
+            </span>
+          </button>
+        </div>
+      </div>
+
       {/* SECTION 4: DATA & BACKUP & PDF */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
         <div className="flex items-start gap-3">
@@ -466,6 +525,11 @@ export const SettingsTab: React.FC = () => {
       {/* User Management Modal */}
       {showUserManagementModal && (
         <UserManagementModal onClose={() => setShowUserManagementModal(false)} />
+      )}
+
+      {/* Category Management Modal */}
+      {showCategoryModal && (
+        <CategoryManagementModal onClose={() => setShowCategoryModal(false)} />
       )}
 
       {/* Restore Data Modal */}

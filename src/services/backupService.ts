@@ -1,4 +1,4 @@
-import { Asset, Expense, User, Budget, Task, IoTDevice, GamificationBadge, AppSettings } from '../types';
+import { Asset, Expense, User, Budget, Task, IoTDevice, GamificationBadge, AppSettings, CategoryItem } from '../types';
 import { InvestmentAsset, InvestmentTransaction, DividendRecord } from '../types/investment';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
@@ -10,6 +10,7 @@ export interface BackupData {
   exportedAt?: string;
   assets?: Asset[];
   expenses?: Expense[];
+  categories?: CategoryItem[];
   users?: User[];
   budgets?: Budget[];
   tasks?: Task[];

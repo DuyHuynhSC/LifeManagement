@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { 
   User, Asset, AssetComponent, Expense, Budget, Task, 
-  IoTDevice, GamificationBadge, AppSettings, LanguageCode, ThemeMode 
+  IoTDevice, GamificationBadge, AppSettings, LanguageCode, ThemeMode,
+  CategoryItem
 } from '../types';
 import { 
   initialUsers, initialAssets, initialExpenses, 
-  initialBudgets, initialTasks, initialIoTDevices, 
+  initialBudgets, initialCategories, initialTasks, initialIoTDevices, 
   initialBadges, initialSettings 
 } from '../data/initialData';
 import { restoreInvestmentState } from './useInvestmentStore';
@@ -19,6 +20,7 @@ interface AppStoreState {
   assets: Asset[];
   expenses: Expense[];
   budgets: Budget[];
+  categories: CategoryItem[];
   tasks: Task[];
   iotDevices: IoTDevice[];
   badges: GamificationBadge[];
@@ -36,6 +38,7 @@ function getStoredState(): AppStoreState {
         assets: parsed.assets || initialAssets,
         expenses: parsed.expenses || initialExpenses,
         budgets: parsed.budgets || initialBudgets,
+        categories: (parsed.categories && parsed.categories.length > 0) ? parsed.categories : initialCategories,
         tasks: parsed.tasks || initialTasks,
         iotDevices: (parsed.iotDevices && parsed.iotDevices.length > 0) ? parsed.iotDevices : initialIoTDevices,
         badges: parsed.badges || initialBadges,
@@ -54,6 +57,7 @@ function getStoredState(): AppStoreState {
     assets: initialAssets,
     expenses: initialExpenses,
     budgets: initialBudgets,
+    categories: initialCategories,
     tasks: initialTasks,
     iotDevices: initialIoTDevices,
     badges: initialBadges,
@@ -202,6 +206,59 @@ export const useAppStore = () => {
       b.category === category ? { ...b, monthlyLimit } : b
     );
     notify();
+  };
+
+  const addCategory = (categoryData: Omit<CategoryItem, 'id'>) => {
+    const id = `cat-${Date.now()}`;
+    const newCategory: CategoryItem = {
+      ...categoryData,
+      id,
+      name: categoryData.name.trim(),
+      icon: categoryData.icon || '🏷️',
+      color: categoryData.color || '#10b981'
+    };
+    globalState.categories = [...globalState.categories, newCategory];
+    // Create budget slot if not existing
+    if (!globalState.budgets.some(b => b.category === id)) {
+      globalState.budgets = [...globalState.budgets, { category: id, monthlyLimit: 0 }];
+    }
+    notify();
+    return newCategory;
+  };
+
+  const updateCategory = (id: string, updates: Partial<Omit<CategoryItem, 'id'>>) => {
+    globalState.categories = globalState.categories.map(c => 
+      c.id === id 
+        ? { 
+            ...c, 
+            ...updates, 
+            name: updates.name !== undefined ? updates.name.trim() : c.name 
+          } 
+        : c
+    );
+    notify();
+  };
+
+  const deleteCategory = (id: string, fallbackCategoryId?: string) => {
+    if (globalState.categories.length <= 1) {
+      return { success: false, message: 'Phải giữ lại ít nhất một danh mục chi tiêu!' };
+    }
+    const remaining = globalState.categories.filter(c => c.id !== id);
+    const targetFallback = fallbackCategoryId && remaining.some(c => c.id === fallbackCategoryId)
+      ? fallbackCategoryId
+      : (remaining.find(c => c.id === 'other')?.id || remaining[0].id);
+
+    // Update any expenses using this category to fallback
+    globalState.expenses = globalState.expenses.map(e => 
+      e.category === id ? { ...e, category: targetFallback } : e
+    );
+
+    // Remove budget for this category
+    globalState.budgets = globalState.budgets.filter(b => b.category !== id);
+
+    globalState.categories = remaining;
+    notify();
+    return { success: true };
   };
 
   const addTask = (task: Omit<Task, 'id'>) => {
@@ -508,6 +565,7 @@ export const useAppStore = () => {
       assets: initialAssets,
       expenses: initialExpenses,
       budgets: initialBudgets,
+      categories: initialCategories,
       tasks: initialTasks,
       iotDevices: initialIoTDevices,
       badges: initialBadges,
@@ -543,6 +601,10 @@ export const useAppStore = () => {
       const nextBudgets = Array.isArray(backupData.budgets)
         ? backupData.budgets
         : (backupData.budgets !== undefined ? [] : globalState.budgets);
+
+      const nextCategories = Array.isArray(backupData.categories) && backupData.categories.length > 0
+        ? backupData.categories
+        : globalState.categories;
 
       const nextTasks = Array.isArray(backupData.tasks)
         ? backupData.tasks
@@ -583,6 +645,7 @@ export const useAppStore = () => {
         assets: nextAssets,
         expenses: nextExpenses,
         budgets: nextBudgets,
+        categories: nextCategories,
         tasks: nextTasks,
         iotDevices: nextIoT,
         badges: nextBadges,
@@ -620,6 +683,9 @@ export const useAppStore = () => {
     updateExpense,
     deleteExpense,
     updateBudget,
+    addCategory,
+    updateCategory,
+    deleteCategory,
     addTask,
     completeTask,
     setNotifyDaysBeforeExpiry,

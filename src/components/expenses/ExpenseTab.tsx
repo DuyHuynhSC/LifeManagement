@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Plus, 
   Wallet, 
@@ -12,7 +12,9 @@ import {
   Pencil,
   QrCode,
   Calendar,
-  RotateCcw
+  RotateCcw,
+  BarChart3,
+  ChevronDown
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -38,10 +40,11 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
   onOpenVoiceInput,
   onOpenQRScanner 
 }) => {
-  const { expenses, budgets, deleteExpense, users, currentUser, settings, assets } = useAppStore();
+  const { expenses, budgets, categories, deleteExpense, users, currentUser, settings, assets } = useAppStore();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [showBudgetModal, setShowBudgetModal] = useState(false);
+  const [showChart, setShowChart] = useState(false);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'yesterday' | 'week' | 'this_month' | 'last_month' | 'custom'>('all');
   const [startDate, setStartDate] = useState<string>('');
@@ -51,17 +54,18 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
 
   const canManage = currentUser.role === 'admin' || currentUser.role === 'manager';
 
-  // Category labels, colors and icons
-  const categoryConfig: Record<ExpenseCategory, { label: string; color: string; icon: string }> = {
-    food: { label: t('cat_food'), color: '#10b981', icon: '🍔' },
-    utilities: { label: t('cat_utilities'), color: '#3b82f6', icon: '💡' },
-    appliances: { label: t('cat_appliances'), color: '#8b5cf6', icon: '📺' },
-    maintenance: { label: t('cat_maintenance'), color: '#f59e0b', icon: '🔧' },
-    healthcare: { label: t('cat_healthcare'), color: '#ef4444', icon: '💊' },
-    education: { label: t('cat_education'), color: '#ec4899', icon: '📚' },
-    entertainment: { label: t('cat_entertainment'), color: '#06b6d4', icon: '🎬' },
-    other: { label: t('cat_other'), color: '#64748b', icon: '📦' },
-  };
+  // Category labels, colors and icons mapped dynamically from categories
+  const categoryConfig: Record<string, { label: string; color: string; icon: string }> = useMemo(() => {
+    const map: Record<string, { label: string; color: string; icon: string }> = {};
+    categories.forEach(c => {
+      map[c.id] = {
+        label: c.name,
+        color: c.color || '#10b981',
+        icon: c.icon || '🏷️'
+      };
+    });
+    return map;
+  }, [categories]);
 
   const userMap = Object.fromEntries(users.map(u => [u.id, u.name]));
   const assetMap = Object.fromEntries(assets.map(a => [a.id, a.name]));
@@ -72,17 +76,19 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
   const percentSpent = totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
 
   // Group by category for Chart
-  const chartData = (Object.keys(categoryConfig) as ExpenseCategory[]).map(cat => {
-    const total = expenses
-      .filter(e => e.category === cat)
-      .reduce((sum, e) => sum + e.amount, 0);
-    return {
-      category: cat,
-      label: categoryConfig[cat].label,
-      total,
-      color: categoryConfig[cat].color
-    };
-  }).filter(d => d.total > 0);
+  const chartData = useMemo(() => {
+    return categories.map(cat => {
+      const total = expenses
+        .filter(e => e.category === cat.id)
+        .reduce((sum, e) => sum + e.amount, 0);
+      return {
+        category: cat.id,
+        label: cat.name,
+        total,
+        color: cat.color || '#10b981'
+      };
+    }).filter(d => d.total > 0);
+  }, [categories, expenses]);
 
   const formatLocalDate = (d: Date) => {
     const year = d.getFullYear();
@@ -244,14 +250,35 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
         <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none" />
       </div>
 
-      {/* Category Breakdown Chart */}
+      {/* Toggle Button for Category Breakdown Chart */}
       {chartData.length > 0 && (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+        <div className="flex justify-end pt-0.5">
+          <button
+            onClick={() => setShowChart(prev => !prev)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-xs transition active:scale-95"
+          >
+            <BarChart3 size={14} className="text-emerald-500" />
+            <span>{showChart ? 'Ẩn cơ cấu chi tiêu' : 'Xem cơ cấu chi tiêu theo nhóm'}</span>
+            <ChevronDown size={14} className={`transform transition-transform duration-200 ${showChart ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+      )}
+
+      {/* Category Breakdown Chart */}
+      {showChart && chartData.length > 0 && (
+        <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
               Cơ cấu chi tiêu theo nhóm
             </h2>
-            <TrendingUp size={14} className="text-emerald-500" />
+            <button
+              onClick={() => setShowChart(false)}
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs flex items-center gap-1 transition"
+              title="Ẩn biểu đồ"
+            >
+              <span>Thu gọn</span>
+              <TrendingUp size={14} className="text-emerald-500" />
+            </button>
           </div>
 
           <div className="h-44 w-full pt-2">
@@ -324,8 +351,8 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
               className="w-full text-[11px] py-2 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium outline-none truncate shadow-xs"
             >
               <option value="all">📁 Tất cả danh mục</option>
-              {Object.entries(categoryConfig).map(([key, val]) => (
-                <option key={key} value={key}>{val.icon} {val.label}</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
               ))}
             </select>
           </div>
@@ -440,7 +467,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
         ) : (
           <div className="space-y-2.5">
             {filteredExpenses.map(exp => {
-              const cat = categoryConfig[exp.category] || categoryConfig.other;
+              const cat = categoryConfig[exp.category] || { label: exp.category, color: '#64748b', icon: '📦' };
               const payerName = userMap[exp.payerId] || exp.payerId;
               const linkedAsset = exp.assetId ? assetMap[exp.assetId] : null;
 
