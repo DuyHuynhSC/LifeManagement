@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mic, MicOff, Check, Sparkles, Pencil, Tag, DollarSign } from 'lucide-react';
+import { X, Mic, MicOff, Check, Sparkles, Pencil, Tag, DollarSign, ChevronDown } from 'lucide-react';
 import { ExpenseCategory } from '../../types';
 import { startSpeechRecognition, stopSpeechRecognition, parseVoiceToExpense } from '../../services/voiceService';
 import { useAppStore } from '../../store/useAppStore';
@@ -11,7 +11,7 @@ interface VoiceInputModalProps {
 }
 
 export const VoiceInputModal: React.FC<VoiceInputModalProps> = ({ onClose, onConfirmExpense }) => {
-  const { settings } = useAppStore();
+  const { settings, categories } = useAppStore();
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -20,19 +20,8 @@ export const VoiceInputModal: React.FC<VoiceInputModalProps> = ({ onClose, onCon
   const [parsed, setParsed] = useState<{ title: string; amount: number; category: ExpenseCategory }>({
     title: '',
     amount: 0,
-    category: 'other'
+    category: categories.length > 0 ? categories[0].id : 'food'
   });
-
-  const categories: { id: ExpenseCategory; label: string; icon: string }[] = [
-    { id: 'food', label: t('cat_food'), icon: '🍔' },
-    { id: 'utilities', label: t('cat_utilities'), icon: '💡' },
-    { id: 'appliances', label: t('cat_appliances'), icon: '📺' },
-    { id: 'maintenance', label: t('cat_maintenance'), icon: '🔧' },
-    { id: 'healthcare', label: t('cat_healthcare'), icon: '💊' },
-    { id: 'education', label: t('cat_education'), icon: '📚' },
-    { id: 'entertainment', label: t('cat_entertainment'), icon: '🎬' },
-    { id: 'other', label: t('cat_other'), icon: '📦' },
-  ];
 
   const quickAdjustDeltas = settings.language === 'en'
     ? [
@@ -106,7 +95,8 @@ export const VoiceInputModal: React.FC<VoiceInputModalProps> = ({ onClose, onCon
       () => {
         setIsListening(false);
       },
-      settings.language
+      settings.language,
+      categories
     );
 
     if (!controller) {
@@ -115,7 +105,7 @@ export const VoiceInputModal: React.FC<VoiceInputModalProps> = ({ onClose, onCon
   };
 
   const handleApplySample = (sample: string) => {
-    const result = parseVoiceToExpense(sample);
+    const result = parseVoiceToExpense(sample, categories);
     handleApplyResult(sample, result);
   };
 
@@ -314,35 +304,30 @@ export const VoiceInputModal: React.FC<VoiceInputModalProps> = ({ onClose, onCon
               </div>
             </div>
 
-            {/* Field 3: Category Selector */}
-            <div className="space-y-1.5 pt-1 border-t border-slate-200 dark:border-slate-700/80">
-              <div className="flex items-center justify-between text-[11px]">
-                <span className="font-semibold text-slate-700 dark:text-slate-200">
-                  {t('voice_category')}
+            {/* Field 3: Category Combobox */}
+            <div className="space-y-1 pt-1 border-t border-slate-200 dark:border-slate-700/80">
+              <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Tag size={13} className="text-indigo-500 dark:text-indigo-400" />
+                  {t('voice_category')} *
                 </span>
-                <span className="capitalize font-bold text-indigo-600 dark:text-indigo-400 text-[10px]">
-                  {categories.find(c => c.id === parsed.category)?.label || parsed.category}
-                </span>
-              </div>
-              <div className="grid grid-cols-4 gap-1.5">
-                {categories.map((cat) => {
-                  const isSelected = parsed.category === cat.id;
-                  return (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      onClick={() => setParsed(prev => ({ ...prev, category: cat.id }))}
-                      className={`py-1.5 px-1 rounded-xl text-[10px] font-semibold border flex flex-col items-center justify-center gap-0.5 transition active:scale-95 ${
-                        isSelected
-                          ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-850'
-                      }`}
-                    >
-                      <span className="text-xs">{cat.icon}</span>
-                      <span className="truncate max-w-full text-center">{cat.label}</span>
-                    </button>
-                  );
-                })}
+                <span className="text-[10px] text-slate-400">Chọn nhóm chi</span>
+              </label>
+              <div className="relative">
+                <select
+                  value={parsed.category}
+                  onChange={(e) => setParsed(prev => ({ ...prev, category: e.target.value }))}
+                  className="w-full py-2.5 pl-3.5 pr-9 text-base sm:text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-indigo-500/50 outline-none appearance-none cursor-pointer"
+                >
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id} className="py-1">
+                      {cat.icon ? `${cat.icon} ` : ''}{cat.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                  <ChevronDown size={15} />
+                </div>
               </div>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { SpeechRecognition as CapSpeechRecognition } from '@capacitor-community/speech-recognition';
-import { ExpenseCategory } from '../types';
+import { ExpenseCategory, CategoryItem } from '../types';
 
 export interface ParsedVoiceExpense {
   title: string;
@@ -51,7 +51,8 @@ export async function startSpeechRecognition(
   onResult: (transcript: string, parsed: ParsedVoiceExpense) => void,
   onError: (error: string) => void,
   onEnd: () => void,
-  lang: string = 'vi-VN'
+  lang: string = 'vi-VN',
+  availableCategories?: CategoryItem[]
 ): Promise<SpeechRecognitionController | null> {
   await stopSpeechRecognition();
 
@@ -111,7 +112,7 @@ export async function startSpeechRecognition(
 
         if (res && res.matches && res.matches.length > 0) {
           const transcript = res.matches[0];
-          const parsed = parseVoiceToExpense(transcript);
+          const parsed = parseVoiceToExpense(transcript, availableCategories);
           onResult(transcript, parsed);
         } else {
           onError('Không nhận diện được giọng nói, vui lòng thử lại.');
@@ -131,7 +132,7 @@ export async function startSpeechRecognition(
 
             if (popupRes && popupRes.matches && popupRes.matches.length > 0) {
               const transcript = popupRes.matches[0];
-              const parsed = parseVoiceToExpense(transcript);
+              const parsed = parseVoiceToExpense(transcript, availableCategories);
               onResult(transcript, parsed);
               finish();
               return controller;
@@ -184,7 +185,7 @@ export async function startSpeechRecognition(
 
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
-      const parsed = parseVoiceToExpense(transcript);
+      const parsed = parseVoiceToExpense(transcript, availableCategories);
       onResult(transcript, parsed);
     };
 
@@ -215,7 +216,7 @@ export async function startSpeechRecognition(
   }
 }
 
-export function parseVoiceToExpense(text: string): ParsedVoiceExpense {
+export function parseVoiceToExpense(text: string, availableCategories?: CategoryItem[]): ParsedVoiceExpense {
   const originalText = text.trim();
   let cleanTitle = originalText;
   let amount = 0;
@@ -305,29 +306,51 @@ export function parseVoiceToExpense(text: string): ParsedVoiceExpense {
   // If after stripping, cleanTitle ends with connector words again
   cleanTitle = cleanTitle.replace(/\s+(hết|mất|giá|khoảng|tầm|tổng cộng|tổng|chi hết|là)$/i, '').trim();
 
-  // 3. Classify category based on keywords from the full original utterance
+  // 3. Classify category based on keywords or custom categories
   const lowerFull = originalText.toLowerCase();
-  if (/(ăn|uống|phở|cà phê|cafe|bún|cơm|siêu thị|chợ|bánh|thịt|rau|dinner|lunch|breakfast|coffee)/.test(lowerFull)) {
-    category = 'food';
-    if (!cleanTitle) cleanTitle = 'Ăn uống thực phẩm';
-  } else if (/(điện|nước|mạng|internet|wifi|rác|vệ sinh|bill|utility)/.test(lowerFull)) {
-    category = 'utilities';
-    if (!cleanTitle) cleanTitle = 'Hóa đơn dịch vụ';
-  } else if (/(lõi lọc|thay|bảo trì|sửa|thợ|màng lọc|vệ sinh máy|bảo dưỡng|repair|maintenance)/.test(lowerFull)) {
-    category = 'maintenance';
-    if (!cleanTitle) cleanTitle = 'Bảo trì linh kiện';
-  } else if (/(mua máy|tivi|tủ lạnh|máy giặt|nồi|thiết bị|quạt|hút bụi|appliance)/.test(lowerFull)) {
-    category = 'appliances';
-    if (!cleanTitle) cleanTitle = 'Mua sắm thiết bị';
-  } else if (/(thuốc|bác sĩ|khám|viện|y tế|bệnh|medicine|doctor|clinic)/.test(lowerFull)) {
-    category = 'healthcare';
-    if (!cleanTitle) cleanTitle = 'Chăm sóc sức khỏe';
-  } else if (/(học|sách|vở|học phí|khóa học|education|book|school)/.test(lowerFull)) {
-    category = 'education';
-    if (!cleanTitle) cleanTitle = 'Giáo dục học tập';
-  } else if (/(xem phim|du lịch|vé|chơi|game|movie|travel)/.test(lowerFull)) {
-    category = 'entertainment';
-    if (!cleanTitle) cleanTitle = 'Giải trí';
+
+  // 3.1 First check if any available category name matches the spoken text
+  if (availableCategories && availableCategories.length > 0) {
+    for (const cat of availableCategories) {
+      const cName = cat.name.toLowerCase();
+      if (cName && lowerFull.includes(cName)) {
+        category = cat.id;
+        break;
+      }
+    }
+  }
+
+  // 3.2 If not matched by exact category name, match standard semantic keywords
+  if (category === 'other') {
+    if (/(ăn|uống|phở|cà phê|cafe|bún|cơm|siêu thị|chợ|bánh|thịt|rau|dinner|lunch|breakfast|coffee)/.test(lowerFull)) {
+      category = 'food';
+      if (!cleanTitle) cleanTitle = 'Ăn uống thực phẩm';
+    } else if (/(điện|nước|mạng|internet|wifi|rác|vệ sinh|bill|utility)/.test(lowerFull)) {
+      category = 'utilities';
+      if (!cleanTitle) cleanTitle = 'Hóa đơn dịch vụ';
+    } else if (/(lõi lọc|thay|bảo trì|sửa|thợ|màng lọc|vệ sinh máy|bảo dưỡng|repair|maintenance)/.test(lowerFull)) {
+      category = 'maintenance';
+      if (!cleanTitle) cleanTitle = 'Bảo trì linh kiện';
+    } else if (/(mua máy|tivi|tủ lạnh|máy giặt|nồi|thiết bị|quạt|hút bụi|appliance)/.test(lowerFull)) {
+      category = 'appliances';
+      if (!cleanTitle) cleanTitle = 'Mua sắm thiết bị';
+    } else if (/(thuốc|bác sĩ|khám|viện|y tế|bệnh|medicine|doctor|clinic)/.test(lowerFull)) {
+      category = 'healthcare';
+      if (!cleanTitle) cleanTitle = 'Chăm sóc sức khỏe';
+    } else if (/(học|sách|vở|học phí|khóa học|education|book|school)/.test(lowerFull)) {
+      category = 'education';
+      if (!cleanTitle) cleanTitle = 'Giáo dục học tập';
+    } else if (/(xem phim|du lịch|vé|chơi|game|movie|travel)/.test(lowerFull)) {
+      category = 'entertainment';
+      if (!cleanTitle) cleanTitle = 'Giải trí';
+    }
+  }
+
+  // 3.3 Ensure the inferred category exists in availableCategories, or fallback safely
+  if (availableCategories && availableCategories.length > 0) {
+    if (!availableCategories.some(c => c.id === category)) {
+      category = availableCategories.find(c => c.id === 'other')?.id || availableCategories[0].id;
+    }
   }
 
   // Fallback if title became completely blank

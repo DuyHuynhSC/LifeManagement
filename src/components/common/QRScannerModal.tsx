@@ -49,7 +49,7 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
   onSaveAsset,
   initialType
 }) => {
-  const { settings, users, currentUser } = useAppStore();
+  const { settings, users, currentUser, categories } = useAppStore();
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
 
   const [viewMode, setViewMode] = useState<'scan' | 'result'>('scan');
@@ -67,7 +67,7 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
   // Editable Expense fields
   const [expenseTitle, setExpenseTitle] = useState('');
   const [expenseAmountStr, setExpenseAmountStr] = useState('');
-  const [expenseCategory, setExpenseCategory] = useState<ExpenseCategory>('food');
+  const [expenseCategory, setExpenseCategory] = useState<ExpenseCategory>(categories.length > 0 ? categories[0].id : 'food');
   const [expenseDate, setExpenseDate] = useState(new Date().toISOString().split('T')[0]);
   const [expensePayerId, setExpensePayerId] = useState(currentUser.id);
   const [expenseNotes, setExpenseNotes] = useState('');
@@ -697,14 +697,11 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
                       onChange={(e) => setExpenseCategory(e.target.value as ExpenseCategory)}
                       className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-base sm:text-xs text-white focus:outline-none focus:border-emerald-500"
                     >
-                      <option value="food">🍔 {t('cat_food')}</option>
-                      <option value="utilities">💡 {t('cat_utilities')}</option>
-                      <option value="appliances">📺 {t('cat_appliances')}</option>
-                      <option value="maintenance">🔧 {t('cat_maintenance')}</option>
-                      <option value="healthcare">💊 {t('cat_healthcare')}</option>
-                      <option value="education">📚 {t('cat_education')}</option>
-                      <option value="entertainment">🎬 {t('cat_entertainment')}</option>
-                      <option value="other">📦 {t('cat_other')}</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.icon ? `${cat.icon} ` : ''}{cat.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
