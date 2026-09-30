@@ -258,7 +258,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                         {t('inv_detail_market_val')}
                       </span>
                       <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300">
-                        {asset.quantity.toLocaleString('vi-VN')} {asset.currency} @ {formatCurrency(asset.currentPrice)}
+                        {asset.quantity.toLocaleString('vi-VN')} {asset.assetClass === 'stock' ? t('inv_detail_unit_shares') : (asset.assetClass === 'crypto' ? asset.symbol : asset.currency)} @ {formatCurrency(asset.currentPrice)}
                       </span>
                     </div>
                     <div className="text-2xl font-black text-slate-900 dark:text-white">
@@ -314,8 +314,8 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       <span className="text-sm font-extrabold text-amber-500 dark:text-amber-400 mt-0.5 block">
                         +{formatCurrency(pnl.totalDividends)}
                       </span>
-                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
-                        YoC: {pnl.yieldOnCost}%
+                      <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium">
+                        YoC: {(pnl.yieldOnCost || 0).toFixed(1)}%
                       </span>
                     </div>
 
@@ -460,30 +460,52 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                   {t('inv_detail_dividends_empty')}
                 </div>
               ) : (
-                dividends.map(div => (
-                  <div 
-                    key={div.id}
-                    className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300">
-                          {div.type === 'cash' ? t('inv_detail_badge_cash') : t('inv_detail_badge_stock')}
-                        </span>
-                        <span className="text-xs font-bold text-slate-900 dark:text-white">
-                          {div.type === 'cash' ? `+${formatCurrency(div.amountOrQuantity)}` : `+${div.amountOrQuantity} ${t('inv_detail_unit_shares')}`}
+                dividends.map(div => {
+                  const netAmount = div.type === 'cash' ? div.amountOrQuantity - (div.taxDeducted || 0) : div.amountOrQuantity;
+                  return (
+                    <div 
+                      key={div.id}
+                      className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${
+                            div.type === 'cash' 
+                              ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300' 
+                              : 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300'
+                          }`}>
+                            {div.type === 'cash' ? t('inv_detail_badge_cash') : t('inv_detail_badge_stock')}
+                          </span>
+                          {div.reinvested && (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300">
+                              DRIP
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400 whitespace-nowrap">
+                          {div.type === 'cash' ? `+${formatCurrency(netAmount)}` : `+${div.amountOrQuantity.toLocaleString('vi-VN')} ${t('inv_detail_unit_shares')}`}
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1 flex items-center gap-2">
-                        <span>{div.date}</span>
-                        {div.taxDeducted && div.taxDeducted > 0 ? (
-                          <span>{t('inv_div_tax_label') || t('inv_tx_tax')}: {formatCurrency(div.taxDeducted)}</span>
-                        ) : null}
-                        {div.notes && <span className="italic truncate max-w-[120px]">({div.notes})</span>}
+
+                      <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium pt-1.5 border-t border-slate-100 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span>{div.date}</span>
+                          {div.taxDeducted && div.taxDeducted > 0 ? (
+                            <span className="text-rose-600 dark:text-rose-400 font-semibold bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded border border-rose-200/50 dark:border-rose-900/40 text-[10px]">
+                              {t('inv_div_tax_short')}: -{formatCurrency(div.taxDeducted)}
+                            </span>
+                          ) : null}
+                          {div.type === 'cash' && div.taxDeducted && div.taxDeducted > 0 ? (
+                            <span className="text-slate-500 dark:text-slate-400 text-[10px]">
+                              ({t('inv_div_gross_label')}: {formatCurrency(div.amountOrQuantity)})
+                            </span>
+                          ) : null}
+                        </div>
+                        {div.notes && <span className="italic truncate max-w-[130px]">({div.notes})</span>}
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           )}

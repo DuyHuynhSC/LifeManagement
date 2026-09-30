@@ -158,7 +158,7 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
               {t('inv_card_holding')}
             </span>
             <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block">
-              {asset.quantity.toLocaleString('vi-VN')} {asset.currency}
+              {asset.quantity.toLocaleString('vi-VN')} {asset.assetClass === 'stock' ? t('inv_detail_unit_shares') : (asset.assetClass === 'crypto' ? asset.symbol : asset.currency)}
             </span>
             <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium">
               {t('inv_card_avg_cost')}: {formatCurrency(asset.avgBuyPrice)}
@@ -180,9 +180,9 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
       )}
 
       {/* Bottom Row: P&L Pill, Holding Period Badge, Dividend Info */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-700/60">
+      <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60 space-y-2">
         {asset.assetClass === 'savings' ? (
-          <>
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
               <PiggyBank size={14} />
               <span>+{formatCurrency(asset.expectedInterest || 0)}</span>
@@ -194,31 +194,40 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
                 <span>{t('inv_savings_maturity_short')}: {asset.maturityDate}</span>
               </div>
             )}
-          </>
+          </div>
         ) : (
           <>
-            {/* P&L */}
-            <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-extrabold ${
-              isProfitable 
-                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' 
-                : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
-            }`}>
-              {isProfitable ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-              <span>{isProfitable ? '+' : ''}{formatCurrency(pnl.unrealizedPnL)}</span>
-              <span>({isProfitable ? '+' : ''}{pnl.unrealizedPnLPercent.toFixed(2)}%)</span>
-            </div>
+            <div className="flex items-center justify-between gap-2">
+              {/* P&L */}
+              <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-extrabold ${
+                isProfitable 
+                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' 
+                  : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
+              }`}>
+                {isProfitable ? <TrendingUp size={14} className="shrink-0" /> : <TrendingDown size={14} className="shrink-0" />}
+                <span className="whitespace-nowrap">{isProfitable ? '+' : ''}{formatCurrency(pnl.unrealizedPnL)}</span>
+                <span className="whitespace-nowrap">({isProfitable ? '+' : ''}{pnl.unrealizedPnLPercent.toFixed(2)}%)</span>
+              </div>
 
-            {/* Holding Period Badge */}
-            <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold border ${holdingBadge.bgColor} ${holdingBadge.textColor} ${holdingBadge.borderColor}`}>
-              <Clock size={12} />
-              <span>{holdingBadge.label}</span>
+              {/* Holding Period Badge */}
+              <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold border shrink-0 ${holdingBadge.bgColor} ${holdingBadge.textColor} ${holdingBadge.borderColor}`}>
+                <Clock size={12} className="shrink-0" />
+                <span className="whitespace-nowrap">{holdingBadge.label}</span>
+              </div>
             </div>
 
             {/* Dividend Yield on Cost (if > 0) */}
             {pnl.totalDividends > 0 && (
-              <div className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-lg border border-amber-200 dark:border-amber-800">
-                <Coins size={12} />
-                <span>{t('inv_total_dividends')}: +{formatCurrency(pnl.totalDividends)} ({t('inv_card_dividend_yoc')}: {pnl.yieldOnCost}%)</span>
+              <div className="flex items-center justify-between gap-2 px-2.5 py-1 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <Coins size={13} className="shrink-0 text-amber-600 dark:text-amber-400" />
+                  <span className="truncate">
+                    {t('inv_total_dividends')}: +{formatCurrency(pnl.totalDividends)}
+                  </span>
+                </div>
+                <span className="shrink-0 text-[11px] font-extrabold px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200">
+                  YoC: {(pnl.yieldOnCost || 0).toFixed(1)}%
+                </span>
               </div>
             )}
           </>

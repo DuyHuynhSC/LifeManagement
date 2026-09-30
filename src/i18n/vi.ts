@@ -509,6 +509,7 @@ export const vi = {
   inv_div_cash_amount: 'Số tiền cổ tức nhận được (đ)',
   inv_div_tax_label: 'Thuế TNCN khấu trừ (đ)',
   inv_div_tax: 'Thuế TNCN khấu trừ (đ)',
+  inv_div_tax_short: 'Thuế',
   inv_div_apply_tax_btn: 'Áp dụng 5% thuế (cổ phiếu VN)',
   inv_div_apply_tax: 'Áp dụng 5% thuế (cổ phiếu VN)',
   inv_div_net_received: 'Thực thu về ví:',

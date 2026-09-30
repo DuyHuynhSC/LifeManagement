@@ -511,6 +511,7 @@ export const ja: typeof vi = {
   inv_div_cash_amount: '配当受取額',
   inv_div_tax_label: '源泉徴収税額',
   inv_div_tax: '源泉徴収税額',
+  inv_div_tax_short: '税金',
   inv_div_apply_tax_btn: 'ベトナム株5%税率を適用',
   inv_div_apply_tax: 'ベトナム株5%税率を適用',
   inv_div_net_received: '税引後受取額:',

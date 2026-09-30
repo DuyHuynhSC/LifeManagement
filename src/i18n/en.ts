@@ -511,6 +511,7 @@ export const en: typeof vi = {
   inv_div_cash_amount: 'Dividend Amount Received',
   inv_div_tax_label: 'Tax Deducted',
   inv_div_tax: 'Tax Deducted',
+  inv_div_tax_short: 'Tax',
   inv_div_apply_tax_btn: 'Apply 5% Tax (VN Stocks)',
   inv_div_apply_tax: 'Apply 5% Tax (VN Stocks)',
   inv_div_net_received: 'Net Received in Wallet:',

@@ -234,60 +234,82 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
             return (
               <div
                 key={div.id}
-                className="p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between shadow-sm"
+                className="p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm transition hover:border-slate-300 dark:hover:border-slate-600"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-sm shrink-0">
-                    {asset ? asset.symbol.slice(0, 3) : 'DIV'}
-                  </div>
+                {/* Top Row: Asset Info + Amounts + Delete button */}
+                <div className="flex items-start justify-between gap-2.5">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-xs shrink-0 border border-amber-200/50 dark:border-amber-900/40">
+                      {asset ? asset.symbol.slice(0, 4) : 'DIV'}
+                    </div>
 
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-extrabold text-slate-900 dark:text-white">
-                        {asset ? asset.symbol : 'Tài sản'}
-                      </span>
-                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                        div.type === 'cash'
-                          ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
-                          : 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300'
-                      }`}>
-                        {div.type === 'cash' ? t('inv_div_badge_cash') : t('inv_div_badge_stock')}
-                      </span>
-                      {div.reinvested && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300">
-                          DRIP
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
+                          {asset ? asset.symbol : 'Tài sản'}
                         </span>
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${
+                          div.type === 'cash'
+                            ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
+                            : 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300'
+                        }`}>
+                          {div.type === 'cash' ? t('inv_div_badge_cash') : t('inv_div_badge_stock')}
+                        </span>
+                        {div.reinvested && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 border border-blue-200/50 dark:border-blue-900/50">
+                            DRIP
+                          </span>
+                        )}
+                      </div>
+                      {asset?.name && (
+                        <p className="text-[11px] text-slate-500 dark:text-slate-300 truncate mt-0.5 font-medium">
+                          {asset.name}
+                        </p>
                       )}
                     </div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium mt-0.5 flex items-center gap-2">
-                      <span>{div.date}</span>
-                      {div.taxDeducted && div.taxDeducted > 0 ? (
-                        <span>{t('inv_div_tax_label')}: {formatCurrency(div.taxDeducted)}</span>
+                  </div>
+
+                  <div className="text-right shrink-0 flex items-start gap-1.5">
+                    <div>
+                      <span className="text-sm sm:text-base font-black text-amber-600 dark:text-amber-400 block whitespace-nowrap">
+                        {div.type === 'cash' ? `+${formatCurrency(netAmount)}` : `+${div.amountOrQuantity.toLocaleString('vi-VN')} ${t('inv_detail_unit_shares')}`}
+                      </span>
+                      {div.type === 'cash' && div.taxDeducted && div.taxDeducted > 0 ? (
+                        <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium block whitespace-nowrap">
+                          {t('inv_div_gross_label')}: {formatCurrency(div.amountOrQuantity)}
+                        </span>
                       ) : null}
-                      {div.notes && <span className="italic truncate max-w-[130px]">({div.notes})</span>}
                     </div>
+
+                    <button
+                      onClick={() => deleteDividend(div.id)}
+                      title="Xóa bản ghi cổ tức"
+                      className="p-1.5 -mr-1 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition shrink-0"
+                    >
+                      <Trash2 size={15} />
+                    </button>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5">
-                  <div className="text-right">
-                    <span className="text-sm font-black text-amber-600 dark:text-amber-400 block">
-                      {div.type === 'cash' ? `+${formatCurrency(netAmount)}` : `+${div.amountOrQuantity} CP`}
-                    </span>
-                    {div.type === 'cash' && div.taxDeducted && div.taxDeducted > 0 ? (
-                      <span className="text-[10px] text-slate-400 font-medium block">
-                        {t('inv_div_gross_label')}: {formatCurrency(div.amountOrQuantity)}
+                {/* Bottom Meta Row: Date, Tax badge, Notes */}
+                <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-y-1 gap-x-2 text-[11px] text-slate-500 dark:text-slate-300 font-medium">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-1">
+                      <Calendar size={12} className="text-slate-400 shrink-0" />
+                      <span>{div.date}</span>
+                    </div>
+                    {div.taxDeducted && div.taxDeducted > 0 ? (
+                      <span className="inline-flex items-center text-rose-600 dark:text-rose-400 font-semibold bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded border border-rose-200/50 dark:border-rose-900/40 text-[10px]">
+                        {t('inv_div_tax_short')}: -{formatCurrency(div.taxDeducted)}
                       </span>
                     ) : null}
                   </div>
 
-                  <button
-                    onClick={() => deleteDividend(div.id)}
-                    title="Xóa bản ghi cổ tức"
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  {div.notes && (
+                    <div className="text-slate-600 dark:text-slate-300 italic text-[11px] truncate max-w-full sm:max-w-xs">
+                      "{div.notes}"
+                    </div>
+                  )}
                 </div>
               </div>
             );
