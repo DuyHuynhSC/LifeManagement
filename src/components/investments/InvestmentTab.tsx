@@ -138,7 +138,7 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
       releaseText={t('inv_pull_refresh_release')}
       refreshingText={t('inv_pull_refresh_loading')}
       successText={t('inv_pull_refresh_success')}
-      className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-24"
+      className="flex-1 overflow-y-auto overflow-x-hidden w-full max-w-full px-3.5 sm:px-4 py-4 space-y-4 pb-24 min-w-0"
     >
       {/* Top Bar with Title & Actions */}
       <div className="flex items-center justify-between gap-2.5">

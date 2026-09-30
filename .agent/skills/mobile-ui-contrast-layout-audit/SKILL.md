@@ -65,23 +65,45 @@ This skill defines mandatory UX, accessibility (WCAG), and responsive design rul
 
 ---
 
-## 3. Mobile Form Inputs & Numeric Precision
+## 3. Mobile Cards & Horizontal Blowout Prevention (360px - 390px Viewport Budgeting)
 
-### 3.1 Currency and Number Inputs
+### 3.1 The 360px / Samsung One UI Safe Viewport Rule
+* Target viewport benchmark: **360px - 384px** (Standard Android devices such as Samsung Galaxy A52s 6.5" or phones with medium/large display zoom).
+* **Usable width calculation inside cards**:
+  * Outer viewport: ~360px - 384px.
+  * Page container padding (`px-3.5` or `px-4`): 28px - 32px.
+  * Card internal padding (`p-3.5` or `p-4`): 28px - 32px.
+  * **Safe inner content width is only ~296px to 320px**.
+* ❌ **NEVER PLACE** two fixed `whitespace-nowrap` pills with `shrink-0` side-by-side in `flex justify-between` without `flex-wrap` and `min-w-0`. If total width exceeds 296px, it forces children past the right border of the card and blows out the entire page width.
+
+### 3.2 Preventing Viewport Shift & Left-Side Content Truncation
+* **Symptom**: When a single child element overflows horizontally, the browser enables horizontal scrolling. Touching or scrolling shifts the screen horizontally, pushing the left 30px–50px of the viewport off-screen (clipping avatar icons, labels, and numbers on the left).
+* **Mandatory Container Rules**:
+  * Every card root container must include: `w-full max-w-full overflow-hidden min-w-0`.
+  * Every scrollable page container (`<main>`, `<PullToRefresh>`, screen root) must include: `overflow-x-hidden w-full max-w-full min-w-0`.
+  * Multi-badge rows (e.g. P&L + Holding Duration + Category) must always use `flex-wrap min-w-0 gap-1.5` so elements drop cleanly to the next row on narrow screens instead of overflowing.
+  * Any text badge with variable content (holding period, descriptions, notes) must use `truncate min-w-0 max-w-full`.
+
+---
+
+## 4. Mobile Form Inputs & Numeric Precision
+
+### 4.1 Currency and Number Inputs
 * ❌ Avoid `type="number"` with native spinners and unwanted zero formatting.
 * ✅ Use `type="text" inputMode="numeric"`:
   * Always strip leading zeros when the user types (e.g., typing `5` should change `0` to `5`, not `05`).
   * On focus: if the current value is `0`, auto-clear or select all to prevent the user from having to backspace the zero.
   * Format display with thousands separators (e.g., `100,000` or `100.000` according to locale).
 
-### 3.2 Mobile Keyboard Zoom Prevention
+### 4.2 Mobile Keyboard Zoom Prevention
 * All input elements on mobile must have a base font size of at least `16px` (`text-base` in Tailwind) to prevent iOS Safari and Android Chrome from automatically zooming the viewport when the input is focused.
 
 ---
 
-## 4. Pre-Commit Quality & Audit Checklist
+## 5. Pre-Commit Quality & Audit Checklist
 
 Before concluding any UI change involving mobile screens or dark mode:
+- [ ] **Horizontal Overflow & Viewport Shift Check**: Ensure no unwrapped `whitespace-nowrap` badges exist side-by-side in cards on a 360px viewport. Verify `overflow-x-hidden` on page wrappers and `overflow-hidden` on cards.
 - [ ] **Contrast Check**: Is any body or description text using `dark:text-slate-400` or `slate-500`? (Must be upgraded to `dark:text-slate-300` or `white`).
 - [ ] **Tailwind Validation**: Are all utility classes standard Tailwind classes? (No `slate-750` or unconfigured classes).
 - [ ] **Tab Overlap Check**: Does the bottom navigation have 5 or fewer tabs? Do any text labels collide on a 360px viewport?
