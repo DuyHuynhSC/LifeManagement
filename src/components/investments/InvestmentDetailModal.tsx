@@ -17,7 +17,7 @@ import {
   Landmark
 } from 'lucide-react';
 import { useInvestmentStore } from '../../store/useInvestmentStore';
-import { InvestmentAsset, AssetPnL, InvestmentTransaction } from '../../types/investment';
+import { InvestmentAsset, AssetPnL, InvestmentTransaction, DividendRecord } from '../../types/investment';
 import { 
   ASSET_CLASS_LABELS, 
   ASSET_CLASS_COLORS,
@@ -32,6 +32,7 @@ interface InvestmentDetailModalProps {
   onClose: () => void;
   onOpenAddTransaction: (assetId: string) => void;
   onOpenAddDividend?: (assetId: string) => void;
+  onOpenEditDividend?: (dividend: DividendRecord) => void;
   onQuickUpdatePrice?: (asset: InvestmentAsset) => void;
 }
 
@@ -40,6 +41,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
   onClose,
   onOpenAddTransaction,
   onOpenAddDividend,
+  onOpenEditDividend,
   onQuickUpdatePrice
 }) => {
   const { settings } = useAppStore();
@@ -50,7 +52,8 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
     getAssetTransactions, 
     getAssetDividends, 
     deleteAsset, 
-    deleteTransaction 
+    deleteTransaction,
+    deleteDividend
   } = useInvestmentStore();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'history' | 'dividends'>('overview');
@@ -462,14 +465,28 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
               ) : (
                 dividends.map(div => {
                   const netAmount = div.type === 'cash' ? div.amountOrQuantity - (div.taxDeducted || 0) : div.amountOrQuantity;
+                  let taxRateStr = '';
+                  if (div.type === 'cash' && div.taxDeducted && div.taxDeducted > 0) {
+                    if (div.taxRate !== undefined) {
+                      taxRateStr = `${div.taxRate}%`;
+                    } else if (div.amountOrQuantity > 0) {
+                      if (div.taxDeducted === 5 && div.amountOrQuantity > 1000) {
+                        taxRateStr = '5%';
+                      } else {
+                        const r = (div.taxDeducted / div.amountOrQuantity) * 100;
+                        taxRateStr = Number.isInteger(r) ? `${r}%` : `${r.toFixed(1)}%`;
+                      }
+                    }
+                  }
+
                   return (
                     <div 
                       key={div.id}
-                      className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-1.5"
+                      className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2 min-w-0"
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${
+                      <div className="flex items-center justify-between gap-2 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-md shrink-0 ${
                             div.type === 'cash' 
                               ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300' 
                               : 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300'
@@ -477,14 +494,33 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                             {div.type === 'cash' ? t('inv_detail_badge_cash') : t('inv_detail_badge_stock')}
                           </span>
                           {div.reinvested && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300">
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 shrink-0">
                               DRIP
                             </span>
                           )}
                         </div>
-                        <span className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400 whitespace-nowrap">
-                          {div.type === 'cash' ? `+${formatCurrency(netAmount)}` : `+${div.amountOrQuantity.toLocaleString('vi-VN')} ${t('inv_detail_unit_shares')}`}
-                        </span>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400">
+                            {div.type === 'cash' ? `+${formatCurrency(netAmount)}` : `+${div.amountOrQuantity.toLocaleString('vi-VN')} ${t('inv_detail_unit_shares')}`}
+                          </span>
+                          {onOpenEditDividend && (
+                            <button
+                              onClick={() => onOpenEditDividend(div)}
+                              title={t('inv_div_action_edit')}
+                              className="p-1 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                            >
+                              <Edit3 size={13} />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => deleteDividend(div.id)}
+                            title="Xóa"
+                            className="p-1 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
                       </div>
 
                       <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium pt-1.5 border-t border-slate-100 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-1">
@@ -492,11 +528,11 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                           <span>{div.date}</span>
                           {div.taxDeducted && div.taxDeducted > 0 ? (
                             <span className="text-rose-600 dark:text-rose-400 font-semibold bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded border border-rose-200/50 dark:border-rose-900/40 text-[10px]">
-                              {t('inv_div_tax_short')}: -{formatCurrency(div.taxDeducted)}
+                              {taxRateStr ? `Thuế (${taxRateStr}): -${formatCurrency(div.taxDeducted)}` : `${t('inv_div_tax_short')}: -${formatCurrency(div.taxDeducted)}`}
                             </span>
                           ) : null}
                           {div.type === 'cash' && div.taxDeducted && div.taxDeducted > 0 ? (
-                            <span className="text-slate-500 dark:text-slate-400 text-[10px]">
+                            <span className="text-slate-500 dark:text-slate-300 text-[10px]">
                               ({t('inv_div_gross_label')}: {formatCurrency(div.amountOrQuantity)})
                             </span>
                           ) : null}

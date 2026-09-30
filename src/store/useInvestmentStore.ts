@@ -274,6 +274,28 @@ export const useInvestmentStore = () => {
     return newDiv;
   };
 
+  const updateDividend = (id: string, updates: Partial<DividendRecord>) => {
+    const oldDiv = globalState.dividends.find(d => d.id === id);
+    if (!oldDiv) return;
+
+    const updatedDiv: DividendRecord = { ...oldDiv, ...updates };
+
+    globalState = {
+      ...globalState,
+      dividends: globalState.dividends.map(d => d.id === id ? updatedDiv : d)
+    };
+
+    if (oldDiv.type === 'stock' || updatedDiv.type === 'stock') {
+      recalculateAssetPosition(oldDiv.assetId);
+      if (updatedDiv.assetId !== oldDiv.assetId) {
+        recalculateAssetPosition(updatedDiv.assetId);
+      }
+    }
+
+    notify();
+    return updatedDiv;
+  };
+
   const deleteDividend = (id: string) => {
     const div = globalState.dividends.find(d => d.id === id);
     const assetId = div ? div.assetId : null;
@@ -335,6 +357,7 @@ export const useInvestmentStore = () => {
     addTransaction,
     deleteTransaction,
     addDividend,
+    updateDividend,
     deleteDividend,
     resetToInitialData,
     restoreInvestments: restoreInvestmentState,

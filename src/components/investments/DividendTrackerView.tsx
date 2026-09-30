@@ -14,24 +14,27 @@ import {
   Calendar, 
   Plus, 
   Trash2, 
+  Edit3,
   ArrowUpRight, 
   Clock, 
   Sparkles,
   PieChart
 } from 'lucide-react';
 import { useInvestmentStore } from '../../store/useInvestmentStore';
-import { groupDividendsByMonth } from '../../services/investmentCalculator';
+import { groupDividendsByMonth, ASSET_CLASS_COLORS } from '../../services/investmentCalculator';
 import { DividendRecord, InvestmentAsset } from '../../types/investment';
 import { useAppStore } from '../../store/useAppStore';
 import { getTranslation } from '../../i18n';
 
 interface DividendTrackerViewProps {
   onOpenAddDividend: () => void;
+  onOpenEditDividend?: (dividend: DividendRecord) => void;
   onSelectAsset?: (asset: InvestmentAsset) => void;
 }
 
 export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
   onOpenAddDividend,
+  onOpenEditDividend,
   onSelectAsset
 }) => {
   const { settings } = useAppStore();
@@ -230,17 +233,37 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
           filteredDividends.map(div => {
             const asset = assets.find(a => a.id === div.assetId);
             const netAmount = div.type === 'cash' ? div.amountOrQuantity - (div.taxDeducted || 0) : div.amountOrQuantity;
+            const classColor = asset ? ASSET_CLASS_COLORS[asset.assetClass] || '#f59e0b' : '#f59e0b';
+
+            // Tax rate formatting
+            let taxRateStr = '';
+            if (div.type === 'cash' && div.taxDeducted && div.taxDeducted > 0) {
+              if (div.taxRate !== undefined) {
+                taxRateStr = `${div.taxRate}%`;
+              } else if (div.amountOrQuantity > 0) {
+                if (div.taxDeducted === 5 && div.amountOrQuantity > 1000) {
+                  taxRateStr = '5%';
+                } else {
+                  const r = (div.taxDeducted / div.amountOrQuantity) * 100;
+                  taxRateStr = Number.isInteger(r) ? `${r}%` : `${r.toFixed(1)}%`;
+                }
+              }
+            }
 
             return (
               <div
                 key={div.id}
-                className="p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm transition hover:border-slate-300 dark:hover:border-slate-600"
+                className="w-full max-w-full overflow-hidden min-w-0 p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm transition hover:border-slate-300 dark:hover:border-slate-600 space-y-2.5"
               >
-                {/* Top Row: Asset Info + Amounts + Delete button */}
-                <div className="flex items-start justify-between gap-2.5">
+                {/* Row 1: Asset Badge & Info on Left, Actions on Right */}
+                <div className="flex items-center justify-between gap-2 min-w-0">
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-xs shrink-0 border border-amber-200/50 dark:border-amber-900/40">
-                      {asset ? asset.symbol.slice(0, 4) : 'DIV'}
+                    {/* Visual Asset Pill / Avatar */}
+                    <div 
+                      className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-white text-xs shrink-0 shadow-sm"
+                      style={{ backgroundColor: classColor }}
+                    >
+                      {asset ? asset.symbol.slice(0, 3).toUpperCase() : 'DIV'}
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -248,7 +271,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
                         <span className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
                           {asset ? asset.symbol : 'Tài sản'}
                         </span>
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-md shrink-0 ${
                           div.type === 'cash'
                             ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
                             : 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300'
@@ -256,58 +279,72 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
                           {div.type === 'cash' ? t('inv_div_badge_cash') : t('inv_div_badge_stock')}
                         </span>
                         {div.reinvested && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 border border-blue-200/50 dark:border-blue-900/50">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 border border-blue-200/50 dark:border-blue-900/50 shrink-0">
                             DRIP
                           </span>
                         )}
                       </div>
                       {asset?.name && (
-                        <p className="text-[11px] text-slate-500 dark:text-slate-300 truncate mt-0.5 font-medium">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-300 truncate font-medium">
                           {asset.name}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="text-right shrink-0 flex items-start gap-1.5">
-                    <div>
-                      <span className="text-sm sm:text-base font-black text-amber-600 dark:text-amber-400 block whitespace-nowrap">
-                        {div.type === 'cash' ? `+${formatCurrency(netAmount)}` : `+${div.amountOrQuantity.toLocaleString('vi-VN')} ${t('inv_detail_unit_shares')}`}
-                      </span>
-                      {div.type === 'cash' && div.taxDeducted && div.taxDeducted > 0 ? (
-                        <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium block whitespace-nowrap">
-                          {t('inv_div_gross_label')}: {formatCurrency(div.amountOrQuantity)}
-                        </span>
-                      ) : null}
-                    </div>
-
+                  {/* Actions: Edit & Delete buttons */}
+                  <div className="flex items-center gap-1 shrink-0">
+                    {onOpenEditDividend && (
+                      <button
+                        onClick={() => onOpenEditDividend(div)}
+                        title={t('inv_div_action_edit')}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                      >
+                        <Edit3 size={15} />
+                      </button>
+                    )}
                     <button
                       onClick={() => deleteDividend(div.id)}
                       title="Xóa bản ghi cổ tức"
-                      className="p-1.5 -mr-1 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition shrink-0"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
                     >
                       <Trash2 size={15} />
                     </button>
                   </div>
                 </div>
 
-                {/* Bottom Meta Row: Date, Tax badge, Notes */}
-                <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-y-1 gap-x-2 text-[11px] text-slate-500 dark:text-slate-300 font-medium">
+                {/* Row 2: Amounts & Breakdown */}
+                <div className="flex items-baseline justify-between gap-2 flex-wrap min-w-0 pt-0.5">
+                  <div className="min-w-0">
+                    <span className="text-base sm:text-lg font-black text-amber-600 dark:text-amber-400 block tracking-tight">
+                      {div.type === 'cash' ? `+${formatCurrency(netAmount)}` : `+${div.amountOrQuantity.toLocaleString('vi-VN')} ${t('inv_detail_unit_shares')}`}
+                    </span>
+                  </div>
+
+                  {div.type === 'cash' && div.taxDeducted && div.taxDeducted > 0 ? (
+                    <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium text-right shrink-0">
+                      <span>{t('inv_div_gross_label')}: {formatCurrency(div.amountOrQuantity)}</span>
+                    </div>
+                  ) : null}
+                </div>
+
+                {/* Row 3: Meta Row: Date, Tax Badge, Notes */}
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-y-1.5 gap-x-2 text-[11px] text-slate-500 dark:text-slate-300 font-medium">
                   <div className="flex items-center gap-2 flex-wrap">
                     <div className="flex items-center gap-1">
                       <Calendar size={12} className="text-slate-400 shrink-0" />
                       <span>{div.date}</span>
                     </div>
                     {div.taxDeducted && div.taxDeducted > 0 ? (
-                      <span className="inline-flex items-center text-rose-600 dark:text-rose-400 font-semibold bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded border border-rose-200/50 dark:border-rose-900/40 text-[10px]">
-                        {t('inv_div_tax_short')}: -{formatCurrency(div.taxDeducted)}
+                      <span className="inline-flex items-center text-rose-600 dark:text-rose-400 font-semibold bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-md border border-rose-200/50 dark:border-rose-900/40 text-[10px]">
+                        {taxRateStr ? `Thuế (${taxRateStr}): -${formatCurrency(div.taxDeducted)}` : `${t('inv_div_tax_short')}: -${formatCurrency(div.taxDeducted)}`}
                       </span>
                     ) : null}
                   </div>
 
                   {div.notes && (
                     <div className="text-slate-600 dark:text-slate-300 italic text-[11px] truncate max-w-full sm:max-w-xs">
-                      "{div.notes}"
+                      {div.notes.replace(/^["']+|["']+$/g, '')}
                     </div>
                   )}
                 </div>

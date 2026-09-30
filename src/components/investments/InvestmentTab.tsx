@@ -21,7 +21,7 @@ import { AddTransactionModal } from './AddTransactionModal';
 import { InvestmentDetailModal } from './InvestmentDetailModal';
 import { AddDividendModal } from './AddDividendModal';
 import { DividendTrackerView } from './DividendTrackerView';
-import { InvestmentAsset, AssetClass } from '../../types/investment';
+import { InvestmentAsset, AssetClass, DividendRecord } from '../../types/investment';
 import { ASSET_CLASS_LABELS } from '../../services/investmentCalculator';
 import { syncAllMarketPrices } from '../../services/marketPriceService';
 import { PullToRefresh } from '../common/PullToRefresh';
@@ -101,6 +101,7 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
   const [activeView, setActiveView] = useState<'holdings' | 'dividends'>('holdings');
   const [showAddDividend, setShowAddDividend] = useState(false);
   const [dividendAssetId, setDividendAssetId] = useState<string | undefined>(undefined);
+  const [editingDividend, setEditingDividend] = useState<DividendRecord | null>(null);
 
   const handleOpenAddTx = (assetId?: string) => {
     setTxAssetId(assetId);
@@ -110,6 +111,13 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
 
   const handleOpenAddDividend = (assetId?: string) => {
     setDividendAssetId(assetId);
+    setEditingDividend(null);
+    setShowAddDividend(true);
+  };
+
+  const handleOpenEditDividend = (dividend: DividendRecord) => {
+    setDividendAssetId(dividend.assetId);
+    setEditingDividend(dividend);
     setShowAddDividend(true);
   };
 
@@ -324,6 +332,7 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
         /* VIEW 2: CỔ TỨC & DÒNG TIỀN THỤ ĐỘNG */
         <DividendTrackerView
           onOpenAddDividend={() => handleOpenAddDividend()}
+          onOpenEditDividend={handleOpenEditDividend}
           onSelectAsset={onSelectAsset}
         />
       )}
@@ -352,11 +361,15 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
         />
       )}
 
-      {/* Add Dividend Modal */}
+      {/* Add / Edit Dividend Modal */}
       {showAddDividend && (
         <AddDividendModal
           initialAssetId={dividendAssetId}
-          onClose={() => setShowAddDividend(false)}
+          editingDividend={editingDividend || undefined}
+          onClose={() => {
+            setShowAddDividend(false);
+            setEditingDividend(null);
+          }}
         />
       )}
 
@@ -371,6 +384,7 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
           onOpenAddDividend={(assetId) => {
             handleOpenAddDividend(assetId);
           }}
+          onOpenEditDividend={handleOpenEditDividend}
           onQuickUpdatePrice={(asset) => {
             setEditingPriceAsset(asset);
           }}

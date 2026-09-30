@@ -69,6 +69,7 @@ export interface DividendRecord {
   type: 'cash' | 'stock';     // Tiền mặt hoặc Cổ phiếu
   amountOrQuantity: number;   // Số tiền mặt (VND/USD) hoặc số cổ phiếu nhận thêm
   taxDeducted?: number;       // Thuế bị khấu trừ tại nguồn
+  taxRate?: number;           // Tỉ lệ thuế (%) (ví dụ: 5%)
   reinvested: boolean;        // Có tự động tái đầu tư không
   notes?: string;
 }
