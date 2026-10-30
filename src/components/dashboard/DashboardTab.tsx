@@ -14,7 +14,8 @@ import {
   Zap,
   TrendingUp
 } from 'lucide-react';
-import { useAppStore } from '../../store/useAppStore';
+import { useAppStore, getCurrentYearMonth } from '../../store/useAppStore';
+import { formatYearMonthDisplay } from '../expenses/BudgetModal';
 import { useInvestmentStore } from '../../store/useInvestmentStore';
 import { getTranslation } from '../../i18n';
 import { generateAIInsights } from '../../services/aiService';
@@ -71,8 +72,9 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   const totalUrgent = warrantyExpiringAssets.length + urgentComponents.length;
 
   // Monthly expense calculation
-  const currentMonthExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const totalBudget = budgets.reduce((sum, b) => sum + b.monthlyLimit, 0);
+  const currentMonth = getCurrentYearMonth();
+  const currentMonthExpenses = expenses.filter(e => e.date.startsWith(currentMonth)).reduce((sum, e) => sum + e.amount, 0);
+  const totalBudget = budgets.filter(b => (b.month || currentMonth) === currentMonth).reduce((sum, b) => sum + b.monthlyLimit, 0);
   const budgetRatio = totalBudget > 0 ? Math.min(Math.round((currentMonthExpenses / totalBudget) * 100), 100) : 0;
 
   // AI insights
@@ -240,7 +242,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">
-              {t('dash_budget_status')}
+              {t('dash_budget_status')} ({formatYearMonthDisplay(currentMonth)})
             </div>
             <div className="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">
               {currentMonthExpenses.toLocaleString('vi-VN')} đ

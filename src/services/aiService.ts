@@ -1,4 +1,5 @@
 import { Asset, Expense, Budget, AIInsight } from '../types';
+import { getCurrentYearMonth } from '../store/useAppStore';
 
 export function generateAIInsights(
   assets: Asset[],
@@ -32,25 +33,30 @@ export function generateAIInsights(
     });
   }
 
-  // 2. Budget vs Expense analysis
-  const currentMonthExpenses = expenses.reduce((acc, curr) => {
-    acc[curr.category] = (acc[curr.category] || 0) + curr.amount;
-    return acc;
-  }, {} as Record<string, number>);
+  // 2. Budget vs Expense analysis (scoped to current month)
+  const currentMonth = getCurrentYearMonth();
+  const currentMonthExpenses = expenses
+    .filter(e => e.date.startsWith(currentMonth))
+    .reduce((acc, curr) => {
+      acc[curr.category] = (acc[curr.category] || 0) + curr.amount;
+      return acc;
+    }, {} as Record<string, number>);
 
-  budgets.forEach(b => {
-    const spent = currentMonthExpenses[b.category] || 0;
-    const ratio = spent / b.monthlyLimit;
-    if (ratio >= 0.85) {
-      insights.push({
-        id: `ai-budget-${b.category}`,
-        type: 'warning',
-        title: 'Cảnh báo hạn mức ngân sách',
-        message: `Hạng mục "${b.category}" đã tiêu ${spent.toLocaleString('vi-VN')} đ (${Math.round(ratio * 100)}% ngân sách tháng). Hãy cân đối để tránh thâm hụt cuối tháng!`,
-        actionText: 'Kiểm tra chi tiêu'
-      });
-    }
-  });
+  budgets
+    .filter(b => (b.month || currentMonth) === currentMonth && b.monthlyLimit > 0)
+    .forEach(b => {
+      const spent = currentMonthExpenses[b.category] || 0;
+      const ratio = spent / b.monthlyLimit;
+      if (ratio >= 0.85) {
+        insights.push({
+          id: `ai-budget-${b.category}`,
+          type: 'warning',
+          title: 'Cảnh báo hạn mức ngân sách tháng',
+          message: `Hạng mục "${b.category}" đã tiêu ${spent.toLocaleString('vi-VN')} đ (${Math.round(ratio * 100)}% ngân sách tháng ${currentMonth}). Hãy cân đối để tránh thâm hụt cuối tháng!`,
+          actionText: 'Kiểm tra chi tiêu'
+        });
+      }
+    });
 
   // 3. Smart Tip based on assets & expenses
   if (assets.length === 0 && expenses.length === 0) {

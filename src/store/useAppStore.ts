@@ -14,6 +14,21 @@ import { SimulationService, LGThinQService } from '../services/iot';
 
 const STORAGE_KEY = 'famlife_app_data_v2';
 
+export function getCurrentYearMonth(date: Date = new Date()): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+}
+
+function normalizeBudgets(rawBudgets: Budget[] | undefined): Budget[] {
+  const currentMonth = getCurrentYearMonth();
+  const source = Array.isArray(rawBudgets) ? rawBudgets : initialBudgets;
+  return source.map(b => ({
+    ...b,
+    month: b.month || currentMonth
+  }));
+}
+
 interface AppStoreState {
   users: User[];
   currentUserId: string;
@@ -37,7 +52,7 @@ function getStoredState(): AppStoreState {
         currentUserId: parsed.currentUserId || 'user-admin',
         assets: parsed.assets || initialAssets,
         expenses: parsed.expenses || initialExpenses,
-        budgets: parsed.budgets || initialBudgets,
+        budgets: normalizeBudgets(parsed.budgets),
         categories: (parsed.categories && parsed.categories.length > 0) ? parsed.categories : initialCategories,
         tasks: parsed.tasks || initialTasks,
         iotDevices: (parsed.iotDevices && parsed.iotDevices.length > 0) ? parsed.iotDevices : initialIoTDevices,
@@ -56,7 +71,7 @@ function getStoredState(): AppStoreState {
     currentUserId: 'user-admin',
     assets: initialAssets,
     expenses: initialExpenses,
-    budgets: initialBudgets,
+    budgets: normalizeBudgets(initialBudgets),
     categories: initialCategories,
     tasks: initialTasks,
     iotDevices: initialIoTDevices,
@@ -201,15 +216,39 @@ export const useAppStore = () => {
     notify();
   };
 
-  const updateBudget = (category: string, monthlyLimit: number) => {
-    globalState.budgets = globalState.budgets.map(b => 
-      b.category === category ? { ...b, monthlyLimit } : b
+  const updateBudget = (category: string, monthlyLimit: number, month?: string) => {
+    const defaultMonth = getCurrentYearMonth();
+    const targetMonth = month || defaultMonth;
+    const exists = globalState.budgets.some(
+      b => b.category === category && (b.month || defaultMonth) === targetMonth
+    );
+    if (exists) {
+      globalState.budgets = globalState.budgets.map(b =>
+        b.category === category && (b.month || defaultMonth) === targetMonth
+          ? { ...b, monthlyLimit, month: targetMonth }
+          : b
+      );
+    } else {
+      globalState.budgets = [
+        ...globalState.budgets,
+        { category, monthlyLimit, month: targetMonth }
+      ];
+    }
+    notify();
+  };
+
+  const resetMonthlyBudget = (month?: string) => {
+    const defaultMonth = getCurrentYearMonth();
+    const targetMonth = month || defaultMonth;
+    globalState.budgets = globalState.budgets.filter(
+      b => (b.month || defaultMonth) !== targetMonth
     );
     notify();
   };
 
   const addCategory = (categoryData: Omit<CategoryItem, 'id'>) => {
     const id = `cat-${Date.now()}`;
+    const currentMonth = getCurrentYearMonth();
     const newCategory: CategoryItem = {
       ...categoryData,
       id,
@@ -218,9 +257,9 @@ export const useAppStore = () => {
       color: categoryData.color || '#10b981'
     };
     globalState.categories = [...globalState.categories, newCategory];
-    // Create budget slot if not existing
-    if (!globalState.budgets.some(b => b.category === id)) {
-      globalState.budgets = [...globalState.budgets, { category: id, monthlyLimit: 0 }];
+    // Create budget slot if not existing for current month
+    if (!globalState.budgets.some(b => b.category === id && (b.month || currentMonth) === currentMonth)) {
+      globalState.budgets = [...globalState.budgets, { category: id, monthlyLimit: 0, month: currentMonth }];
     }
     notify();
     return newCategory;
@@ -519,10 +558,11 @@ export const useAppStore = () => {
     notify();
   };
 
-  // Clear all operational data (assets, expenses, tasks, iot) keeping admin and settings
+  // Clear all operational data (assets, expenses, budgets, tasks, iot) keeping admin and settings
   const clearAllData = () => {
     globalState.assets = [];
     globalState.expenses = [];
+    globalState.budgets = [];
     globalState.tasks = [];
     globalState.iotDevices = [];
     notify();
@@ -564,7 +604,7 @@ export const useAppStore = () => {
       currentUserId: 'user-admin',
       assets: initialAssets,
       expenses: initialExpenses,
-      budgets: initialBudgets,
+      budgets: normalizeBudgets(initialBudgets),
       categories: initialCategories,
       tasks: initialTasks,
       iotDevices: initialIoTDevices,
@@ -599,7 +639,7 @@ export const useAppStore = () => {
         : (backupData.expenses !== undefined ? [] : globalState.expenses);
 
       const nextBudgets = Array.isArray(backupData.budgets)
-        ? backupData.budgets
+        ? normalizeBudgets(backupData.budgets)
         : (backupData.budgets !== undefined ? [] : globalState.budgets);
 
       const nextCategories = Array.isArray(backupData.categories) && backupData.categories.length > 0
@@ -683,6 +723,7 @@ export const useAppStore = () => {
     updateExpense,
     deleteExpense,
     updateBudget,
+    resetMonthlyBudget,
     addCategory,
     updateCategory,
     deleteCategory,

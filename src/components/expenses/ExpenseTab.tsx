@@ -5,16 +5,15 @@ import {
   Trash2, 
   Mic, 
   TrendingUp, 
-  AlertCircle, 
-  CheckCircle2, 
-  ArrowDownRight,
-  Filter,
+  Calendar,
   Pencil,
   QrCode,
-  Calendar,
   RotateCcw,
   BarChart3,
-  ChevronDown
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Target
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -25,11 +24,11 @@ import {
   Tooltip, 
   Cell 
 } from 'recharts';
-import { ExpenseCategory, Expense } from '../../types';
-import { useAppStore } from '../../store/useAppStore';
+import { Expense } from '../../types';
+import { useAppStore, getCurrentYearMonth } from '../../store/useAppStore';
 import { getTranslation } from '../../i18n';
 import { AddExpenseModal } from './AddExpenseModal';
-import { BudgetModal } from './BudgetModal';
+import { BudgetModal, shiftYearMonth, formatYearMonthDisplay } from './BudgetModal';
 
 interface ExpenseTabProps {
   onOpenVoiceInput: () => void;
@@ -45,8 +44,12 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [showBudgetModal, setShowBudgetModal] = useState(false);
   const [showChart, setShowChart] = useState(false);
+
+  const currentMonth = getCurrentYearMonth();
+  const [selectedBudgetMonth, setSelectedBudgetMonth] = useState<string>(currentMonth);
+
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
-  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'yesterday' | 'week' | 'this_month' | 'last_month' | 'custom'>('all');
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'yesterday' | 'week' | 'this_month' | 'last_month' | 'selected_month' | 'custom'>('all');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
@@ -58,25 +61,41 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
   const userMap = Object.fromEntries(users.map(u => [u.id, u.name]));
   const assetMap = Object.fromEntries(assets.map(a => [a.id, a.name]));
 
-  // Monthly totals
-  const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const totalBudget = budgets.reduce((sum, b) => sum + b.monthlyLimit, 0);
+  // Monthly totals for selectedBudgetMonth
+  const monthlyExpenses = useMemo(() => {
+    return expenses.filter(e => e.date.startsWith(selectedBudgetMonth));
+  }, [expenses, selectedBudgetMonth]);
+
+  const monthlyBudgets = useMemo(() => {
+    return budgets.filter(b => (b.month || currentMonth) === selectedBudgetMonth);
+  }, [budgets, selectedBudgetMonth, currentMonth]);
+
+  const totalSpent = monthlyExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalBudget = monthlyBudgets.reduce((sum, b) => sum + b.monthlyLimit, 0);
   const percentSpent = totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
 
-  // Group by category for Chart
-  const chartData = useMemo(() => {
+  // Group by category for Chart & Category Budget Breakdown (scoped to selectedBudgetMonth)
+  const categoryBreakdown = useMemo(() => {
     return categories.map(cat => {
-      const total = expenses
+      const total = monthlyExpenses
         .filter(e => e.category === cat.id)
         .reduce((sum, e) => sum + e.amount, 0);
+      const budgetObj = monthlyBudgets.find(b => b.category === cat.id);
+      const limit = budgetObj?.monthlyLimit || 0;
       return {
         category: cat.id,
         label: cat.name,
+        icon: cat.icon || '📦',
         total,
+        limit,
         color: cat.color || '#10b981'
       };
-    }).filter(d => d.total > 0);
-  }, [categories, expenses]);
+    });
+  }, [categories, monthlyExpenses, monthlyBudgets]);
+
+  const chartData = useMemo(() => {
+    return categoryBreakdown.filter(d => d.total > 0 || d.limit > 0);
+  }, [categoryBreakdown]);
 
   const formatLocalDate = (d: Date) => {
     const year = d.getFullYear();
@@ -125,6 +144,10 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
       return exp.date.startsWith(lastMonthPrefix);
     }
 
+    if (dateFilter === 'selected_month') {
+      return exp.date.startsWith(selectedBudgetMonth);
+    }
+
     if (dateFilter === 'custom') {
       if (startDate && exp.date < startDate) return false;
       if (endDate && exp.date > endDate) return false;
@@ -144,19 +167,19 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-5 pb-20">
+    <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-5 pb-20 w-full max-w-full min-w-0">
       {/* Title & Action Buttons */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-bold text-slate-900 dark:text-white">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h1 className="text-lg font-bold text-slate-900 dark:text-white truncate">
             {t('expense_title')}
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-300 font-medium">
-            Kiểm soát ngân sách & thu chi minh bạch
+          <p className="text-xs text-slate-500 dark:text-slate-300 font-medium truncate">
+            Kiểm soát ngân sách theo từng tháng & thu chi minh bạch
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           {onOpenQRScanner && (
             <button
               onClick={onOpenQRScanner}
@@ -184,55 +207,113 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
       </div>
 
       {/* Monthly Budget Summary Banner */}
-      <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 rounded-3xl p-5 text-white shadow-xl space-y-3 relative overflow-hidden">
-        <div className="relative z-10 space-y-1.5">
-          {/* Header Row: Label & Budget Limit Chip */}
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs text-emerald-100 font-medium tracking-wide">
-              {t('dash_total_spent')}
-            </span>
+      <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 rounded-3xl p-5 text-white shadow-xl space-y-3 relative overflow-hidden w-full max-w-full min-w-0">
+        <div className="relative z-10 space-y-2">
+          {/* Month Switcher & Budget Limit Chip */}
+          <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+            <div className="inline-flex items-center gap-1 bg-black/20 backdrop-blur-sm rounded-full p-0.5 border border-white/10">
+              <button
+                type="button"
+                onClick={() => setSelectedBudgetMonth(prev => shiftYearMonth(prev, -1))}
+                className="w-6 h-6 rounded-full hover:bg-white/20 flex items-center justify-center transition active:scale-95"
+                title="Tháng trước"
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <span className="text-xs font-bold px-1.5 text-white">
+                {formatYearMonthDisplay(selectedBudgetMonth)}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedBudgetMonth(prev => shiftYearMonth(prev, 1))}
+                className="w-6 h-6 rounded-full hover:bg-white/20 flex items-center justify-center transition active:scale-95"
+                title="Tháng sau"
+              >
+                <ChevronRight size={14} />
+              </button>
+              {selectedBudgetMonth !== currentMonth && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedBudgetMonth(currentMonth)}
+                  className="text-[10px] font-bold px-2 py-0.5 mr-0.5 rounded-full bg-white text-emerald-800 hover:bg-emerald-50 transition"
+                >
+                  Hiện tại
+                </button>
+              )}
+            </div>
+
             {canManage ? (
               <button
                 onClick={() => setShowBudgetModal(true)}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition text-xs text-emerald-50 font-medium backdrop-blur-sm border border-white/10"
-                title="Cài đặt hạn mức"
+                title="Cài đặt hạn mức tháng"
               >
-                <span>{t('dash_budget_limit')}: <strong className="font-bold text-white">{totalBudget > 0 ? `${totalBudget.toLocaleString('vi-VN')} đ` : 'Chưa đặt'}</strong></span>
+                <span>
+                  {t('dash_budget_limit')}:{' '}
+                  <strong className="font-bold text-white">
+                    {totalBudget > 0 ? `${totalBudget.toLocaleString('vi-VN')} đ` : 'Chưa đặt'}
+                  </strong>
+                </span>
                 <Pencil size={11} className="opacity-80 shrink-0" />
               </button>
             ) : (
               <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 text-xs text-emerald-100 font-medium">
-                <span>{t('dash_budget_limit')}: <strong className="font-bold text-white">{totalBudget > 0 ? `${totalBudget.toLocaleString('vi-VN')} đ` : 'Chưa đặt'}</strong></span>
+                <span>
+                  {t('dash_budget_limit')}:{' '}
+                  <strong className="font-bold text-white">
+                    {totalBudget > 0 ? `${totalBudget.toLocaleString('vi-VN')} đ` : 'Chưa đặt'}
+                  </strong>
+                </span>
               </div>
             )}
           </div>
 
-          {/* Main Amount */}
-          <div className="text-2xl sm:text-3xl font-black tracking-tight whitespace-nowrap">
-            {totalSpent.toLocaleString('vi-VN')} <span className="text-base sm:text-lg font-bold opacity-90">đ</span>
+          {/* Label & Main Amount */}
+          <div>
+            <div className="text-[11px] text-emerald-100 font-medium">
+              Chi tiêu trong {formatYearMonthDisplay(selectedBudgetMonth).toLowerCase()}
+            </div>
+            <div className="text-2xl sm:text-3xl font-black tracking-tight whitespace-nowrap mt-0.5">
+              {totalSpent.toLocaleString('vi-VN')} <span className="text-base sm:text-lg font-bold opacity-90">đ</span>
+            </div>
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="w-full bg-black/20 backdrop-blur h-2.5 rounded-full overflow-hidden">
           <div
-            className="h-full bg-white rounded-full transition-all duration-500 shadow-sm"
+            className={`h-full rounded-full transition-all duration-500 shadow-sm ${
+              percentSpent > 100 ? 'bg-rose-300' : 'bg-white'
+            }`}
             style={{ width: `${totalBudget > 0 ? Math.min(100, percentSpent) : 0}%` }}
           />
         </div>
 
         {/* Bottom Details Row */}
-        <div className="flex items-center justify-between text-[11px] sm:text-xs text-emerald-100 font-medium gap-2">
-          <span className="truncate">
+        <div className="relative z-10 flex items-center justify-between text-[11px] sm:text-xs text-emerald-100 font-medium gap-2 flex-wrap">
+          <span className="truncate min-w-0">
             {totalBudget > 0 
               ? (totalSpent > totalBudget 
-                  ? `Vượt: ${(totalSpent - totalBudget).toLocaleString('vi-VN')} đ` 
+                  ? `Vượt ngân sách: ${(totalSpent - totalBudget).toLocaleString('vi-VN')} đ` 
                   : `Còn dư: ${(totalBudget - totalSpent).toLocaleString('vi-VN')} đ`)
-              : 'Chưa đặt hạn mức'}
+              : `${formatYearMonthDisplay(selectedBudgetMonth)} chưa đặt ngân sách`}
           </span>
-          <span className="shrink-0 font-semibold text-white">
-            {totalBudget > 0 ? `${percentSpent}% ngân sách` : 'Chưa có hạn mức'}
-          </span>
+          {totalBudget > 0 ? (
+            <span className="shrink-0 font-semibold text-white">
+              {percentSpent}% ngân sách
+            </span>
+          ) : canManage ? (
+            <button
+              type="button"
+              onClick={() => setShowBudgetModal(true)}
+              className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white text-emerald-800 font-bold text-[11px] shadow-sm hover:bg-emerald-50 transition active:scale-95"
+            >
+              <Target size={12} />
+              <span>Nhập ngân sách {formatYearMonthDisplay(selectedBudgetMonth)}</span>
+            </button>
+          ) : (
+            <span className="shrink-0 font-semibold text-white">Chưa có hạn mức</span>
+          )}
         </div>
 
         <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none" />
@@ -246,22 +327,22 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-xs transition active:scale-95"
           >
             <BarChart3 size={14} className="text-emerald-500" />
-            <span>{showChart ? 'Ẩn cơ cấu chi tiêu' : 'Xem cơ cấu chi tiêu theo nhóm'}</span>
+            <span>{showChart ? 'Ẩn cơ cấu chi tiêu' : `Xem cơ cấu & hạn mức (${formatYearMonthDisplay(selectedBudgetMonth)})`}</span>
             <ChevronDown size={14} className={`transform transition-transform duration-200 ${showChart ? 'rotate-180' : ''}`} />
           </button>
         </div>
       )}
 
-      {/* Category Breakdown Chart */}
+      {/* Category Breakdown Chart & Per-Category Monthly Limit Progress */}
       {showChart && chartData.length > 0 && (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-              Cơ cấu chi tiêu theo nhóm
+        <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 w-full max-w-full overflow-hidden min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider truncate">
+              Cơ cấu chi tiêu {formatYearMonthDisplay(selectedBudgetMonth)}
             </h2>
             <button
               onClick={() => setShowChart(false)}
-              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs flex items-center gap-1 transition"
+              className="text-slate-500 hover:text-slate-700 dark:text-slate-300 dark:hover:text-white text-xs flex items-center gap-1 transition shrink-0"
               title="Ẩn biểu đồ"
             >
               <span>Thu gọn</span>
@@ -269,31 +350,68 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
             </button>
           </div>
 
-          <div className="h-44 w-full pt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
-                <XAxis 
-                  dataKey="label" 
-                  tick={{ fontSize: 10, fill: '#94a3b8' }} 
-                  interval={0}
-                  angle={-25}
-                  textAnchor="end"
-                />
-                <YAxis 
-                  tick={{ fontSize: 9, fill: '#94a3b8' }}
-                  tickFormatter={val => `${Math.round(val / 1000)}k`}
-                />
-                <Tooltip
-                  formatter={(value: any) => [`${Number(value).toLocaleString('vi-VN')} đ`, 'Chi tiêu']}
-                  contentStyle={{ backgroundColor: '#1e293b', borderRadius: '12px', border: 'none', color: '#fff', fontSize: '11px' }}
-                />
-                <Bar dataKey="total" radius={[6, 6, 0, 0]}>
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+          {chartData.some(d => d.total > 0) && (
+            <div className="h-44 w-full pt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData.filter(d => d.total > 0)} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+                  <XAxis 
+                    dataKey="label" 
+                    tick={{ fontSize: 10, fill: '#94a3b8' }} 
+                    interval={0}
+                    angle={-25}
+                    textAnchor="end"
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 9, fill: '#94a3b8' }}
+                    tickFormatter={val => `${Math.round(val / 1000)}k`}
+                  />
+                  <Tooltip
+                    formatter={(value: any) => [`${Number(value).toLocaleString('vi-VN')} đ`, 'Chi tiêu']}
+                    contentStyle={{ backgroundColor: '#1e293b', borderRadius: '12px', border: 'none', color: '#fff', fontSize: '11px' }}
+                  />
+                  <Bar dataKey="total" radius={[6, 6, 0, 0]} isAnimationActive={false}>
+                    {chartData.filter(d => d.total > 0).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {/* Per-category budget progress for selectedBudgetMonth */}
+          <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-slate-700">
+            <div className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
+              Chi tiết theo nhóm ({formatYearMonthDisplay(selectedBudgetMonth)}):
+            </div>
+            {chartData.map(item => {
+              const pct = item.limit > 0 ? Math.round((item.total / item.limit) * 100) : 0;
+              const isOver = item.limit > 0 && item.total > item.limit;
+              return (
+                <div key={item.category} className="space-y-1">
+                  <div className="flex items-center justify-between text-[11px] gap-2 flex-wrap">
+                    <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <span>{item.icon}</span>
+                      <span>{item.label}</span>
+                    </span>
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      <strong className={isOver ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'}>
+                        {item.total.toLocaleString('vi-VN')} đ
+                      </strong>
+                      {item.limit > 0 ? ` / ${item.limit.toLocaleString('vi-VN')} đ (${pct}%)` : ' (Chưa đặt hạn mức)'}
+                    </span>
+                  </div>
+                  {item.limit > 0 && (
+                    <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${isOver ? 'bg-rose-500' : pct >= 80 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                        style={{ width: `${Math.min(100, pct)}%` }}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -356,10 +474,16 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
                   setStartDate('');
                   setEndDate('');
                 }
+                if (val === 'this_month') {
+                  setSelectedBudgetMonth(currentMonth);
+                } else if (val === 'last_month') {
+                  setSelectedBudgetMonth(shiftYearMonth(currentMonth, -1));
+                }
               }}
               className="w-full text-[11px] py-2 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium outline-none truncate shadow-xs"
             >
               <option value="all">📅 Tất cả thời gian</option>
+              <option value="selected_month">🎯 Theo {formatYearMonthDisplay(selectedBudgetMonth)}</option>
               <option value="today">⚡ Hôm nay</option>
               <option value="yesterday">⏪ Hôm qua</option>
               <option value="week">🗓️ 7 ngày qua</option>
@@ -463,7 +587,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
               return (
                 <div
                   key={exp.id}
-                  className="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 shadow-sm hover:shadow-md transition-all space-y-2.5"
+                  className="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 shadow-sm hover:shadow-md transition-all space-y-2.5 w-full max-w-full overflow-hidden min-w-0"
                 >
                   {/* Top Row: Category Icon + Title (+ Notes) & Amount */}
                   <div className="flex items-start justify-between gap-3">
@@ -590,6 +714,8 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
 
       {showBudgetModal && (
         <BudgetModal
+          initialMonth={selectedBudgetMonth}
+          onMonthChange={setSelectedBudgetMonth}
           onClose={() => setShowBudgetModal(false)}
         />
       )}

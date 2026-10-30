@@ -10,7 +10,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { CategoryItem } from '../../types';
-import { useAppStore } from '../../store/useAppStore';
+import { useAppStore, getCurrentYearMonth } from '../../store/useAppStore';
 import { getTranslation } from '../../i18n';
 
 interface CategoryManagementModalProps {
@@ -392,7 +392,8 @@ export const CategoryManagementModal: React.FC<CategoryManagementModalProps> = (
 
             {categories.map(cat => {
               const txCount = expenses.filter(e => e.category === cat.id).length;
-              const budgetItem = budgets.find(b => b.category === cat.id);
+              const currentMonth = getCurrentYearMonth();
+              const budgetItem = budgets.find(b => b.category === cat.id && (b.month || currentMonth) === currentMonth);
               const isSelectedForEdit = editingId === cat.id;
 
               return (

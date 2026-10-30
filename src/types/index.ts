@@ -64,6 +64,7 @@ export interface Expense {
 export interface Budget {
   category: ExpenseCategory;
   monthlyLimit: number;
+  month?: string; // YYYY-MM (VD: "2026-10")
 }
 
 export interface Task {
