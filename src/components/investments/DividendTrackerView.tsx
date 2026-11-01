@@ -101,10 +101,10 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
 
         {/* Total Cash Dividends & Sub-stats */}
         <div className="relative z-10 flex items-baseline justify-between gap-2 flex-wrap pt-0.5">
-          <div className="text-xl sm:text-2xl font-black tracking-tight text-white leading-tight">
+          <div className="text-xl sm:text-2xl font-black tracking-tight text-white leading-tight font-mono tabular-nums">
             +{formatCurrency(portfolioSummary.totalDividendsReceived)}
           </div>
-          <div className="text-xs font-bold text-amber-200">
+          <div className="text-xs font-bold text-amber-200 font-mono tabular-nums">
             YoC: {avgYieldOnCost.toFixed(2)}%/năm
           </div>
         </div>
@@ -115,7 +115,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
             <span className="text-[10px] text-amber-200 font-medium block truncate">
               Năm {selectedYear}
             </span>
-            <span className="text-xs sm:text-sm font-extrabold text-white mt-0.5 block truncate">
+            <span className="text-xs sm:text-sm font-extrabold text-white mt-0.5 block truncate font-mono tabular-nums">
               +{formatCurrency(totalInYear)}
             </span>
           </div>
@@ -124,7 +124,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
             <span className="text-[10px] text-amber-200 font-medium block truncate">
               Trung bình tháng
             </span>
-            <span className="text-xs sm:text-sm font-extrabold text-white mt-0.5 block truncate">
+            <span className="text-xs sm:text-sm font-extrabold text-white mt-0.5 block truncate font-mono tabular-nums">
               +{formatCurrency(monthlyAvg)}
             </span>
           </div>
@@ -182,20 +182,21 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
                 <Tooltip 
                   formatter={(val: any) => [formatCurrency(Number(val)), t('inv_div_chart_received')]}
                   contentStyle={{
-                    backgroundColor: '#1e293b',
+                    backgroundColor: '#0f172a',
                     borderColor: '#334155',
                     borderRadius: '12px',
                     color: '#fff',
                     fontSize: '11px',
+                    fontFamily: 'monospace',
                     fontWeight: 600
                   }}
-                  itemStyle={{ color: '#fbbf24' }}
+                  itemStyle={{ color: '#22c55e' }}
                 />
                 <Bar dataKey="amount" radius={[5, 5, 0, 0]}>
                   {monthlyData.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
-                      fill={entry.amount > 0 ? '#f59e0b' : '#e2e8f0'} 
+                      fill={entry.amount > 0 ? '#16A34A' : '#e2e8f0'} 
                     />
                   ))}
                 </Bar>
@@ -247,13 +248,13 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
             return (
               <div
                 key={div.id}
-                className="w-full max-w-full overflow-hidden min-w-0 p-2.5 sm:p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/70 shadow-2xs hover:shadow-xs transition-all space-y-1.5"
+                className="w-full max-w-full overflow-hidden min-w-0 p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 shadow-sm hover:shadow-md transition-all space-y-1.5"
               >
                 {/* Row 1: Symbol Avatar, Symbol, Tag, Date & Net Amount */}
                 <div className="flex items-center justify-between gap-2 min-w-0">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <div 
-                      className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-[11px] shrink-0 shadow-2xs"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-[11px] shrink-0 shadow-2xs font-mono"
                       style={{ backgroundColor: classColor }}
                     >
                       {asset ? asset.symbol.slice(0, 3).toUpperCase() : 'DIV'}
@@ -266,17 +267,17 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
                         </span>
                         <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded shrink-0 ${
                           div.type === 'cash'
-                            ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
-                            : 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                            : 'bg-sky-50 dark:bg-sky-950/60 text-primary-700 dark:text-primary-300 border border-sky-200 dark:border-sky-800'
                         }`}>
                           {div.type === 'cash' ? t('inv_div_badge_cash') : t('inv_div_badge_stock')}
                         </span>
                         {div.reinvested && (
-                          <span className="text-[9px] font-bold px-1 py-0.2 rounded bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 border border-blue-200/50 shrink-0">
+                          <span className="text-[9px] font-bold px-1 py-0.2 rounded bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-300 border border-sky-200/50 shrink-0">
                             DRIP
                           </span>
                         )}
-                        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium font-mono tabular-nums">
                           {div.date}
                         </span>
                       </div>
@@ -285,7 +286,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
 
                   {/* Net Amount */}
                   <div className="shrink-0 text-right">
-                    <span className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400 tracking-tight whitespace-nowrap">
+                    <span className="text-xs sm:text-sm font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight whitespace-nowrap font-mono tabular-nums">
                       {div.type === 'cash' ? `+${formatCurrency(netAmount)}` : `+${div.amountOrQuantity.toLocaleString('vi-VN')} ${t('inv_detail_unit_shares')}`}
                     </span>
                   </div>
@@ -295,7 +296,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
                 <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-700/60 text-[10px] text-slate-500 dark:text-slate-300">
                   <div className="flex items-center gap-1.5 flex-wrap min-w-0">
                     {div.type === 'cash' && div.taxDeducted && div.taxDeducted > 0 && (
-                      <span className="text-rose-600 dark:text-rose-400 font-semibold bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.2 rounded text-[10px] shrink-0">
+                      <span className="text-rose-600 dark:text-rose-400 font-semibold bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.2 rounded text-[10px] shrink-0 font-mono tabular-nums">
                         Thuế {taxRateStr ? `(${taxRateStr})` : ''}: -{formatCurrency(div.taxDeducted)}
                       </span>
                     )}

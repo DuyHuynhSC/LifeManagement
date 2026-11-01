@@ -131,9 +131,9 @@ export const WasherCard: React.FC<WasherCardProps> = ({
 
   return (
     <div
-      className={`rounded-3xl border transition-all p-4 relative overflow-hidden ${
+      className={`rounded-2xl border transition-all p-4 relative overflow-hidden ${
         device.isOnline
-          ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm'
+          ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700/80 shadow-sm'
           : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-60'
       }`}
     >
@@ -237,8 +237,8 @@ export const WasherCard: React.FC<WasherCardProps> = ({
                 <div className="flex items-baseline gap-1.5 mt-2">
                   {isRunning ? (
                     <>
-                      <Clock size={16} className="text-purple-600 dark:text-purple-400 self-center animate-spin" />
-                      <span className="text-2xl font-black text-slate-900 dark:text-white">
+                      <Clock size={16} className="text-primary-600 dark:text-primary-400 self-center animate-spin" />
+                      <span className="text-2xl font-black text-slate-900 dark:text-white font-mono tabular-nums">
                         {w.remainingMinutes}
                       </span>
                       <span className="text-xs text-slate-400 font-semibold">phút còn lại</span>
@@ -259,8 +259,8 @@ export const WasherCard: React.FC<WasherCardProps> = ({
               </div>
 
               {isRunning && (
-                <div className="w-10 h-10 rounded-full border-2 border-purple-500/30 border-t-purple-600 animate-spin flex items-center justify-center shrink-0">
-                  <RotateCw size={14} className="text-purple-600" />
+                <div className="w-10 h-10 rounded-full border-2 border-primary-500/30 border-t-primary-600 animate-spin flex items-center justify-center shrink-0">
+                  <RotateCw size={14} className="text-primary-600" />
                 </div>
               )}
             </div>
@@ -269,7 +269,7 @@ export const WasherCard: React.FC<WasherCardProps> = ({
             {isRunning && (
               <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden mt-3">
                 <div
-                  className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-primary-500 to-sky-500 rounded-full transition-all duration-500"
                   style={{ width: `${Math.max(10, 100 - (w.remainingMinutes / 45) * 100)}%` }}
                 />
               </div>
@@ -282,7 +282,7 @@ export const WasherCard: React.FC<WasherCardProps> = ({
               <button
                 onClick={handleSyncFromLG}
                 disabled={isSyncingLive}
-                className="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition disabled:opacity-50"
+                className="w-full py-2.5 px-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition disabled:opacity-50"
               >
                 <RefreshCw size={14} className={isSyncingLive ? 'animate-spin' : ''} />
                 <span>
@@ -305,13 +305,13 @@ export const WasherCard: React.FC<WasherCardProps> = ({
             ) : !isRunning ? (
               <button
                 onClick={handleStartSimulatedCycle}
-                className="w-full py-2 px-3 rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-purple-100 transition"
+                className="w-full py-2 px-3 rounded-xl border border-primary-200 dark:border-primary-800 bg-sky-50 dark:bg-sky-950/40 text-primary-700 dark:text-primary-300 font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-sky-100 transition"
               >
                 <RotateCw size={14} />
                 <span>Chạy thử chu trình giặt mô phỏng (30 phút)</span>
               </button>
             ) : (
-              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono tabular-nums">
                 <span>Khóa cửa an toàn: {w.doorLocked ? 'Đang khóa' : 'Mở'}</span>
                 <span>Lồng giặt: {w.drumCleanCycleCount}/30 lần giặt</span>
               </div>
@@ -320,14 +320,14 @@ export const WasherCard: React.FC<WasherCardProps> = ({
 
           {/* Bottom Bar: Power & Clean Status */}
           <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-700/80 text-[11px]">
-            <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium">
+            <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium font-mono tabular-nums">
               <Zap size={13} className="text-amber-400" />
               <span>{isRunning ? (device.currentWattage || 380) : 0}W (~{device.powerUsageKwhToday || device.powerUsageKwh} kWh/ngày)</span>
             </div>
 
             <button
               onClick={() => onCreateTask(device.id, `Vệ sinh lồng giặt cho ${device.name}`, 25)}
-              className="text-[11px] font-medium text-purple-600 dark:text-purple-400 hover:underline"
+              className="text-[11px] font-medium text-primary-600 dark:text-primary-400 hover:underline"
             >
               Nhắc vệ sinh lồng giặt
             </button>

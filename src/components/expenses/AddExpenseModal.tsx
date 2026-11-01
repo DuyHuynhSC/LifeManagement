@@ -305,7 +305,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                 placeholder="0"
                 value={amountStr ? Number(amountStr).toLocaleString('vi-VN') : ''}
                 onChange={handleAmountChange}
-                className="w-full p-3 pr-10 text-lg font-extrabold text-emerald-600 dark:text-emerald-400 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full p-3 pr-10 text-lg font-extrabold text-slate-900 dark:text-white rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 outline-none focus:ring-2 focus:ring-primary-500 font-mono tabular-nums"
               />
               <span className="absolute right-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-sm pointer-events-none">
                 đ
@@ -316,7 +316,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
             {amountSuggestions.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 mt-2 animate-in fade-in duration-150">
                 <span className="text-[11px] text-slate-500 dark:text-slate-300 font-medium flex items-center gap-1 mr-0.5">
-                  <Sparkles size={11} className="text-emerald-600 dark:text-emerald-400" />
+                  <Sparkles size={11} className="text-primary-600 dark:text-primary-400" />
                   Gợi ý:
                 </span>
                 {amountSuggestions.map(sug => (
@@ -324,10 +324,10 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                     key={sug.value}
                     type="button"
                     onClick={() => setAmountStr(String(sug.value))}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-bold text-xs transition active:scale-95 flex items-center gap-1 shadow-sm"
+                    className="px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 border border-sky-200 dark:border-sky-800 text-primary-700 dark:text-primary-300 font-bold text-xs transition active:scale-95 flex items-center gap-1 shadow-sm font-mono tabular-nums"
                   >
                     <span>{sug.value.toLocaleString('vi-VN')} đ</span>
-                    <span className="text-[10px] font-normal opacity-75">
+                    <span className="text-[10px] font-normal opacity-75 font-sans">
                       ({sug.label})
                     </span>
                   </button>
@@ -508,7 +508,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 font-bold text-white rounded-xl shadow-md transition"
+              className="flex-1 py-2.5 bg-primary-600 hover:bg-primary-700 font-bold text-white rounded-xl shadow-md transition"
             >
               {expenseToEdit ? t('action_save') : t('action_add')}
             </button>

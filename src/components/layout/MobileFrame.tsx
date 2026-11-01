@@ -35,7 +35,7 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({ children }) => {
 
       {/* Frame Container */}
       <div
-        className={`w-full transition-all duration-300 bg-white dark:bg-slate-900 shadow-2xl relative flex flex-col overflow-hidden ${
+        className={`w-full transition-all duration-300 bg-slate-50 dark:bg-slate-900 shadow-2xl relative flex flex-col overflow-hidden ${
           isPhoneView
             ? 'max-w-[440px] h-[100dvh] md:h-[880px] md:rounded-[48px] md:border-[10px] md:border-slate-800 md:ring-1 md:ring-slate-700'
             : 'max-w-4xl h-[100dvh] md:h-[90vh] md:rounded-2xl md:border md:border-slate-800'

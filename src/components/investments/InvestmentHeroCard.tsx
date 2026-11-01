@@ -42,18 +42,18 @@ export const InvestmentHeroCard: React.FC<InvestmentHeroCardProps> = ({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 p-3.5 sm:p-4 text-white shadow-lg border border-indigo-700/50 space-y-2">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-sky-950 p-3.5 sm:p-4 text-white shadow-lg border border-slate-700/80 space-y-2">
       {/* Decorative background glows */}
-      <div className="absolute -top-12 -right-12 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-12 -right-12 w-40 h-40 bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-10 -left-10 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
 
       {/* Top row: Label & Quick Actions */}
       <div className="flex items-center justify-between relative z-10 gap-2">
         <div className="flex items-center gap-1.5 min-w-0 shrink-0">
-          <div className="w-6 h-6 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center text-indigo-200 shrink-0">
+          <div className="w-6 h-6 rounded-lg bg-white/10 backdrop-blur-md flex items-center justify-center text-sky-200 shrink-0">
             <Wallet size={13} />
           </div>
-          <span className="text-xs font-bold tracking-wide text-indigo-100 whitespace-nowrap">
+          <span className="text-xs font-bold tracking-wide text-slate-200 whitespace-nowrap">
             {t('inv_total_market_val')}
           </span>
         </div>
@@ -76,12 +76,12 @@ export const InvestmentHeroCard: React.FC<InvestmentHeroCardProps> = ({
 
       {/* Big Market Value & P&L in compact alignment */}
       <div className="relative z-10 flex items-baseline justify-between gap-2 flex-wrap pt-0.5">
-        <div className="text-xl sm:text-2xl font-black tracking-tight text-white leading-tight">
+        <div className="text-xl sm:text-2xl font-black tracking-tight text-white leading-tight font-mono tabular-nums">
           {formatCurrency(summary.currentMarketValue)}
         </div>
 
         {/* P&L & ROI Pill */}
-        <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold ${
+        <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold font-mono tabular-nums ${
           isProfitable
             ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
             : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
@@ -93,8 +93,8 @@ export const InvestmentHeroCard: React.FC<InvestmentHeroCardProps> = ({
       </div>
 
       {/* Invested Capital Sub-text */}
-      <div className="relative z-10 text-[11px] text-indigo-200/90 font-medium">
-        {t('inv_invested_capital')}: <strong className="text-white font-bold">{formatCurrency(summary.totalInvested)}</strong>
+      <div className="relative z-10 text-[11px] text-slate-300 font-medium">
+        {t('inv_invested_capital')}: <strong className="text-white font-bold font-mono tabular-nums">{formatCurrency(summary.totalInvested)}</strong>
       </div>
 
       {/* 3 Metric Cards Grid at Bottom */}
@@ -105,7 +105,7 @@ export const InvestmentHeroCard: React.FC<InvestmentHeroCardProps> = ({
             <PiggyBank size={11} className="text-amber-400 shrink-0" />
             <span className="truncate">{t('inv_realized_pnl')}</span>
           </span>
-          <span className={`text-[11px] sm:text-xs font-bold mt-0.5 truncate ${summary.totalRealizedPnL >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
+          <span className={`text-[11px] sm:text-xs font-bold mt-0.5 truncate font-mono tabular-nums ${summary.totalRealizedPnL >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
             {summary.totalRealizedPnL >= 0 ? '+' : ''}{formatCurrency(summary.totalRealizedPnL)}
           </span>
         </div>
@@ -116,7 +116,7 @@ export const InvestmentHeroCard: React.FC<InvestmentHeroCardProps> = ({
             <Coins size={11} className="text-amber-300 shrink-0" />
             <span className="truncate">{t('inv_total_dividends')}</span>
           </span>
-          <span className="text-[11px] sm:text-xs font-bold text-amber-300 mt-0.5 truncate">
+          <span className="text-[11px] sm:text-xs font-bold text-amber-300 mt-0.5 truncate font-mono tabular-nums">
             +{formatCurrency(summary.totalDividendsReceived)}
           </span>
         </div>
@@ -127,7 +127,7 @@ export const InvestmentHeroCard: React.FC<InvestmentHeroCardProps> = ({
             <Clock size={11} className="text-cyan-300 shrink-0" />
             <span className="truncate">{t('inv_holding_avg')}</span>
           </span>
-          <span className="text-[11px] sm:text-xs font-bold text-cyan-300 mt-0.5 truncate">
+          <span className="text-[11px] sm:text-xs font-bold text-cyan-300 mt-0.5 truncate font-mono tabular-nums">
             {t('inv_holding_days', { days: summary.averageHoldingDays })}
           </span>
         </div>

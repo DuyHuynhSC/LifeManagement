@@ -143,7 +143,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
             onClick={() => setActiveTab('overview')}
             className={`flex-1 py-1.5 rounded-xl font-bold text-xs transition ${
               activeTab === 'overview'
-                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm'
+                ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-300 shadow-sm'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -153,7 +153,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
             onClick={() => setActiveTab('history')}
             className={`flex-1 py-1.5 rounded-xl font-bold text-xs transition ${
               activeTab === 'history'
-                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm'
+                ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-300 shadow-sm'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -163,7 +163,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
             onClick={() => setActiveTab('dividends')}
             className={`flex-1 py-1.5 rounded-xl font-bold text-xs transition ${
               activeTab === 'dividends'
-                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm'
+                ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-300 shadow-sm'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -183,11 +183,11 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       <span className="font-semibold text-slate-500 dark:text-slate-300">
                         {t('inv_savings_deposit_principal')}
                       </span>
-                      <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                      <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300 font-mono tabular-nums">
                         {asset.termMonths || 0} {t('inv_term_month_unit')} • {asset.interestRate || 0}%/{t('inv_year_unit')}
                       </span>
                     </div>
-                    <div className="text-2xl font-black text-slate-900 dark:text-white">
+                    <div className="text-2xl font-black text-slate-900 dark:text-white font-mono tabular-nums">
                       {formatCurrency(asset.avgBuyPrice)}
                     </div>
 
@@ -195,7 +195,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       <span className="text-xs font-semibold text-slate-500 dark:text-slate-300">
                         {t('inv_savings_total_maturity')}
                       </span>
-                      <div className="font-black text-base text-slate-900 dark:text-white">
+                      <div className="font-black text-base text-slate-900 dark:text-white font-mono tabular-nums">
                         {formatCurrency(asset.avgBuyPrice + (asset.expectedInterest || 0))}
                       </div>
                     </div>
@@ -207,10 +207,10 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
                         {t('inv_savings_expected_interest')}
                       </span>
-                      <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                      <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5 block font-mono tabular-nums">
                         +{formatCurrency(asset.expectedInterest || 0)}
                       </span>
-                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium font-mono tabular-nums">
                         {t('inv_savings_interest_rate')}: {asset.interestRate || 0}%
                       </span>
                     </div>
@@ -219,10 +219,10 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
                         {t('inv_savings_term_months')}
                       </span>
-                      <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block">
+                      <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block font-mono tabular-nums">
                         {asset.termMonths || 0} {t('inv_term_month_unit')}
                       </span>
-                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium font-mono tabular-nums">
                         {t('inv_savings_deposit_date')}: {asset.firstBuyDate || '-'}
                       </span>
                     </div>
@@ -231,10 +231,10 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
                         {t('inv_savings_maturity_date')}
                       </span>
-                      <span className="text-sm font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5 block">
+                      <span className="text-sm font-extrabold text-primary-600 dark:text-primary-400 mt-0.5 block font-mono tabular-nums">
                         {asset.maturityDate || '-'}
                       </span>
-                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium font-mono tabular-nums">
                         {asset.termMonths || 0} {t('inv_term_month_unit')}
                       </span>
                     </div>
@@ -243,7 +243,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
                         {t('inv_savings_interest_rate')}
                       </span>
-                      <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block">
+                      <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block font-mono tabular-nums">
                         {asset.interestRate || 0}% / {t('inv_year_unit')}
                       </span>
                       <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
@@ -260,11 +260,11 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       <span className="font-semibold text-slate-500 dark:text-slate-300">
                         {t('inv_detail_market_val')}
                       </span>
-                      <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300">
+                      <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300 font-mono tabular-nums">
                         {asset.quantity.toLocaleString('vi-VN')} {asset.assetClass === 'stock' ? t('inv_detail_unit_shares') : (asset.assetClass === 'fund' ? 'CCQ' : asset.assetClass === 'gold' ? 'chỉ' : asset.assetClass === 'crypto' ? asset.symbol : asset.currency)} @ {formatCurrency(asset.currentPrice)}
                       </span>
                     </div>
-                    <div className="text-2xl font-black text-slate-900 dark:text-white">
+                    <div className="text-2xl font-black text-slate-900 dark:text-white font-mono tabular-nums">
                       {formatCurrency(pnl.currentValue)}
                     </div>
 
@@ -272,7 +272,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       <span className="text-xs font-semibold text-slate-500 dark:text-slate-300">
                         {t('inv_detail_unrealized_pnl')}
                       </span>
-                      <div className={`flex items-center gap-1 font-extrabold text-sm ${
+                      <div className={`flex items-center gap-1 font-extrabold text-sm font-mono tabular-nums ${
                         isProfitable ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                       }`}>
                         {isProfitable ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
@@ -288,10 +288,10 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
                         {t('inv_detail_avg_cost')}
                       </span>
-                      <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block">
+                      <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5 block font-mono tabular-nums">
                         {formatCurrency(asset.avgBuyPrice)}
                       </span>
-                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium font-mono tabular-nums">
                         {t('inv_detail_total_invested')} {formatCurrency(pnl.investedValue)}
                       </span>
                     </div>
@@ -300,7 +300,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
                         {t('inv_detail_realized_pnl')}
                       </span>
-                      <span className={`text-sm font-extrabold mt-0.5 block ${
+                      <span className={`text-sm font-extrabold mt-0.5 block font-mono tabular-nums ${
                         pnl.realizedPnL >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                       }`}>
                         {pnl.realizedPnL >= 0 ? '+' : ''}{formatCurrency(pnl.realizedPnL)}
@@ -314,10 +314,10 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
                         {t('inv_detail_dividends_collected')}
                       </span>
-                      <span className="text-sm font-extrabold text-amber-500 dark:text-amber-400 mt-0.5 block">
+                      <span className="text-sm font-extrabold text-amber-500 dark:text-amber-400 mt-0.5 block font-mono tabular-nums">
                         +{formatCurrency(pnl.totalDividends)}
                       </span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium font-mono tabular-nums">
                         YoC: {(pnl.yieldOnCost || 0).toFixed(1)}%
                       </span>
                     </div>
@@ -326,7 +326,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                       <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
                         {t('inv_detail_net_profit')}
                       </span>
-                      <span className={`text-sm font-extrabold mt-0.5 block ${
+                      <span className={`text-sm font-extrabold mt-0.5 block font-mono tabular-nums ${
                         pnl.allTimeNetProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                       }`}>
                         {pnl.allTimeNetProfit >= 0 ? '+' : ''}{formatCurrency(pnl.allTimeNetProfit)}
@@ -343,17 +343,17 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
               <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
-                    <Clock size={15} className="text-indigo-600 dark:text-indigo-400" />
+                    <Clock size={15} className="text-primary-600 dark:text-primary-400" />
                     <span>{t('inv_detail_holding_time')}</span>
                   </div>
-                  <span className="text-xs font-extrabold text-indigo-600 dark:text-indigo-400">
+                  <span className="text-xs font-extrabold text-primary-600 dark:text-primary-400 font-mono tabular-nums">
                     {pnl.holdingDays >= 30
                       ? `${formatHoldingPeriodText(pnl.holdingDays, t)} (${t('inv_holding_days', { days: pnl.holdingDays })})`
                       : formatHoldingPeriodText(pnl.holdingDays, t)}
                   </span>
                 </div>
                 <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium">
-                  {t('inv_detail_first_buy_date')}: <span className="font-bold text-slate-700 dark:text-slate-200">{asset.firstBuyDate}</span>
+                  {t('inv_detail_first_buy_date')}: <span className="font-bold text-slate-700 dark:text-slate-200 font-mono tabular-nums">{asset.firstBuyDate}</span>
                 </div>
 
                 {asset.notes && (
@@ -373,7 +373,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                 </span>
                 <button
                   onClick={() => onOpenAddTransaction(asset.id)}
-                  className="text-xs font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 hover:underline"
+                  className="text-xs font-bold text-primary-600 dark:text-primary-400 flex items-center gap-1 hover:underline"
                 >
                   <PlusCircle size={14} />
                   <span>{t('inv_detail_add_tx')}</span>
@@ -388,7 +388,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                 transactions.map(tx => (
                   <div 
                     key={tx.id}
-                    className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between"
+                    className="p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between shadow-sm"
                   >
                     <div>
                       <div className="flex items-center gap-2">
@@ -401,13 +401,13 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                             ? (tx.type === 'buy' ? t('inv_savings_deposit_amount') : t('inv_savings_withdraw_btn'))
                             : (tx.type === 'buy' ? t('inv_detail_badge_buy') : t('inv_detail_badge_sell'))}
                         </span>
-                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white font-mono tabular-nums">
                           {asset.assetClass === 'savings'
                             ? formatCurrency(tx.totalAmount)
                             : `${tx.quantity.toLocaleString('vi-VN')} @ ${formatCurrency(tx.pricePerUnit)}`}
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1 flex flex-wrap items-center gap-2">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1 flex flex-wrap items-center gap-2 font-mono tabular-nums">
                         <span>{tx.date}</span>
                         {asset.assetClass === 'savings' && tx.termMonths && (
                           <span>• {tx.termMonths} {t('inv_term_month_unit')}</span>
@@ -424,7 +424,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-extrabold text-slate-900 dark:text-white">
+                      <span className="text-xs font-extrabold text-slate-900 dark:text-white font-mono tabular-nums">
                         {formatCurrency(tx.totalAmount)}
                       </span>
                       <button

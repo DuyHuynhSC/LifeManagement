@@ -175,7 +175,7 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({
                 )}
               </div>
               <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium mt-0.5">
-                Đã chi trong tháng: <strong className="text-rose-600 dark:text-rose-400">{totalSpentInMonth.toLocaleString('vi-VN')} đ</strong>
+                Đã chi trong tháng: <strong className="text-rose-600 dark:text-rose-400 font-mono tabular-nums">{totalSpentInMonth.toLocaleString('vi-VN')} đ</strong>
               </span>
             </div>
 
@@ -195,7 +195,7 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({
               <span className="font-bold text-emerald-900 dark:text-emerald-200">
                 Tổng ngân sách {formatYearMonthDisplay(selectedMonth).toLowerCase()}:
               </span>
-              <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400">
+              <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
                 {totalBudget.toLocaleString('vi-VN')} đ
               </span>
             </div>
@@ -257,7 +257,7 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({
                           ? 'text-rose-600 dark:text-rose-400 font-bold'
                           : 'text-slate-500 dark:text-slate-300'
                       }`}>
-                        Đã chi: {spent.toLocaleString('vi-VN')} đ
+                        Đã chi: <span className="font-mono tabular-nums">{spent.toLocaleString('vi-VN')} đ</span>
                         {isOver ? ' (Vượt mức!)' : ''}
                       </div>
                     </div>
@@ -269,7 +269,7 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({
                       placeholder="0"
                       value={limits[cat.id] ? Number(limits[cat.id]).toLocaleString('vi-VN') : ''}
                       onChange={e => handleLimitChange(cat.id, e.target.value)}
-                      className="w-full py-1.5 px-3 pr-7 text-right font-bold text-slate-900 dark:text-white rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 outline-none focus:ring-2 focus:ring-emerald-500 text-base sm:text-xs"
+                      className="w-full py-1.5 px-3 pr-7 text-right font-bold text-slate-900 dark:text-white rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 outline-none focus:ring-2 focus:ring-primary-500 text-base sm:text-xs font-mono tabular-nums"
                     />
                     <span className="absolute right-2.5 top-1/2 -translate-y-1/2 font-semibold text-slate-500 dark:text-slate-300 text-[11px] pointer-events-none">
                       đ
@@ -291,7 +291,7 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 font-bold text-white rounded-xl shadow-md transition flex items-center justify-center gap-1.5"
+              className="flex-1 py-2.5 bg-primary-600 hover:bg-primary-700 font-bold text-white rounded-xl shadow-md transition flex items-center justify-center gap-1.5"
             >
               <Save size={16} />
               <span>Lưu {formatYearMonthDisplay(selectedMonth)}</span>

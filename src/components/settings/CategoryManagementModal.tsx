@@ -387,7 +387,7 @@ export const CategoryManagementModal: React.FC<CategoryManagementModalProps> = (
           {/* Categories List */}
           <div className="space-y-2">
             <div className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider px-1">
-              Danh sách danh mục ({categories.length})
+              Danh sách danh mục <span className="font-mono tabular-nums">({categories.length})</span>
             </div>
 
             {categories.map(cat => {
@@ -399,10 +399,10 @@ export const CategoryManagementModal: React.FC<CategoryManagementModalProps> = (
               return (
                 <div
                   key={cat.id}
-                  className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                  className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 shadow-sm ${
                     isSelectedForEdit
-                      ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/40 ring-1 ring-emerald-500'
-                      : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700'
+                      ? 'border-primary-500 bg-sky-50/70 dark:bg-sky-950/40 ring-1 ring-primary-500'
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
                   {/* Category Info */}
@@ -410,8 +410,8 @@ export const CategoryManagementModal: React.FC<CategoryManagementModalProps> = (
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 shadow-sm"
                       style={{
-                        backgroundColor: `${cat.color || '#10b981'}18`,
-                        border: `1px solid ${cat.color || '#10b981'}40`
+                        backgroundColor: `${cat.color || '#0284C7'}18`,
+                        border: `1px solid ${cat.color || '#0284C7'}40`
                       }}
                     >
                       {cat.icon || '🏷️'}
@@ -424,12 +424,12 @@ export const CategoryManagementModal: React.FC<CategoryManagementModalProps> = (
                         </span>
                         <span
                           className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: cat.color || '#10b981' }}
+                          style={{ backgroundColor: cat.color || '#0284C7' }}
                           title={`Mã màu: ${cat.color}`}
                         />
                       </div>
                       
-                      <div className="flex items-center gap-2 text-[10px] text-slate-600 dark:text-slate-300 font-medium mt-0.5 flex-wrap">
+                      <div className="flex items-center gap-2 text-[10px] text-slate-600 dark:text-slate-300 font-medium mt-0.5 flex-wrap font-mono tabular-nums">
                         <span>{txCount} giao dịch</span>
                         {budgetItem && budgetItem.monthlyLimit > 0 && (
                           <>

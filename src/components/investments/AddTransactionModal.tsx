@@ -309,7 +309,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             onClick={() => setTxType('buy')}
             className={`py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition ${
               txType === 'buy'
-                ? 'bg-indigo-600 text-white shadow-md'
+                ? 'bg-primary-600 text-white shadow-md'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -639,15 +639,15 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-semibold text-slate-500 dark:text-slate-300">{t('inv_tx_total_amount')}:</span>
-                    <span className="font-black text-slate-900 dark:text-white text-sm">
+                    <span className="font-black text-slate-900 dark:text-white text-sm font-mono tabular-nums">
                       {formatCurrency(totalAmount)}
                     </span>
                   </div>
 
                   {txType === 'buy' && dcaPreview && (
-                    <div className="pt-2 border-t border-slate-200 dark:border-slate-700 text-xs flex items-center justify-between text-indigo-600 dark:text-indigo-400 font-bold">
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-700 text-xs flex items-center justify-between text-primary-600 dark:text-primary-400 font-bold">
                       <span>{t('inv_tx_new_dca_preview')}:</span>
-                      <span>{formatCurrency(dcaPreview.newAvgPrice)} / đơn vị</span>
+                      <span className="font-mono tabular-nums">{formatCurrency(dcaPreview.newAvgPrice)} / đơn vị</span>
                     </div>
                   )}
 
@@ -656,7 +656,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                       realizedPnLPreview >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                     }`}>
                       <span>{t('inv_tx_realized_preview')}:</span>
-                      <span>{realizedPnLPreview >= 0 ? '+' : ''}{formatCurrency(realizedPnLPreview)}</span>
+                      <span className="font-mono tabular-nums">{realizedPnLPreview >= 0 ? '+' : ''}{formatCurrency(realizedPnLPreview)}</span>
                     </div>
                   )}
                 </div>
@@ -675,7 +675,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               onChange={e => setNotes(e.target.value)}
               onKeyDown={handleInputKeyDown}
               placeholder={t('inv_tx_notes_placeholder')}
-              className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
 
@@ -697,7 +697,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               onClick={() => handleSubmit()}
               className={`flex-1 py-2.5 rounded-xl text-white font-extrabold text-xs sm:text-sm shadow-md flex items-center justify-center gap-1.5 transition active:scale-95 ${
                 txType === 'buy' 
-                  ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/25' 
+                  ? 'bg-primary-600 hover:bg-primary-700 shadow-sky-500/25' 
                   : 'bg-rose-600 hover:bg-rose-700 shadow-rose-500/25'
               }`}
             >

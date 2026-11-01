@@ -40,7 +40,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summ
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
-          <div className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+          <div className="w-6 h-6 rounded-lg bg-sky-50 dark:bg-sky-950/60 flex items-center justify-center text-primary-600 dark:text-primary-400 shrink-0">
             <PieChartIcon size={14} />
           </div>
           <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
@@ -48,7 +48,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summ
           </h3>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
-          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-300 whitespace-nowrap bg-slate-100 dark:bg-slate-700/60 px-1.5 py-0.5 rounded-md">
+          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap bg-slate-100 dark:bg-slate-700/60 px-1.5 py-0.5 rounded-md font-mono tabular-nums">
             {data.length} {t('inv_chart_subtitle')}
           </span>
           {onClose && (
@@ -71,11 +71,12 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summ
             <Tooltip 
               formatter={(value: any) => [formatCurrency(Number(value)), t('inv_chart_value')]}
               contentStyle={{
-                backgroundColor: '#1e293b',
+                backgroundColor: '#0f172a',
                 borderColor: '#334155',
                 borderRadius: '12px',
                 color: '#fff',
-                fontSize: '12px',
+                fontSize: '11px',
+                fontFamily: 'monospace',
                 fontWeight: 600
               }}
               itemStyle={{ color: '#e2e8f0' }}
@@ -105,7 +106,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summ
           <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-300 leading-tight">
             {t('inv_chart_proportion')}
           </span>
-          <span className="text-xs font-black text-slate-900 dark:text-white">
+          <span className="text-xs font-black text-slate-900 dark:text-white font-mono tabular-nums">
             100%
           </span>
         </div>
@@ -118,7 +119,7 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summ
           return (
             <div 
               key={item.assetClass}
-              className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 transition hover:border-slate-200 dark:hover:border-slate-700"
+              className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800 transition hover:border-slate-300 dark:hover:border-slate-700"
             >
               {/* Category indicator & label */}
               <div className="flex items-center gap-2.5 min-w-0 pr-2">
@@ -133,11 +134,11 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summ
 
               {/* Amount and percentage badge */}
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xs font-extrabold text-slate-700 dark:text-slate-200">
+                <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 font-mono tabular-nums">
                   {formatCurrency(item.value)}
                 </span>
                 <span 
-                  className="text-[11px] font-black px-2 py-0.5 rounded-lg shrink-0 text-center min-w-[42px]"
+                  className="text-[11px] font-black px-2 py-0.5 rounded-lg shrink-0 text-center min-w-[42px] font-mono tabular-nums"
                   style={{ 
                     backgroundColor: `${color}18`, 
                     color: color 

@@ -84,7 +84,7 @@ export const FamilyTab: React.FC = () => {
         {canAssignTask && (
           <button
             onClick={() => setShowAddTaskModal(true)}
-            className="flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition"
+            className="flex items-center gap-1 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-xs font-bold shadow-md transition"
           >
             <Plus size={16} />
             <span>{t('action_add')}</span>
@@ -103,7 +103,7 @@ export const FamilyTab: React.FC = () => {
       {/* Family Members Row */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">
+          <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             {t('family_members')} ({users.length})
           </h2>
 
@@ -124,8 +124,8 @@ export const FamilyTab: React.FC = () => {
               key={u.id}
               className={`p-3 rounded-2xl border flex items-center gap-2.5 transition-all ${
                 u.id === currentUser.id
-                  ? 'border-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/40 shadow-sm'
-                  : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'
+                  ? 'border-primary-400 bg-primary-50/50 dark:bg-primary-950/40 shadow-sm'
+                  : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm'
               }`}
             >
               <span className="text-2xl">{u.avatar}</span>
@@ -134,8 +134,8 @@ export const FamilyTab: React.FC = () => {
                   <span>{u.name}</span>
                   {u.role === 'admin' && <Crown size={11} className="text-amber-500 shrink-0" />}
                 </div>
-                <div className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-1">
-                  <span>🏆 {u.points} XP</span>
+                <div className="text-[10px] text-primary-600 dark:text-primary-400 font-semibold flex items-center gap-1">
+                  <span className="font-mono tabular-nums">🏆 {u.points} XP</span>
                   <span className="opacity-40">•</span>
                   <span className="capitalize">{u.role}</span>
                 </div>
@@ -146,9 +146,9 @@ export const FamilyTab: React.FC = () => {
           {currentUser.role === 'admin' && (
             <button
               onClick={() => setShowUserManagementModal(true)}
-              className="p-3 rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-xs font-bold transition group"
+              className="p-3 rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 hover:border-primary-400 dark:hover:border-primary-500 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 text-xs font-bold transition group"
             >
-              <UserPlus size={16} className="group-hover:scale-110 transition-transform text-indigo-500" />
+              <UserPlus size={16} className="group-hover:scale-110 transition-transform text-primary-500" />
               <span>{t('family_add_member_short')}</span>
             </button>
           )}
@@ -167,7 +167,7 @@ export const FamilyTab: React.FC = () => {
               onClick={() => setTaskFilter('todo')}
               className={`px-2.5 py-1 rounded-lg font-bold transition ${
                 taskFilter === 'todo'
-                  ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm'
+                  ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-300 shadow-sm'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
             >

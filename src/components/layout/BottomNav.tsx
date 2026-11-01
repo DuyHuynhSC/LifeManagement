@@ -116,7 +116,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               }}
               className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all relative ${
                 isActive 
-                  ? 'text-indigo-600 dark:text-indigo-400 font-bold' 
+                  ? 'text-primary-600 dark:text-primary-400 font-bold' 
                   : 'text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-white'
               }`}
             >
@@ -134,7 +134,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                 {tab.label}
               </span>
               {isActive && (
-                <span className="w-1.5 h-1 rounded-full bg-indigo-600 dark:bg-indigo-400 mt-0.5" />
+                <span className="w-1.5 h-1 rounded-full bg-primary-600 dark:bg-primary-400 mt-0.5" />
               )}
             </button>
           );
@@ -145,7 +145,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
           onClick={() => setShowMoreMenu(!showMoreMenu)}
           className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all relative ${
             isSecondaryActive || showMoreMenu
-              ? 'text-indigo-600 dark:text-indigo-400 font-bold' 
+              ? 'text-primary-600 dark:text-primary-400 font-bold' 
               : 'text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-white'
           }`}
         >
@@ -161,7 +161,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
             {fifthTabLabel}
           </span>
           {isSecondaryActive && (
-            <span className="w-1.5 h-1 rounded-full bg-indigo-600 dark:bg-indigo-400 mt-0.5" />
+            <span className="w-1.5 h-1 rounded-full bg-primary-600 dark:bg-primary-400 mt-0.5" />
           )}
         </button>
       </nav>

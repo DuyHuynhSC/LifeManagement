@@ -87,7 +87,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({ asset, onClo
         {/* Modal Header */}
         <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between sticky top-0 bg-white/95 dark:bg-slate-800/95 backdrop-blur z-10">
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+            <span className="p-2 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400">
               <Wrench size={20} />
             </span>
             <div>
@@ -121,13 +121,13 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({ asset, onClo
           <div className="bg-slate-50 dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 grid grid-cols-2 gap-3 text-xs">
             <div>
               <div className="text-slate-500 dark:text-slate-400 text-[11px] font-medium">Giá mua</div>
-              <div className="font-extrabold text-slate-900 dark:text-white text-sm mt-0.5">
+              <div className="font-extrabold text-slate-900 dark:text-white text-sm mt-0.5 font-mono tabular-nums">
                 {asset.price.toLocaleString('vi-VN')} đ
               </div>
             </div>
             <div>
               <div className="text-slate-500 dark:text-slate-400 text-[11px] font-medium">Hạn bảo hành</div>
-              <div className={`font-bold mt-0.5 flex items-center gap-1 ${
+              <div className={`font-bold mt-0.5 flex items-center gap-1 font-mono tabular-nums ${
                 isWarrantyExpired 
                   ? 'text-rose-600' 
                   : warrantyDaysLeft <= settings.notifyDaysBeforeExpiry 
@@ -151,7 +151,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({ asset, onClo
 
             <div>
               <div className="text-slate-500 dark:text-slate-400 text-[11px] font-medium">Serial / Model</div>
-              <div className="font-semibold text-slate-700 dark:text-slate-200 mt-0.5 truncate">
+              <div className="font-semibold text-slate-700 dark:text-slate-200 mt-0.5 truncate font-mono">
                 {asset.serialNumber || 'N/A'}
               </div>
             </div>
@@ -163,12 +163,12 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({ asset, onClo
             </div>
           )}
 
-          {/* Sub-Components Section (TÍNH NĂNG ĐỘC ĐÁO CỦA PROJECT.MD) */}
+          {/* Sub-Components Section */}
           <div className="space-y-2.5 pt-1">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                  {t('asset_components_list')} ({asset.components.length})
+                  {t('asset_components_list')} <span className="font-mono tabular-nums">({asset.components.length})</span>
                 </h3>
                 <p className="text-[11px] text-slate-500">
                   Theo dõi % hao mòn và hạn thay từng linh kiện riêng biệt
@@ -177,7 +177,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({ asset, onClo
               {canEdit && (
                 <button
                   onClick={() => setShowAddComponent(!showAddComponent)}
-                  className="flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                  className="flex items-center gap-1 text-[11px] font-bold text-primary-600 dark:text-primary-400 hover:underline"
                 >
                   <Plus size={14} />
                   {t('asset_add_component')}
@@ -187,8 +187,8 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({ asset, onClo
 
             {/* Add Component Form */}
             {showAddComponent && (
-              <form onSubmit={handleAddComponent} className="p-3 bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 rounded-2xl space-y-2 text-xs">
-                <div className="font-bold text-indigo-900 dark:text-indigo-200">
+              <form onSubmit={handleAddComponent} className="p-3 bg-sky-50/50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800 rounded-2xl space-y-2 text-xs">
+                <div className="font-bold text-sky-900 dark:text-sky-200">
                   Thêm linh kiện mới
                 </div>
                 <div>
@@ -199,7 +199,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({ asset, onClo
                     placeholder="VD: Lõi số 1 PP, Màng HEPA..."
                     value={newCompName}
                     onChange={e => setNewCompName(e.target.value)}
-                    className="w-full mt-1 p-2 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-xs"
+                    className="w-full mt-1 p-2 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-xs focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -211,7 +211,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({ asset, onClo
                       min={1}
                       value={newCompLifespan}
                       onChange={e => setNewCompLifespan(Number(e.target.value))}
-                      className="w-full mt-1 p-2 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-xs"
+                      className="w-full mt-1 p-2 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-xs font-mono tabular-nums focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                     />
                   </div>
                   <div>
@@ -227,14 +227,14 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({ asset, onClo
                         const cleaned = digits.replace(/^0+(?=\d)/, '');
                         setNewCompCostStr(cleaned);
                       }}
-                      className="w-full mt-1 p-2 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-xs"
+                      className="w-full mt-1 p-2 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-xs font-mono tabular-nums focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                     />
                   </div>
                 </div>
                 <div className="flex gap-2 pt-1">
                   <button
                     type="submit"
-                    className="flex-1 py-1.5 bg-indigo-600 text-white rounded-xl font-bold text-xs hover:bg-indigo-700"
+                    className="flex-1 py-1.5 bg-primary-600 text-white rounded-xl font-bold text-xs hover:bg-primary-700"
                   >
                     Lưu linh kiện
                   </button>
@@ -280,7 +280,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({ asset, onClo
                             )}
                           </div>
                           <div className="text-[11px] text-slate-500 mt-0.5">
-                            Chu kỳ: {comp.lifespanDays} ngày • Chi phí thay: <strong>{comp.replacementCost.toLocaleString('vi-VN')} đ</strong>
+                            Chu kỳ: <span className="font-mono tabular-nums">{comp.lifespanDays}</span> ngày • Chi phí thay: <strong className="font-mono tabular-nums">{comp.replacementCost.toLocaleString('vi-VN')} đ</strong>
                           </div>
                         </div>
 
@@ -298,7 +298,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({ asset, onClo
 
                       {/* Wear Bar */}
                       <div className="mt-2.5 space-y-1">
-                        <div className="flex justify-between text-[10px] font-semibold text-slate-500">
+                        <div className="flex justify-between text-[10px] font-semibold text-slate-500 font-mono tabular-nums">
                           <span>Tuổi thọ còn lại</span>
                           <span className={isLow ? 'text-rose-600 font-bold' : isMedium ? 'text-amber-600' : 'text-emerald-600'}>
                             {comp.currentWearPercent}%

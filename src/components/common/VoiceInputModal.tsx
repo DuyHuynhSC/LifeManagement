@@ -214,18 +214,18 @@ export const VoiceInputModal: React.FC<VoiceInputModalProps> = ({ onClose, onCon
 
         {/* Parsed Result Preview & Interactive Fine-tuning */}
         {transcript && (
-          <div className="p-3.5 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-indigo-200/60 dark:border-indigo-900/60 shadow-sm space-y-3 text-xs animate-in fade-in zoom-in-95 duration-150">
+          <div className="p-3.5 bg-slate-50 dark:bg-slate-800/90 rounded-2xl border border-primary-200/60 dark:border-primary-900/60 shadow-sm space-y-3 text-xs animate-in fade-in zoom-in-95 duration-150">
             {/* Recognized text & Edit hint */}
             <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700/80">
               <div className="truncate pr-2">
                 <span className="text-[10px] text-slate-400 dark:text-slate-400 block font-medium">
                   {t('voice_recognized')}
                 </span>
-                <span className="text-slate-800 dark:text-indigo-200 font-semibold italic text-xs truncate block">
+                <span className="text-slate-800 dark:text-sky-200 font-semibold italic text-xs truncate block">
                   "{transcript}"
                 </span>
               </div>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold whitespace-nowrap border border-indigo-200 dark:border-indigo-800">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300 text-[10px] font-bold whitespace-nowrap border border-primary-200 dark:border-primary-800">
                 <Pencil size={10} />
                 {t('voice_edit_badge')}
               </span>
@@ -235,7 +235,7 @@ export const VoiceInputModal: React.FC<VoiceInputModalProps> = ({ onClose, onCon
             <div className="space-y-1">
               <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <Tag size={13} className="text-indigo-500 dark:text-indigo-400" />
+                  <Tag size={13} className="text-primary-500 dark:text-primary-400" />
                   {t('voice_expense_item')}
                 </span>
                 <span className="text-[10px] text-slate-400">Chạm để sửa</span>
@@ -246,7 +246,7 @@ export const VoiceInputModal: React.FC<VoiceInputModalProps> = ({ onClose, onCon
                   value={parsed.title}
                   onChange={(e) => setParsed(prev => ({ ...prev, title: e.target.value }))}
                   placeholder={t('voice_title_placeholder')}
-                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition"
                 />
                 {parsed.title && (
                   <button
@@ -268,7 +268,7 @@ export const VoiceInputModal: React.FC<VoiceInputModalProps> = ({ onClose, onCon
                   <DollarSign size={13} className="text-emerald-500 dark:text-emerald-400" />
                   {t('voice_amount')}
                 </label>
-                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-extrabold">
+                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-extrabold font-mono tabular-nums">
                   {formatDisplayAmount(parsed.amount)}
                 </span>
               </div>
@@ -279,7 +279,7 @@ export const VoiceInputModal: React.FC<VoiceInputModalProps> = ({ onClose, onCon
                   value={amountStr ? Number(amountStr).toLocaleString(settings.language === 'en' ? 'en-US' : 'vi-VN') : ''}
                   onChange={(e) => handleAmountChange(e.target.value)}
                   placeholder={t('voice_amount_placeholder')}
-                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-extrabold text-emerald-600 dark:text-emerald-400 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition pr-9"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-extrabold text-emerald-600 dark:text-emerald-400 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition pr-9 font-mono tabular-nums"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 select-none pointer-events-none">
                   {settings.language === 'en' ? '$' : settings.language === 'ja' ? '¥' : 'đ'}
@@ -296,7 +296,7 @@ export const VoiceInputModal: React.FC<VoiceInputModalProps> = ({ onClose, onCon
                     key={i}
                     type="button"
                     onClick={() => handleAdjustAmount(delta.value)}
-                    className="text-[10px] px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 text-emerald-700 dark:text-emerald-300 font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900 transition whitespace-nowrap active:scale-95 shadow-2xs"
+                    className="text-[10px] px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 text-emerald-700 dark:text-emerald-300 font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900 transition whitespace-nowrap active:scale-95 shadow-2xs font-mono tabular-nums"
                   >
                     {delta.label}
                   </button>

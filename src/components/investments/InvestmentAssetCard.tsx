@@ -93,13 +93,13 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
   return (
     <div 
       onClick={() => onSelectAsset?.(asset)}
-      className="w-full max-w-full overflow-hidden bg-white dark:bg-slate-800 rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 dark:border-slate-700/80 shadow-2xs hover:shadow-xs transition-all cursor-pointer group min-w-0 space-y-2"
+      className="w-full max-w-full overflow-hidden bg-white dark:bg-slate-800 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-all cursor-pointer group min-w-0 space-y-2"
     >
       {/* Top Row: Symbol Icon, Symbol, Category & Market Value + P&L */}
       <div className="flex items-center justify-between gap-2 min-w-0">
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <div 
-            className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-white text-xs shadow-2xs shrink-0"
+            className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-white text-xs shadow-2xs shrink-0 font-mono"
             style={{ backgroundColor: classColor }}
           >
             {asset.symbol.slice(0, 3).toUpperCase()}
@@ -128,10 +128,10 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
 
         {/* Value & P&L */}
         <div className="shrink-0 text-right">
-          <div className="text-xs sm:text-sm font-black text-slate-900 dark:text-white tracking-tight">
+          <div className="text-xs sm:text-sm font-black text-slate-900 dark:text-white tracking-tight font-mono tabular-nums">
             {formatCurrency(asset.assetClass === 'savings' ? (asset.avgBuyPrice + (asset.expectedInterest || 0)) : pnl.currentValue)}
           </div>
-          <div className={`text-[10px] font-extrabold flex items-center justify-end gap-0.5 mt-0.5 ${
+          <div className={`text-[10px] font-extrabold flex items-center justify-end gap-0.5 mt-0.5 font-mono tabular-nums ${
             isProfitable ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
           }`}>
             {isProfitable ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
@@ -149,16 +149,16 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
           {asset.assetClass === 'savings' ? (
             <>
               <span className="font-semibold text-slate-700 dark:text-slate-200">
-                Gốc: {formatCurrency(asset.avgBuyPrice)}
+                Gốc: <span className="font-mono tabular-nums">{formatCurrency(asset.avgBuyPrice)}</span>
               </span>
               <span className="text-slate-300 dark:text-slate-600">•</span>
-              <span className="text-amber-700 dark:text-amber-400 font-bold">
+              <span className="text-amber-700 dark:text-amber-400 font-bold font-mono tabular-nums">
                 {asset.termMonths || 0}T • {asset.interestRate || 0}%/năm
               </span>
               {asset.maturityDate && (
                 <>
                   <span className="text-slate-300 dark:text-slate-600">•</span>
-                  <span className="text-indigo-600 dark:text-indigo-400 font-medium truncate">
+                  <span className="text-primary-600 dark:text-primary-400 font-medium truncate font-mono tabular-nums">
                     Đáo hạn: {asset.maturityDate}
                   </span>
                 </>
@@ -167,11 +167,11 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
           ) : (
             <>
               <span className="font-semibold text-slate-700 dark:text-slate-200">
-                SL: {asset.quantity.toLocaleString('vi-VN')} {getAssetUnit(asset.assetClass, asset.symbol)}
+                SL: <span className="font-mono tabular-nums">{asset.quantity.toLocaleString('vi-VN')}</span> {getAssetUnit(asset.assetClass, asset.symbol)}
               </span>
               <span className="text-slate-300 dark:text-slate-600">•</span>
               <span>
-                Giá vốn: {formatCurrency(asset.avgBuyPrice)}
+                Giá vốn: <span className="font-mono tabular-nums">{formatCurrency(asset.avgBuyPrice)}</span>
               </span>
               <span className="text-slate-300 dark:text-slate-600">•</span>
               <span className={`px-1.5 py-0.2 rounded font-bold ${holdingBadge.bgColor} ${holdingBadge.textColor}`}>
@@ -180,7 +180,7 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
               {pnl.totalDividends > 0 && (
                 <>
                   <span className="text-slate-300 dark:text-slate-600">•</span>
-                  <span className="text-amber-600 dark:text-amber-400 font-bold">
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold font-mono tabular-nums">
                     Cổ tức: +{formatCurrency(pnl.totalDividends)}
                   </span>
                 </>
@@ -196,7 +196,7 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
             onQuickUpdatePrice?.(asset);
           }}
           title={asset.assetClass === 'savings' ? t('inv_card_edit_savings') : t('inv_card_edit_price')}
-          className="p-1 rounded-md text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition active:scale-95 shrink-0"
+          className="p-1 rounded-md text-slate-400 hover:text-primary-600 dark:hover:text-primary-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition active:scale-95 shrink-0"
         >
           <Edit3 size={13} />
         </button>

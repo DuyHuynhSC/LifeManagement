@@ -63,9 +63,9 @@ export const FridgeCard: React.FC<FridgeCardProps> = ({
 
   return (
     <div
-      className={`rounded-3xl border transition-all p-4 relative overflow-hidden ${
+      className={`rounded-2xl border transition-all p-4 relative overflow-hidden ${
         device.isOnline
-          ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm'
+          ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700/80 shadow-sm'
           : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-60'
       }`}
     >
@@ -145,7 +145,7 @@ export const FridgeCard: React.FC<FridgeCardProps> = ({
                 Ngăn Mát (Cool)
               </div>
               <div className="flex items-baseline gap-1 mt-1">
-                <span className="text-2xl font-black text-slate-800 dark:text-white">
+                <span className="text-2xl font-black text-slate-800 dark:text-white font-mono tabular-nums">
                   {f.fridgeTemp > 0 ? `+${f.fridgeTemp}` : f.fridgeTemp}
                 </span>
                 <span className="text-xs font-semibold text-slate-400">°C</span>
@@ -161,7 +161,7 @@ export const FridgeCard: React.FC<FridgeCardProps> = ({
                 Ngăn Đông (Freeze)
               </div>
               <div className="flex items-baseline gap-1 mt-1">
-                <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
+                <span className="text-2xl font-black text-primary-600 dark:text-primary-400 font-mono tabular-nums">
                   {f.freezerTemp}
                 </span>
                 <span className="text-xs font-semibold text-slate-400">°C</span>
@@ -201,7 +201,7 @@ export const FridgeCard: React.FC<FridgeCardProps> = ({
 
           {/* Bottom Bar: Power & Status */}
           <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-700/80 text-[11px]">
-            <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium">
+            <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium font-mono tabular-nums">
               <Zap size={13} className="text-amber-400" />
               <span>{device.currentWattage || 95}W (~{device.powerUsageKwhToday || device.powerUsageKwh} kWh/ngày)</span>
             </div>

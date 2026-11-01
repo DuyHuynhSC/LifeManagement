@@ -182,18 +182,18 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
             onClick={() => setActiveTab('members')}
             className={`flex-1 py-1.5 rounded-xl flex items-center justify-center gap-1.5 transition ${
               activeTab === 'members'
-                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm font-bold'
+                ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-300 shadow-sm font-bold'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Users size={14} />
-            <span>{t('admin_tab_members')} ({users.length})</span>
+            <span>{t('admin_tab_members')} <span className="font-mono tabular-nums">({users.length})</span></span>
           </button>
           <button
             onClick={() => setActiveTab('permissions')}
             className={`flex-1 py-1.5 rounded-xl flex items-center justify-center gap-1.5 transition ${
               activeTab === 'permissions'
-                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm font-bold'
+                ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-300 shadow-sm font-bold'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -222,7 +222,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
               {!isAddingUser && !editingUserId && (
                 <button
                   onClick={handleStartAdd}
-                  className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition"
+                  className="w-full py-2.5 px-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition"
                 >
                   <Plus size={16} />
                   <span>{t('admin_add_member')}</span>
@@ -231,9 +231,9 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
 
               {/* Add User Form */}
               {isAddingUser && (
-                <form onSubmit={handleSaveNewUser} className="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-indigo-200 dark:border-indigo-900/60 space-y-3 animate-in fade-in">
+                <form onSubmit={handleSaveNewUser} className="bg-slate-50 dark:bg-slate-800/80 p-4 rounded-2xl border border-primary-200 dark:border-primary-900/60 space-y-3 animate-in fade-in">
                   <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
-                    <h3 className="text-xs font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+                    <h3 className="text-xs font-bold text-primary-900 dark:text-primary-300 flex items-center gap-1.5">
                       <Plus size={14} />
                       {t('admin_add_member')}
                     </h3>
@@ -256,7 +256,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                       placeholder={settings.language === 'vi' ? 'VD: Mẹ, Minh Đức, Bé Na, Bà Ngoại...' : settings.language === 'ja' ? '例：お母さん、花子、太郎...' : 'e.g. Mom, Alex, Emily, Grandma...'}
                       value={newName}
                       onChange={e => setNewName(e.target.value)}
-                      className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs outline-none focus:border-indigo-500"
+                      className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs outline-none focus:border-primary-500"
                     />
                   </div>
 
@@ -268,7 +268,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                       <select
                         value={newRole}
                         onChange={e => setNewRole(e.target.value as UserRole)}
-                        className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs outline-none focus:border-indigo-500 font-semibold"
+                        className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs outline-none focus:border-primary-500 font-semibold"
                       >
                         <option value="manager">{t('admin_role_badge_manager')}</option>
                         <option value="member">{t('admin_role_badge_member')}</option>
@@ -290,7 +290,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                               key={emo}
                               onClick={() => setNewAvatar(emo)}
                               className={`w-7 h-7 rounded-lg text-sm flex items-center justify-center shrink-0 transition ${
-                                newAvatar === emo ? 'bg-indigo-100 ring-2 ring-indigo-500' : 'hover:bg-slate-100 dark:hover:bg-slate-600'
+                                newAvatar === emo ? 'bg-primary-100 ring-2 ring-primary-500' : 'hover:bg-slate-100 dark:hover:bg-slate-600'
                               }`}
                             >
                               {emo}
@@ -311,7 +311,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm"
+                      className="flex-1 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold shadow-sm"
                     >
                       {t('admin_save_member')}
                     </button>
@@ -419,8 +419,8 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                       key={u.id}
                       className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
                         isCurrent
-                          ? 'border-indigo-400 bg-indigo-50/40 dark:bg-indigo-950/30 ring-1 ring-indigo-400'
-                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'
+                          ? 'border-primary-400 bg-primary-50/40 dark:bg-primary-950/30 ring-1 ring-primary-400'
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm'
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -431,14 +431,14 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                               {u.name}
                             </span>
                             {isCurrent && (
-                              <span className="text-[10px] bg-indigo-600 text-white font-bold px-1.5 py-0.2 rounded-md">
+                              <span className="text-[10px] bg-primary-600 text-white font-bold px-1.5 py-0.2 rounded-md">
                                 {t('admin_you_badge')}
                               </span>
                             )}
                           </div>
                           <div className="flex items-center gap-2 mt-1">
                             {getRoleBadge(u.role)}
-                            <span className="text-[10px] text-slate-500 dark:text-slate-300 font-semibold">
+                            <span className="text-[10px] text-slate-500 dark:text-slate-300 font-semibold font-mono tabular-nums">
                               🏆 {u.points} XP
                             </span>
                           </div>
@@ -448,7 +448,7 @@ export const UserManagementModal: React.FC<UserManagementModalProps> = ({ onClos
                       <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           onClick={() => handleStartEdit(u)}
-                          className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-600 dark:hover:text-white transition"
+                          className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-slate-600 dark:hover:text-white transition"
                           title="Sửa thông tin"
                         >
                           <Edit2 size={14} />

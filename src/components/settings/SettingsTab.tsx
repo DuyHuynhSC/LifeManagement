@@ -122,7 +122,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ onOpenBankSync }) => {
     <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
       {/* Title */}
       <div className="flex items-center gap-2.5">
-        <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+        <div className="w-10 h-10 rounded-2xl bg-sky-50 dark:bg-sky-950/50 flex items-center justify-center text-primary-600 dark:text-primary-400">
           <Sliders size={22} />
         </div>
         <div>
@@ -207,7 +207,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ onOpenBankSync }) => {
             onClick={() => setTheme('light')}
             className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${
               settings.theme === 'light'
-                ? 'border-indigo-500 bg-indigo-50/60 text-indigo-900 font-bold ring-1 ring-indigo-500 shadow-sm'
+                ? 'border-primary-500 bg-primary-50/60 text-primary-900 font-bold ring-1 ring-primary-500 shadow-sm'
                 : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:text-slate-300'
             }`}
           >
@@ -221,11 +221,11 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ onOpenBankSync }) => {
             onClick={() => setTheme('dark')}
             className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${
               settings.theme === 'dark'
-                ? 'border-indigo-500 bg-slate-900 text-indigo-300 font-bold ring-1 ring-indigo-500 shadow-sm'
+                ? 'border-primary-500 bg-slate-900 text-primary-300 font-bold ring-1 ring-primary-500 shadow-sm'
                 : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 text-slate-700 dark:text-slate-300'
             }`}
           >
-            <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-indigo-400 border border-slate-700">
+            <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-primary-400 border border-slate-700">
               <Moon size={22} />
             </div>
             <div className="text-xs">{t('settings_theme_dark')}</div>
@@ -253,7 +253,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ onOpenBankSync }) => {
           <select
             value={settings.language}
             onChange={e => setLanguage(e.target.value as any)}
-            className="w-full text-xs sm:text-sm py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-indigo-500 shadow-2xs cursor-pointer"
+            className="w-full text-xs sm:text-sm py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-primary-500 shadow-2xs cursor-pointer"
           >
             <option value="vi">🇻🇳 Tiếng Việt (Mặc định)</option>
             <option value="en">🇬🇧 English</option>

@@ -17,9 +17,9 @@ export const GenericDeviceCard: React.FC<GenericDeviceCardProps> = ({
 }) => {
   return (
     <div
-      className={`rounded-3xl border transition-all p-4 relative overflow-hidden ${
+      className={`rounded-2xl border transition-all p-4 relative overflow-hidden ${
         device.isOnline
-          ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm'
+          ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700/80 shadow-sm'
           : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-60'
       }`}
     >
@@ -83,14 +83,14 @@ export const GenericDeviceCard: React.FC<GenericDeviceCardProps> = ({
                 <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate">
                   {m.label}
                 </div>
-                <div className="text-xs font-bold mt-0.5 text-slate-800 dark:text-slate-200">
+                <div className="text-xs font-bold mt-0.5 text-slate-800 dark:text-slate-200 font-mono tabular-nums">
                   {m.value} {m.unit || ''}
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="pt-2 mt-2 flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-[11px] font-medium">
+          <div className="pt-2 mt-2 flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-[11px] font-medium font-mono tabular-nums">
             <Zap size={13} className="text-amber-400" />
             <span>Tiêu thụ: {device.powerUsageKwhToday || device.powerUsageKwh} kWh</span>
           </div>

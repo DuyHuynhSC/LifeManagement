@@ -31,6 +31,7 @@ import { AddExpenseModal } from './AddExpenseModal';
 import { BudgetModal, shiftYearMonth, formatYearMonthDisplay } from './BudgetModal';
 import { BankTransactionSuggestionBanner } from './BankTransactionSuggestionBanner';
 import { Building2 } from 'lucide-react';
+import { cn } from '../../utils/cn';
 
 interface ExpenseTabProps {
   onOpenVoiceInput: () => void;
@@ -230,27 +231,27 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
         />
       )}
 
-      {/* Monthly Budget Summary Banner - Compact Redesign */}
-      <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 rounded-2xl p-3.5 text-white shadow-md space-y-2 relative overflow-hidden w-full max-w-full min-w-0">
-        <div className="relative z-10 space-y-1.5">
+      {/* Monthly Budget Summary Banner - FinTech Clean Surface */}
+      <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-3.5 relative w-full max-w-full min-w-0">
+        <div className="space-y-2">
           {/* Header Row: Month Switcher & Budget Limit Chip */}
           <div className="flex items-center justify-between gap-1.5 min-w-0">
-            <div className="inline-flex items-center gap-0.5 bg-black/20 backdrop-blur-sm rounded-full p-0.5 border border-white/10 shrink-0">
+            <div className="inline-flex items-center gap-0.5 bg-slate-100 dark:bg-slate-700/80 rounded-full p-0.5 border border-slate-200/60 dark:border-slate-600/60 shrink-0">
               <button
                 type="button"
                 onClick={() => setSelectedBudgetMonth(prev => shiftYearMonth(prev, -1))}
-                className="w-5 h-5 rounded-full hover:bg-white/20 flex items-center justify-center transition active:scale-95"
+                className="w-5 h-5 rounded-full hover:bg-white dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 flex items-center justify-center transition active:scale-95 shadow-2xs"
                 title="Tháng trước"
               >
                 <ChevronLeft size={13} />
               </button>
-              <span className="text-[11px] font-bold px-1 text-white whitespace-nowrap">
+              <span className="text-[11px] font-bold px-1.5 text-slate-800 dark:text-slate-200 whitespace-nowrap">
                 {formatYearMonthDisplay(selectedBudgetMonth)}
               </span>
               <button
                 type="button"
                 onClick={() => setSelectedBudgetMonth(prev => shiftYearMonth(prev, 1))}
-                className="w-5 h-5 rounded-full hover:bg-white/20 flex items-center justify-center transition active:scale-95"
+                className="w-5 h-5 rounded-full hover:bg-white dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 flex items-center justify-center transition active:scale-95 shadow-2xs"
                 title="Tháng sau"
               >
                 <ChevronRight size={13} />
@@ -259,7 +260,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedBudgetMonth(currentMonth)}
-                  className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-white text-emerald-800 hover:bg-emerald-50 transition shrink-0 ml-0.5"
+                  className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-primary-600 text-white hover:bg-primary-700 transition shrink-0 ml-0.5 shadow-2xs"
                 >
                   Hiện tại
                 </button>
@@ -270,22 +271,22 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
               {canManage ? (
                 <button
                   onClick={() => setShowBudgetModal(true)}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition text-[11px] text-emerald-50 font-medium backdrop-blur-sm border border-white/10 shrink-0"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 active:scale-95 transition text-[11px] text-slate-700 dark:text-slate-200 font-medium border border-slate-200 dark:border-slate-600 shrink-0 shadow-2xs"
                   title="Cài đặt hạn mức tháng"
                 >
                   <span className="truncate">
                     {t('dash_budget_limit')}:{' '}
-                    <strong className="font-bold text-white">
+                    <strong className="font-bold text-slate-900 dark:text-white font-mono tabular-nums">
                       {totalBudget > 0 ? `${totalBudget.toLocaleString('vi-VN')} đ` : 'Chưa đặt'}
                     </strong>
                   </span>
-                  <Pencil size={10} className="opacity-80 shrink-0" />
+                  <Pencil size={10} className="text-primary-600 dark:text-primary-400 shrink-0 ml-0.5" />
                 </button>
               ) : (
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 text-[11px] text-emerald-100 font-medium shrink-0">
+                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-[11px] text-slate-600 dark:text-slate-300 font-medium shrink-0 border border-slate-200 dark:border-slate-600">
                   <span className="truncate">
                     {t('dash_budget_limit')}:{' '}
-                    <strong className="font-bold text-white">
+                    <strong className="font-bold text-slate-900 dark:text-white font-mono tabular-nums">
                       {totalBudget > 0 ? `${totalBudget.toLocaleString('vi-VN')} đ` : 'Chưa đặt'}
                     </strong>
                   </span>
@@ -295,67 +296,92 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
           </div>
 
           {/* Amount & Remaining Split Row */}
-          <div className="flex items-end justify-between gap-2">
-            <div className="text-xl sm:text-2xl font-black tracking-tight whitespace-nowrap leading-none">
-              {totalSpent.toLocaleString('vi-VN')} <span className="text-xs sm:text-sm font-bold opacity-80">đ</span>
+          <div className="flex items-baseline justify-between gap-2 pt-1">
+            <div>
+              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">
+                {t('expense_total_monthly')}
+              </span>
+              <div className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white font-mono tabular-nums whitespace-nowrap leading-none">
+                {totalSpent.toLocaleString('vi-VN')} <span className="text-xs sm:text-sm font-bold font-sans text-slate-400">đ</span>
+              </div>
             </div>
 
             <div className="text-right shrink-0">
-              <div className="text-xs font-bold text-white leading-tight">
+              <div className={cn(
+                "text-xs font-bold font-mono tabular-nums leading-tight",
+                totalBudget > 0
+                  ? totalSpent > totalBudget
+                    ? "text-rose-600 dark:text-rose-400"
+                    : "text-emerald-600 dark:text-emerald-400"
+                  : "text-slate-500 dark:text-slate-400"
+              )}>
                 {totalBudget > 0 ? (
                   totalSpent > totalBudget ? (
-                    <span className="text-rose-200">Vượt: {(totalSpent - totalBudget).toLocaleString('vi-VN')} đ</span>
+                    <span>Vượt: {(totalSpent - totalBudget).toLocaleString('vi-VN')} đ</span>
                   ) : (
                     <span>Còn dư: {(totalBudget - totalSpent).toLocaleString('vi-VN')} đ</span>
                   )
                 ) : (
-                  <span className="text-emerald-100 text-[11px]">Chưa đặt ngân sách</span>
+                  <span className="text-slate-400 text-[11px] font-sans font-medium">Chưa đặt ngân sách</span>
                 )}
               </div>
               {totalBudget > 0 && (
-                <div className="text-[10px] text-emerald-100 font-semibold mt-0.5">
-                  {percentSpent}% ngân sách
+                <div className={cn(
+                  "text-[10px] font-bold mt-1 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono tabular-nums shadow-2xs",
+                  percentSpent > 100 
+                    ? "bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-800"
+                    : percentSpent >= 80 
+                      ? "bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800 animate-pulse"
+                      : "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
+                )}>
+                  <span>{percentSpent > 100 ? '⚠️' : percentSpent >= 80 ? '⚡' : '✓'}</span>
+                  <span>{percentSpent}% ngân sách</span>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Thin Progress Bar */}
-        <div className="w-full bg-black/20 backdrop-blur h-1.5 rounded-full overflow-hidden">
+        {/* Progress Bar with FinTech Clean styling */}
+        <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-500 shadow-sm ${
-              percentSpent > 100 ? 'bg-rose-300' : 'bg-white'
-            }`}
+            className={cn(
+              "h-full rounded-full transition-all duration-500 shadow-xs",
+              percentSpent > 100 ? "bg-rose-500" : percentSpent >= 80 ? "bg-amber-500" : "bg-emerald-500"
+            )}
             style={{ width: `${totalBudget > 0 ? Math.min(100, percentSpent) : 0}%` }}
           />
         </div>
 
         {/* Bottom Micro-actions: Chart Toggle Bar */}
         {chartData.length > 0 && (
-          <div className="pt-1 flex items-center justify-between text-[11px] text-emerald-100 border-t border-white/10">
-            <span className="text-[10px] text-emerald-100/90 font-medium">
-              {totalSpent > totalBudget && totalBudget > 0 ? '⚠️ Vượt hạn mức tháng' : '✓ Trong tầm kiểm soát'}
+          <div className="pt-2 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700/80">
+            <span className="text-[11px] font-medium flex items-center gap-1">
+              {totalSpent > totalBudget && totalBudget > 0 ? (
+                <span className="text-rose-600 dark:text-rose-400 font-semibold">⚠️ Vượt hạn mức tháng</span>
+              ) : percentSpent >= 80 && totalBudget > 0 ? (
+                <span className="text-amber-600 dark:text-amber-400 font-semibold">⚡ Cảnh báo &gt;80% hạn mức</span>
+              ) : (
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">✓ Trong tầm kiểm soát</span>
+              )}
             </span>
             <button
               onClick={() => setShowChart(prev => !prev)}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/20 hover:bg-white/20 active:scale-95 transition text-[11px] font-semibold text-white backdrop-blur-sm"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-700/80 hover:bg-slate-200 dark:hover:bg-slate-600 active:scale-95 transition text-[11px] font-semibold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 shadow-2xs"
             >
-              <BarChart3 size={11} />
+              <BarChart3 size={12} className="text-primary-600 dark:text-primary-400" />
               <span>{showChart ? 'Ẩn cơ cấu' : 'Xem cơ cấu'}</span>
-              <ChevronDown size={11} className={`transform transition-transform duration-200 ${showChart ? 'rotate-180' : ''}`} />
+              <ChevronDown size={12} className={`transform transition-transform duration-200 ${showChart ? 'rotate-180' : ''}`} />
             </button>
           </div>
         )}
-
-        <div className="absolute -bottom-10 -right-10 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none" />
       </div>
 
       {/* Category Breakdown Chart & Per-Category Monthly Limit Progress */}
       {showChart && chartData.length > 0 && (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 w-full max-w-full overflow-hidden min-w-0">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 w-full max-w-full overflow-hidden min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider truncate">
+            <h2 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider truncate">
               Cơ cấu chi tiêu {formatYearMonthDisplay(selectedBudgetMonth)}
             </h2>
             <button
@@ -364,7 +390,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
               title="Ẩn biểu đồ"
             >
               <span>Thu gọn</span>
-              <TrendingUp size={14} className="text-emerald-500" />
+              <TrendingUp size={14} className="text-primary-600 dark:text-primary-400" />
             </button>
           </div>
 
@@ -374,55 +400,92 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
                 <BarChart data={chartData.filter(d => d.total > 0)} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
                   <XAxis 
                     dataKey="label" 
-                    tick={{ fontSize: 10, fill: '#94a3b8' }} 
+                    tick={{ fontSize: 10, fill: '#64748b' }} 
                     interval={0}
                     angle={-25}
                     textAnchor="end"
                   />
                   <YAxis 
-                    tick={{ fontSize: 9, fill: '#94a3b8' }}
+                    tick={{ fontSize: 9, fill: '#64748b' }}
                     tickFormatter={val => `${Math.round(val / 1000)}k`}
                   />
                   <Tooltip
                     formatter={(value: any) => [`${Number(value).toLocaleString('vi-VN')} đ`, 'Chi tiêu']}
-                    contentStyle={{ backgroundColor: '#1e293b', borderRadius: '12px', border: 'none', color: '#fff', fontSize: '11px' }}
+                    contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', border: '1px solid #334155', color: '#fff', fontSize: '11px', fontFamily: 'monospace' }}
                   />
                   <Bar dataKey="total" radius={[6, 6, 0, 0]} isAnimationActive={false}>
-                    {chartData.filter(d => d.total > 0).map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
+                    {chartData.filter(d => d.total > 0).map((entry, index) => {
+                      const pct = entry.limit > 0 ? (entry.total / entry.limit) * 100 : 0;
+                      // Dynamic semantic alert colors: Over (>100%) -> Red 600, Alert (>=80%) -> Amber 500, Safe -> Sky 600
+                      const barColor = entry.limit > 0 
+                        ? (pct > 100 ? '#DC2626' : pct >= 80 ? '#F59E0B' : '#0284C7')
+                        : entry.color || '#0284C7';
+                      return (
+                        <Cell key={`cell-${index}`} fill={barColor} />
+                      );
+                    })}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
           )}
 
-          {/* Per-category budget progress for selectedBudgetMonth */}
-          <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-slate-700">
-            <div className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
+          {/* Per-category budget progress for selectedBudgetMonth with Dynamic Budget Alerts */}
+          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-700/80">
+            <div className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
               Chi tiết theo nhóm ({formatYearMonthDisplay(selectedBudgetMonth)}):
             </div>
             {chartData.map(item => {
               const pct = item.limit > 0 ? Math.round((item.total / item.limit) * 100) : 0;
               const isOver = item.limit > 0 && item.total > item.limit;
+              const isWarning = item.limit > 0 && pct >= 80 && !isOver;
+
               return (
-                <div key={item.category} className="space-y-1">
+                <div 
+                  key={item.category} 
+                  className={cn(
+                    "p-2.5 rounded-xl transition-all space-y-1.5 border",
+                    isOver 
+                      ? "bg-rose-50/70 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/60" 
+                      : isWarning 
+                        ? "bg-amber-50/70 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/60" 
+                        : "bg-slate-50/60 dark:bg-slate-800/60 border-slate-100 dark:border-slate-700/60"
+                  )}
+                >
                   <div className="flex items-center justify-between text-[11px] gap-2 flex-wrap">
-                    <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5">
                       <span>{item.icon}</span>
-                      <span>{item.label}</span>
-                    </span>
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">
-                      <strong className={isOver ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'}>
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">{item.label}</span>
+                      {isOver && (
+                        <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-rose-100 dark:bg-rose-900/80 text-rose-700 dark:text-rose-300 border border-rose-300/60">
+                          ⚠️ Vượt trần
+                        </span>
+                      )}
+                      {isWarning && (
+                        <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-900/80 text-amber-700 dark:text-amber-300 border border-amber-300/60 animate-pulse">
+                          ⚡ Cảnh báo &gt;80%
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <span className={cn(
+                        "font-mono tabular-nums font-bold",
+                        isOver ? "text-rose-600 dark:text-rose-400" : isWarning ? "text-amber-600 dark:text-amber-400" : "text-slate-900 dark:text-white"
+                      )}>
                         {item.total.toLocaleString('vi-VN')} đ
-                      </strong>
-                      {item.limit > 0 ? ` / ${item.limit.toLocaleString('vi-VN')} đ (${pct}%)` : ' (Chưa đặt hạn mức)'}
-                    </span>
+                      </span>
+                      <span className="text-slate-500 dark:text-slate-400 text-[10px] ml-1 font-mono tabular-nums">
+                        {item.limit > 0 ? `/ ${item.limit.toLocaleString('vi-VN')} đ (${pct}%)` : '(Chưa đặt hạn mức)'}
+                      </span>
+                    </div>
                   </div>
                   {item.limit > 0 && (
-                    <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-slate-200/80 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full ${isOver ? 'bg-rose-500' : pct >= 80 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                        className={cn(
+                          "h-full rounded-full transition-all duration-300",
+                          isOver ? "bg-rose-600" : isWarning ? "bg-amber-500" : "bg-emerald-500"
+                        )}
                         style={{ width: `${Math.min(100, pct)}%` }}
                       />
                     </div>
@@ -560,16 +623,16 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
 
         {/* Filter Summary Row */}
         {isFiltered && filteredExpenses.length > 0 && (
-          <div className="flex items-center justify-between px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-300 font-medium border border-slate-200/60 dark:border-slate-700/60">
+          <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-300 font-medium border border-slate-200 dark:border-slate-700/80 shadow-2xs">
             <span>Tổng chi tiêu đang lọc:</span>
-            <span className="font-extrabold text-rose-600 dark:text-rose-400">
+            <span className="font-extrabold text-rose-600 dark:text-rose-400 font-mono tabular-nums">
               -{filteredTotalSpent.toLocaleString('vi-VN')} đ
             </span>
           </div>
         )}
 
         {filteredExpenses.length === 0 ? (
-          <div className="text-center py-10 text-slate-500 dark:text-slate-300 text-xs bg-white dark:bg-slate-800/60 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 p-6 space-y-2">
+          <div className="text-center py-10 text-slate-500 dark:text-slate-300 text-xs bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 p-6 space-y-2">
             <Wallet size={36} className="mx-auto text-slate-300 dark:text-slate-600" />
             <p className="font-semibold text-slate-700 dark:text-slate-200">
               {isFiltered ? 'Không có chi tiêu nào phù hợp bộ lọc.' : 'Chưa có giao dịch chi tiêu nào.'}
@@ -595,7 +658,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
             )}
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {filteredExpenses.map(exp => {
               const itemCat = categoryMap[exp.category];
               const cat = { label: itemCat?.name || exp.category, color: itemCat?.color || '#64748b', icon: itemCat?.icon || '📦' };
@@ -605,11 +668,11 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
               return (
                 <div
                   key={exp.id}
-                  className="p-2.5 sm:p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700/70 shadow-2xs hover:shadow-xs transition-all flex items-center justify-between gap-2.5 w-full max-w-full overflow-hidden min-w-0"
+                  className="p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-slate-300 dark:hover:border-slate-600 transition-all flex items-center justify-between gap-2.5 w-full max-w-full overflow-hidden min-w-0"
                 >
                   {/* Category Icon */}
                   <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 shadow-2xs"
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-base shrink-0 shadow-2xs"
                     style={{
                       backgroundColor: `${cat.color}15`,
                       border: `1px solid ${cat.color}30`
@@ -646,14 +709,14 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
                       >
                         {cat.label}
                       </span>
-                      <span>{exp.date}</span>
+                      <span className="font-mono tabular-nums">{exp.date}</span>
                       <span className="text-slate-300 dark:text-slate-600">•</span>
                       <span className="truncate max-w-[70px]" title={payerName}>{payerName}</span>
                       {linkedAsset && (
                         <>
                           <span className="text-slate-300 dark:text-slate-600">•</span>
                           <span
-                            className="text-indigo-600 dark:text-indigo-400 font-medium truncate max-w-[90px]"
+                            className="text-primary-600 dark:text-primary-400 font-medium truncate max-w-[90px]"
                             title={linkedAsset}
                           >
                             📦 {linkedAsset}
@@ -665,14 +728,14 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
 
                   {/* Amount & Quick Actions */}
                   <div className="shrink-0 text-right flex flex-col items-end justify-center pl-1">
-                    <div className="text-xs sm:text-sm font-black text-rose-600 dark:text-rose-400 whitespace-nowrap tracking-tight">
+                    <div className="text-xs sm:text-sm font-black text-rose-600 dark:text-rose-400 whitespace-nowrap tracking-tight font-mono tabular-nums">
                       -{exp.amount.toLocaleString('vi-VN')} đ
                     </div>
                     {canManage && (
                       <div className="flex items-center gap-0.5 mt-0.5">
                         <button
                           onClick={() => setEditingExpense(exp)}
-                          className="p-1 rounded-md text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition active:scale-95"
+                          className="p-1 rounded-md text-slate-400 hover:text-primary-600 dark:hover:text-primary-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition active:scale-95"
                           title="Chỉnh sửa chi tiêu"
                           aria-label="Chỉnh sửa chi tiêu"
                         >

@@ -146,7 +146,7 @@ export const GameTab: React.FC = () => {
               <div className="text-[11px] font-bold truncate max-w-[80px] text-center">
                 {sortedUsers[1].name.split(' ')[0]}
               </div>
-              <div className="text-[10px] text-amber-200 font-semibold">
+              <div className="text-[10px] text-amber-200 font-semibold font-mono tabular-nums">
                 {sortedUsers[1].points} XP
               </div>
               <div className="w-full h-16 bg-white/20 rounded-t-2xl mt-1.5 flex items-center justify-center font-black text-lg text-amber-200">
@@ -162,7 +162,7 @@ export const GameTab: React.FC = () => {
               <div className="text-xs font-black truncate max-w-[90px] text-center text-amber-100">
                 {sortedUsers[0].name.split(' ')[0]}
               </div>
-              <div className="text-xs text-white font-extrabold">
+              <div className="text-xs text-white font-extrabold font-mono tabular-nums">
                 {sortedUsers[0].points} XP
               </div>
               <div className="w-full h-24 bg-white/30 rounded-t-2xl mt-1.5 flex items-center justify-center font-black text-2xl text-amber-100 shadow-inner">
@@ -178,7 +178,7 @@ export const GameTab: React.FC = () => {
               <div className="text-[11px] font-bold truncate max-w-[80px] text-center">
                 {sortedUsers[2].name.split(' ')[0]}
               </div>
-              <div className="text-[10px] text-amber-200 font-semibold">
+              <div className="text-[10px] text-amber-200 font-semibold font-mono tabular-nums">
                 {sortedUsers[2].points} XP
               </div>
               <div className="w-full h-12 bg-white/15 rounded-t-2xl mt-1.5 flex items-center justify-center font-black text-base text-amber-200">
@@ -193,10 +193,10 @@ export const GameTab: React.FC = () => {
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
           <h2 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
-            <Target size={15} className="text-indigo-600" />
+            <Target size={15} className="text-primary-600" />
             <span>{t('game_weekly_challenge')}</span>
           </h2>
-          <span className="text-[11px] text-indigo-600 font-bold">{t('game_refresh_in')}</span>
+          <span className="text-[11px] text-primary-600 font-bold">{t('game_refresh_in')}</span>
         </div>
 
         <div className="space-y-2">
@@ -207,7 +207,7 @@ export const GameTab: React.FC = () => {
             return (
               <div
                 key={c.id}
-                className="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-2"
+                className="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-2"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2.5">
@@ -221,14 +221,14 @@ export const GameTab: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-extrabold bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full shrink-0">
+                  <span className="text-[10px] font-extrabold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full shrink-0 font-mono tabular-nums border border-amber-200/50">
                     +{c.xp} XP
                   </span>
                 </div>
 
                 {/* Progress bar */}
                 <div className="space-y-1">
-                  <div className="flex justify-between text-[10px] text-slate-400 font-medium">
+                  <div className="flex justify-between text-[10px] text-slate-400 font-medium font-mono tabular-nums">
                     <span>{t('game_progress')}: {c.progress}/{c.target}</span>
                     <span className={isDone ? 'text-emerald-600 font-bold' : ''}>
                       {isDone ? t('game_completed') : `${pct}%`}
@@ -236,7 +236,7 @@ export const GameTab: React.FC = () => {
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all ${isDone ? 'bg-emerald-500' : 'bg-indigo-600'}`}
+                      className={`h-full rounded-full transition-all ${isDone ? 'bg-emerald-500' : 'bg-primary-600'}`}
                       style={{ width: `${Math.min(100, pct)}%` }}
                     />
                   </div>
@@ -251,7 +251,7 @@ export const GameTab: React.FC = () => {
       <div className="space-y-2.5">
         <h2 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
           <Award size={15} className="text-amber-600" />
-          <span>{t('game_badges')} ({badges.filter(b => b.unlocked).length}/{badges.length})</span>
+          <span>{t('game_badges')} <span className="font-mono tabular-nums">({badges.filter(b => b.unlocked).length}/{badges.length})</span></span>
         </h2>
 
         <div className="grid grid-cols-2 gap-2.5">

@@ -45,7 +45,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({ onClose, onSelectAsset
         <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2.5">
           <div className="flex items-center gap-2 text-rose-600 font-bold text-sm">
             <AlertTriangle size={18} />
-            <span>Thông báo khẩn ({totalUrgent})</span>
+            <span>Thông báo khẩn <span className="font-mono tabular-nums">({totalUrgent})</span></span>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
             <X size={18} />
@@ -53,7 +53,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({ onClose, onSelectAsset
         </div>
 
         <div className="text-xs text-slate-500 dark:text-slate-400">
-          Danh sách thiết bị sắp hết bảo hành hoặc linh kiện cần thay thế trong vòng <strong>{settings.notifyDaysBeforeExpiry} ngày</strong>:
+          Danh sách thiết bị sắp hết bảo hành hoặc linh kiện cần thay thế trong vòng <strong className="font-mono tabular-nums">{settings.notifyDaysBeforeExpiry} ngày</strong>:
         </div>
 
         <div className="space-y-2 max-h-80 overflow-y-auto pt-1 text-xs">
@@ -72,7 +72,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({ onClose, onSelectAsset
                       onSelectAsset(a.id);
                       onClose();
                     }}
-                    className="p-3 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-2xl flex items-center justify-between cursor-pointer hover:border-rose-400 transition"
+                    className="p-3 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-2xl flex items-center justify-between cursor-pointer hover:border-rose-400 transition shadow-sm"
                   >
                     <div className="flex items-center gap-2.5">
                       <div className="p-1.5 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600">
@@ -80,7 +80,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({ onClose, onSelectAsset
                       </div>
                       <div>
                         <div className="font-bold text-slate-900 dark:text-white">{a.name}</div>
-                        <div className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold">
+                        <div className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold font-mono tabular-nums">
                           Hạn bảo hành: còn {diff} ngày ({a.warrantyExpiryDate})
                         </div>
                       </div>
@@ -97,7 +97,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({ onClose, onSelectAsset
                     onSelectAsset(c.assetId);
                     onClose();
                   }}
-                  className="p-3 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-2xl flex items-center justify-between cursor-pointer hover:border-rose-400 transition"
+                  className="p-3 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-2xl flex items-center justify-between cursor-pointer hover:border-rose-400 transition shadow-sm"
                 >
                   <div className="flex items-center gap-2.5">
                     <div className="p-1.5 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-600">
@@ -105,7 +105,7 @@ export const AlertsModal: React.FC<AlertsModalProps> = ({ onClose, onSelectAsset
                     </div>
                     <div>
                       <div className="font-bold text-slate-900 dark:text-white">{c.compName}</div>
-                      <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono tabular-nums">
                         Thuộc {c.assetName} • Còn <strong className="text-rose-600">{c.wear}%</strong>
                       </div>
                     </div>

@@ -134,7 +134,7 @@ export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> 
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md transition"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-xs font-bold shadow-md transition"
         >
           <Plus size={16} />
           <span>{t('action_add')}</span>
@@ -149,7 +149,7 @@ export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> 
           placeholder={t('action_search')}
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+          className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none focus:ring-2 focus:ring-primary-500 shadow-sm"
         />
       </div>
 
@@ -160,7 +160,7 @@ export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> 
           <button
             type="button"
             onClick={() => handleScroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-slate-200 dark:border-slate-700 shadow-md rounded-full flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-indigo-50 hover:text-indigo-600 transition"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-slate-200 dark:border-slate-700 shadow-md rounded-full flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-sky-50 hover:text-primary-600 transition"
             title="Cuộn sang trái"
           >
             <ChevronLeft size={16} />
@@ -187,7 +187,7 @@ export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> 
                 onClick={(e) => handleSelectRoomPill(e, r.id)}
                 className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full whitespace-nowrap transition-all shrink-0 ${
                   isSelected
-                    ? 'bg-indigo-600 text-white font-bold shadow-md ring-2 ring-indigo-300 dark:ring-indigo-800 scale-105'
+                    ? 'bg-primary-600 text-white font-bold shadow-md ring-2 ring-sky-300 dark:ring-sky-800 scale-105'
                     : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
@@ -203,7 +203,7 @@ export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> 
           <button
             type="button"
             onClick={() => handleScroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-slate-200 dark:border-slate-700 shadow-md rounded-full flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-indigo-50 hover:text-indigo-600 transition animate-pulse"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 bg-white/95 dark:bg-slate-800/95 backdrop-blur border border-slate-200 dark:border-slate-700 shadow-md rounded-full flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-sky-50 hover:text-primary-600 transition animate-pulse"
             title="Xem các phòng tiếp theo"
           >
             <ChevronRight size={16} />
@@ -233,12 +233,12 @@ export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> 
               <div
                 key={asset.id}
                 onClick={() => setSelectedAsset(asset)}
-                className="bg-white dark:bg-slate-800 p-4 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-400 transition cursor-pointer space-y-3 group"
+                className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-primary-400 transition cursor-pointer space-y-3 group"
               >
                 {/* Card Header */}
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <div className="w-11 h-11 rounded-2xl bg-sky-50 dark:bg-sky-950/60 text-primary-600 dark:text-primary-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                       <Tv2 size={22} />
                     </div>
                     <div>
@@ -259,10 +259,10 @@ export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> 
 
                 {/* Sub-Components Wear Bar Summary */}
                 {asset.components.length > 0 && (
-                  <div className="bg-slate-50 dark:bg-slate-800/80 p-2.5 rounded-2xl space-y-1.5 border border-slate-100 dark:border-slate-700/50">
+                  <div className="bg-slate-50 dark:bg-slate-800/80 p-2.5 rounded-xl space-y-1.5 border border-slate-100 dark:border-slate-700/50">
                     <div className="flex items-center justify-between text-[11px] text-slate-500">
                       <span className="flex items-center gap-1 font-semibold text-slate-700 dark:text-slate-300">
-                        <Wrench size={12} className="text-indigo-500" />
+                        <Wrench size={12} className="text-primary-500" />
                         {t('asset_components')} ({asset.components.length})
                       </span>
                       {criticalComps.length > 0 ? (
@@ -280,7 +280,7 @@ export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> 
                       {asset.components.slice(0, 4).map(c => (
                         <div key={c.id} className="text-[10px] truncate">
                           <span className="text-slate-600 dark:text-slate-400">{c.name.split('(')[0]}: </span>
-                          <span className={`font-bold ${c.currentWearPercent <= 20 ? 'text-rose-600' : 'text-slate-800 dark:text-slate-200'}`}>
+                          <span className={`font-bold font-mono tabular-nums ${c.currentWearPercent <= 20 ? 'text-rose-600' : 'text-slate-800 dark:text-slate-200'}`}>
                             {c.currentWearPercent}%
                           </span>
                         </div>
@@ -291,7 +291,7 @@ export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> 
 
                 {/* Warranty & Price Footer */}
                 <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100 dark:border-slate-700/80">
-                  <div className="font-extrabold text-slate-900 dark:text-slate-100">
+                  <div className="font-extrabold text-slate-900 dark:text-slate-100 font-mono tabular-nums">
                     {asset.price.toLocaleString('vi-VN')} đ
                   </div>
 

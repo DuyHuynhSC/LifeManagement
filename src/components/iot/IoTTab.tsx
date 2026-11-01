@@ -118,7 +118,7 @@ export const IoTTab: React.FC = () => {
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setIsConfigModalOpen(true)}
-            className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-indigo-600 hover:border-indigo-300 transition shadow-sm"
+            className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 hover:text-primary-600 hover:border-primary-300 transition shadow-sm"
             title="Cài đặt Cloud API & Đơn giá điện"
           >
             <Settings size={16} />
@@ -126,8 +126,8 @@ export const IoTTab: React.FC = () => {
 
           <button
             onClick={handleRefresh}
-            className={`p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-cyan-600 transition shadow-sm ${
-              isRefreshing ? 'animate-spin text-cyan-600' : ''
+            className={`p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 hover:text-primary-600 transition shadow-sm ${
+              isRefreshing ? 'animate-spin text-primary-600' : ''
             }`}
             title="Làm mới Telemetry"
           >
@@ -136,7 +136,7 @@ export const IoTTab: React.FC = () => {
 
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="px-3 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition"
+            className="px-3 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition"
           >
             <Plus size={16} />
             <span>{t('iot_add_device')}</span>
@@ -145,37 +145,37 @@ export const IoTTab: React.FC = () => {
       </div>
 
       {/* Energy & Monthly Cost Banner */}
-      <div className="bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-700 rounded-3xl p-5 text-white shadow-xl relative overflow-hidden space-y-3.5">
+      <div className="bg-gradient-to-br from-sky-700 via-slate-800 to-slate-900 rounded-2xl border border-sky-500/20 p-5 text-white shadow-sm relative overflow-hidden space-y-3.5">
         <div className="flex items-start justify-between relative z-10">
           <div>
-            <div className="text-xs text-cyan-100 font-medium">
+            <div className="text-xs text-sky-200 font-medium">
               Điện năng tiêu thụ hôm nay & tháng này
             </div>
             <div className="flex items-baseline gap-2 mt-0.5">
               <div className="text-2xl font-black tracking-tight flex items-center gap-1.5">
-                <Zap size={22} className="text-amber-300 fill-amber-300 animate-pulse" />
-                <span>{totalPowerToday.toFixed(2)} kWh</span>
+                <Zap size={22} className="text-amber-400 fill-amber-400 animate-pulse" />
+                <span className="font-mono tabular-nums">{totalPowerToday.toFixed(2)} kWh</span>
               </div>
-              <span className="text-xs text-cyan-200 font-semibold">
+              <span className="text-xs text-sky-300 font-semibold font-mono tabular-nums">
                 (Tháng: {totalPowerMonth.toFixed(1)} kWh)
               </span>
             </div>
 
             {/* Tiền điện ước tính */}
-            <div className="mt-1 text-xs text-cyan-100 flex items-center gap-1.5">
-              <Receipt size={13} className="text-amber-300" />
+            <div className="mt-1 text-xs text-slate-300 flex items-center gap-1.5">
+              <Receipt size={13} className="text-amber-400" />
               <span>Tiền điện ước tính: </span>
-              <strong className="text-amber-300 font-extrabold text-sm">
+              <strong className="text-amber-300 font-extrabold text-sm font-mono tabular-nums">
                 {estimatedCostMonth.toLocaleString()} ₫
               </strong>
-              <span className="text-[10px] text-cyan-200">
+              <span className="text-[10px] text-slate-400 font-mono tabular-nums">
                 ({electricityPrice.toLocaleString()}đ/kWh)
               </span>
             </div>
           </div>
 
           <div className="text-right flex flex-col items-end gap-2">
-            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white/20 backdrop-blur">
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur font-mono tabular-nums">
               {iotDevices.filter(d => d.isOnline).length}/{iotDevices.length} Online
             </span>
 
@@ -183,10 +183,10 @@ export const IoTTab: React.FC = () => {
             {iotDevices.length > 0 && (
               <button
                 onClick={handleConvertExpense}
-                className="px-3 py-1.5 rounded-xl bg-white text-indigo-700 hover:bg-cyan-50 font-bold text-xs shadow-md flex items-center gap-1.5 transition active:scale-95"
+                className="px-3 py-1.5 rounded-xl bg-white text-slate-900 hover:bg-sky-50 font-bold text-xs shadow-sm flex items-center gap-1.5 transition active:scale-95 border border-slate-200"
                 title="Tự động thêm khoản chi phí này vào Quản lý Chi tiêu"
               >
-                <Sparkles size={13} className="text-indigo-600" />
+                <Sparkles size={13} className="text-primary-600" />
                 <span>{t('iot_record_expense')}</span>
               </button>
             )}
@@ -256,13 +256,13 @@ export const IoTTab: React.FC = () => {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-            Danh sách thiết bị kết nối ({iotDevices.length})
+            Danh sách thiết bị kết nối <span className="font-mono tabular-nums">({iotDevices.length})</span>
           </h2>
 
           {iotDevices.length === 0 && (
             <button
               onClick={handleLoadDefaults}
-              className="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline"
+              className="text-xs font-bold text-primary-600 dark:text-primary-400 hover:underline"
             >
               + Nạp thiết bị mẫu của gia đình
             </button>
@@ -270,7 +270,7 @@ export const IoTTab: React.FC = () => {
         </div>
 
         {iotDevices.length === 0 ? (
-          <div className="text-center py-10 text-slate-400 text-xs bg-white dark:bg-slate-800/60 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 p-6 space-y-3">
+          <div className="text-center py-10 text-slate-400 text-xs bg-white dark:bg-slate-800/60 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 p-6 space-y-3">
             <Cpu size={40} className="mx-auto text-slate-300 dark:text-slate-600" />
             <div>
               <p className="font-bold text-slate-700 dark:text-slate-200 text-sm">
@@ -282,7 +282,7 @@ export const IoTTab: React.FC = () => {
             </div>
             <button
               onClick={handleLoadDefaults}
-              className="px-4 py-2.5 rounded-2xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs shadow-md transition inline-flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-2xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs shadow-sm transition inline-flex items-center gap-1.5"
             >
               <Sparkles size={14} />
               <span>Nạp ngay thiết bị của nhà tôi (Tủ lạnh, Máy giặt, Máy lọc nước)</span>

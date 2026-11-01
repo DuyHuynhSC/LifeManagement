@@ -78,16 +78,16 @@ export const BankTransactionSuggestionBanner: React.FC<BankTransactionSuggestion
   };
 
   return (
-    <div className="w-full max-w-full overflow-hidden min-w-0 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-indigo-500/10 dark:from-emerald-950/40 dark:via-slate-800/90 dark:to-teal-950/40 rounded-3xl p-3.5 sm:p-4 border border-emerald-300/80 dark:border-emerald-700/60 shadow-sm space-y-3 animate-in fade-in duration-200">
+    <div className="w-full max-w-full overflow-hidden min-w-0 bg-white dark:bg-slate-800 rounded-2xl p-3.5 sm:p-4 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-3 animate-in fade-in duration-200">
       {/* Top row: Header, source badge & pagination */}
       <div className="flex items-center justify-between gap-2 flex-wrap min-w-0">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="p-1.5 rounded-xl bg-emerald-500 text-white shadow-xs shrink-0">
+          <span className="p-1.5 rounded-xl bg-primary-600 text-white shadow-xs shrink-0">
             <Sparkles size={14} className="animate-pulse" />
           </span>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[11px] font-extrabold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
+              <span className="text-[11px] font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
                 Gợi ý chi tiêu mới
               </span>
               <span 
@@ -104,11 +104,11 @@ export const BankTransactionSuggestionBanner: React.FC<BankTransactionSuggestion
         {/* Pager if multiple pending */}
         <div className="flex items-center gap-1.5 shrink-0 ml-auto">
           {pendingTransactions.length > 1 && (
-            <div className="flex items-center gap-1 bg-white/70 dark:bg-slate-700/70 backdrop-blur rounded-full px-2 py-0.5 border border-slate-200/60 dark:border-slate-600/60 text-[10px] font-bold text-slate-700 dark:text-slate-200">
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-700 rounded-full px-2 py-0.5 border border-slate-200 dark:border-slate-600 text-[10px] font-bold text-slate-700 dark:text-slate-200 font-mono tabular-nums">
               <button
                 type="button"
                 onClick={() => setCurrentIndex(prev => (prev > 0 ? prev - 1 : pendingTransactions.length - 1))}
-                className="hover:text-emerald-600 p-0.5"
+                className="hover:text-primary-600 p-0.5"
                 title="Giao dịch trước"
               >
                 <ChevronLeft size={12} />
@@ -117,7 +117,7 @@ export const BankTransactionSuggestionBanner: React.FC<BankTransactionSuggestion
               <button
                 type="button"
                 onClick={() => setCurrentIndex(prev => (prev < pendingTransactions.length - 1 ? prev + 1 : 0))}
-                className="hover:text-emerald-600 p-0.5"
+                className="hover:text-primary-600 p-0.5"
                 title="Giao dịch kế tiếp"
               >
                 <ChevronRight size={12} />
@@ -129,7 +129,7 @@ export const BankTransactionSuggestionBanner: React.FC<BankTransactionSuggestion
             <button
               type="button"
               onClick={onOpenSyncSettings}
-              className="p-1 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+              className="p-1 rounded-lg text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
               title="Cài đặt đồng bộ ngân hàng"
             >
               <HelpCircle size={15} />
@@ -148,7 +148,7 @@ export const BankTransactionSuggestionBanner: React.FC<BankTransactionSuggestion
       </div>
 
       {/* Main card details */}
-      <div className={`bg-white dark:bg-slate-800/90 rounded-2xl p-3 border border-slate-200/90 dark:border-slate-700 shadow-xs space-y-2.5 transition-all duration-300 ${
+      <div className={`bg-slate-50 dark:bg-slate-900/60 rounded-xl p-3 border border-slate-100 dark:border-slate-700/60 shadow-xs space-y-2.5 transition-all duration-300 ${
         successAnimationId === currentItem.id ? 'scale-98 opacity-50 bg-emerald-50 dark:bg-emerald-950/50' : ''
       }`}>
         {/* Title & Amount Row */}
@@ -157,20 +157,20 @@ export const BankTransactionSuggestionBanner: React.FC<BankTransactionSuggestion
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white leading-snug truncate" title={currentItem.suggestedTitle}>
               {currentItem.suggestedTitle}
             </h3>
-            <p className="text-[11px] text-slate-500 dark:text-slate-300 font-medium line-clamp-1 mt-0.5 italic" title={currentItem.rawNotificationText}>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium line-clamp-1 mt-0.5 italic" title={currentItem.rawNotificationText}>
               "{currentItem.rawNotificationText}"
             </p>
           </div>
 
           <div className="shrink-0 text-right">
-            <div className="text-base sm:text-lg font-black text-rose-600 dark:text-rose-400 whitespace-nowrap tracking-tight">
+            <div className="text-base sm:text-lg font-black text-rose-600 dark:text-rose-400 whitespace-nowrap tracking-tight font-mono tabular-nums">
               -{currentItem.amount.toLocaleString('vi-VN')} đ
             </div>
           </div>
         </div>
 
         {/* Metadata row: Category chip, Date & XP bonus */}
-        <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex-wrap min-w-0 text-[11px]">
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-200/60 dark:border-slate-700/60 flex-wrap min-w-0 text-[11px]">
           <div className="flex items-center gap-1.5 flex-wrap min-w-0">
             <span 
               className="text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shrink-0"
@@ -184,11 +184,11 @@ export const BankTransactionSuggestionBanner: React.FC<BankTransactionSuggestion
               <span>{targetCategory?.name || currentItem.suggestedCategory}</span>
             </span>
 
-            <span className="text-slate-500 dark:text-slate-300 font-medium shrink-0">
+            <span className="text-slate-500 dark:text-slate-400 font-medium shrink-0 font-mono tabular-nums">
               {currentItem.date}
             </span>
 
-            <span className="text-[10px] font-extrabold px-1.5 py-0.2 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 shrink-0">
+            <span className="text-[10px] font-extrabold px-1.5 py-0.2 rounded-md bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 shrink-0 font-mono tabular-nums">
               +15 XP
             </span>
           </div>
@@ -198,7 +198,7 @@ export const BankTransactionSuggestionBanner: React.FC<BankTransactionSuggestion
             <button
               type="button"
               onClick={() => onEditTransaction(currentItem)}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition active:scale-95"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition active:scale-95"
             >
               <Pencil size={12} className="text-slate-500 dark:text-slate-300" />
               <span>Chỉnh sửa</span>

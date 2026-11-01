@@ -173,7 +173,7 @@ export const App: React.FC = () => {
         urgentAlertsCount={urgentCount}
       />
 
-      <main className="flex-1 flex flex-col overflow-hidden relative">
+      <main className="flex-1 flex flex-col overflow-hidden relative bg-slate-50 dark:bg-slate-900">
         {activeTab === 'dashboard' && (
           <DashboardTab
             onNavigateTab={setActiveTab}

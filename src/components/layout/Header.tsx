@@ -32,7 +32,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAlerts, urgentAlertsCount 
               <span>{currentUser.name}</span>
               {currentUser.role === 'admin' && <Crown size={11} className="text-amber-500 shrink-0" />}
             </div>
-            <div className="text-[10px] text-indigo-600 dark:text-indigo-400 font-medium capitalize">
+            <div className="text-[10px] text-primary-600 dark:text-primary-400 font-medium capitalize">
               {currentUser.role === 'admin' ? 'Admin' : currentUser.role}
             </div>
           </div>
@@ -55,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAlerts, urgentAlertsCount 
                   }}
                   className={`w-full flex items-center justify-between p-2 rounded-xl text-left transition-colors ${
                     u.id === currentUser.id
-                      ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300 font-semibold'
+                      ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-600 dark:text-primary-300 font-semibold'
                       : 'hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200'
                   }`}
                 >
@@ -81,7 +81,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAlerts, urgentAlertsCount 
                       </div>
                     </div>
                   </div>
-                  {u.id === currentUser.id && <Check size={16} className="text-indigo-600 dark:text-indigo-400" />}
+                  {u.id === currentUser.id && <Check size={16} className="text-primary-600 dark:text-primary-400" />}
                 </button>
               ))}
             </div>
@@ -112,7 +112,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAlerts, urgentAlertsCount 
                   setShowLangMenu(false);
                 }}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs ${
-                  settings.language === 'vi' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 font-bold' : 'hover:bg-slate-100 dark:hover:bg-slate-700'
+                  settings.language === 'vi' ? 'bg-primary-50 dark:bg-primary-900/40 text-primary-600 font-bold' : 'hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
                 <span>🇻🇳 Tiếng Việt</span>
@@ -124,7 +124,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAlerts, urgentAlertsCount 
                   setShowLangMenu(false);
                 }}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs ${
-                  settings.language === 'en' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 font-bold' : 'hover:bg-slate-100 dark:hover:bg-slate-700'
+                  settings.language === 'en' ? 'bg-primary-50 dark:bg-primary-900/40 text-primary-600 font-bold' : 'hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
                 <span>🇬🇧 English</span>
@@ -136,7 +136,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAlerts, urgentAlertsCount 
                   setShowLangMenu(false);
                 }}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs ${
-                  settings.language === 'ja' ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 font-bold' : 'hover:bg-slate-100 dark:hover:bg-slate-700'
+                  settings.language === 'ja' ? 'bg-primary-50 dark:bg-primary-900/40 text-primary-600 font-bold' : 'hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
                 <span>🇯🇵 日本語</span>

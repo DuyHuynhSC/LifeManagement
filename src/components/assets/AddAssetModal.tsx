@@ -82,7 +82,7 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, onOpenQRS
         {/* Header */}
         <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-white dark:bg-slate-800 sticky top-0 z-10">
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+            <span className="p-2 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400">
               <Tv2 size={20} />
             </span>
             <div>
@@ -109,7 +109,7 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, onOpenQRS
             <button
               type="button"
               onClick={onOpenQRScanner}
-              className="w-full p-2.5 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 rounded-2xl flex items-center justify-center gap-2 text-indigo-700 dark:text-indigo-300 font-bold transition hover:bg-indigo-100"
+              className="w-full p-2.5 bg-primary-50 dark:bg-primary-950/50 border border-primary-200 dark:border-primary-800 rounded-2xl flex items-center justify-center gap-2 text-primary-700 dark:text-primary-300 font-bold transition hover:bg-primary-100"
             >
               <QrCode size={16} />
               <span>Quét mã QR / Hóa đơn để tự động điền</span>
@@ -126,7 +126,7 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, onOpenQRS
               placeholder="VD: Máy hút ẩm Sharp, Tủ lạnh Panasonic..."
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs focus:ring-1 focus:ring-primary-500 focus:border-primary-500 outline-none"
             />
           </div>
 
@@ -163,7 +163,7 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, onOpenQRS
                   const cleaned = digits.replace(/^0+(?=\d)/, '');
                   setPriceStr(cleaned);
                 }}
-                className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs"
+                className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs font-mono tabular-nums focus:ring-1 focus:ring-primary-500 focus:border-primary-500 outline-none"
               />
             </div>
           </div>
@@ -229,7 +229,7 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, onOpenQRS
               <button
                 type="button"
                 onClick={handleAddComponent}
-                className="flex items-center gap-1 text-[11px] text-indigo-600 font-bold hover:underline"
+                className="flex items-center gap-1 text-[11px] text-primary-600 font-bold hover:underline"
               >
                 <Plus size={14} /> Thêm linh kiện
               </button>
@@ -258,7 +258,7 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, onOpenQRS
                     newArr[idx].lifespanDays = Number(e.target.value);
                     setComponents(newArr);
                   }}
-                  className="w-16 p-1.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-[11px]"
+                  className="w-16 p-1.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 text-[11px] font-mono tabular-nums"
                 />
                 <button
                   type="button"
@@ -295,7 +295,7 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, onOpenQRS
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 font-bold text-white rounded-xl shadow-md transition"
+              className="flex-1 py-2.5 bg-primary-600 hover:bg-primary-700 font-bold text-white rounded-xl shadow-sm transition"
             >
               {t('action_add')}
             </button>

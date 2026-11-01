@@ -244,7 +244,7 @@ export const RestoreDataModal: React.FC<RestoreDataModalProps> = ({ onClose }) =
                         <Box size={18} />
                       </div>
                       <div>
-                        <div className="text-base font-extrabold text-slate-900 dark:text-white">
+                        <div className="text-base font-extrabold text-slate-900 dark:text-white font-mono tabular-nums">
                           {summary.assetsCount}
                         </div>
                         <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium">
@@ -258,7 +258,7 @@ export const RestoreDataModal: React.FC<RestoreDataModalProps> = ({ onClose }) =
                         <CreditCard size={18} />
                       </div>
                       <div>
-                        <div className="text-base font-extrabold text-slate-900 dark:text-white">
+                        <div className="text-base font-extrabold text-slate-900 dark:text-white font-mono tabular-nums">
                           {summary.expensesCount}
                         </div>
                         <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium">
@@ -272,7 +272,7 @@ export const RestoreDataModal: React.FC<RestoreDataModalProps> = ({ onClose }) =
                         <Users size={18} />
                       </div>
                       <div>
-                        <div className="text-base font-extrabold text-slate-900 dark:text-white">
+                        <div className="text-base font-extrabold text-slate-900 dark:text-white font-mono tabular-nums">
                           {summary.usersCount}
                         </div>
                         <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium">
@@ -282,11 +282,11 @@ export const RestoreDataModal: React.FC<RestoreDataModalProps> = ({ onClose }) =
                     </div>
 
                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+                      <div className="p-2 rounded-lg bg-primary-100 dark:bg-primary-950 text-primary-600 dark:text-primary-400">
                         <CheckSquare size={18} />
                       </div>
                       <div>
-                        <div className="text-base font-extrabold text-slate-900 dark:text-white">
+                        <div className="text-base font-extrabold text-slate-900 dark:text-white font-mono tabular-nums">
                           {summary.tasksCount}
                         </div>
                         <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium">
@@ -297,21 +297,21 @@ export const RestoreDataModal: React.FC<RestoreDataModalProps> = ({ onClose }) =
 
                     {/* Investment Portfolio Preview Card */}
                     {(summary.investmentsCount > 0 || summary.investmentTransactionsCount > 0 || summary.dividendsCount > 0) && (
-                      <div className="col-span-2 p-3 rounded-xl bg-gradient-to-r from-indigo-50 to-indigo-100/50 dark:from-indigo-950/60 dark:to-indigo-900/30 border border-indigo-200 dark:border-indigo-800 flex items-center justify-between">
+                      <div className="col-span-2 p-3 rounded-xl bg-gradient-to-r from-sky-50 to-sky-100/50 dark:from-sky-950/60 dark:to-sky-900/30 border border-sky-200 dark:border-sky-800 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-indigo-600 text-white shadow-sm">
+                          <div className="p-2 rounded-lg bg-primary-600 text-white shadow-sm">
                             <TrendingUp size={18} />
                           </div>
                           <div>
-                            <div className="text-sm font-extrabold text-slate-900 dark:text-white">
+                            <div className="text-sm font-extrabold text-slate-900 dark:text-white font-mono tabular-nums">
                               {summary.investmentsCount} mã tài sản đầu tư
                             </div>
-                            <div className="text-[11px] text-indigo-700 dark:text-indigo-300 font-medium">
+                            <div className="text-[11px] text-primary-700 dark:text-primary-300 font-medium font-mono tabular-nums">
                               {summary.investmentTransactionsCount} lệnh giao dịch • {summary.dividendsCount} lượt cổ tức
                             </div>
                           </div>
                         </div>
-                        <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-indigo-200/80 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-200">
+                        <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-sky-200/80 dark:bg-sky-800 text-primary-800 dark:text-primary-200">
                           Đầu tư
                         </span>
                       </div>
@@ -355,7 +355,7 @@ export const RestoreDataModal: React.FC<RestoreDataModalProps> = ({ onClose }) =
               onClick={handleConfirmRestore}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs text-white shadow-md transition ${
                 validatedData
-                  ? 'bg-indigo-600 hover:bg-indigo-700 active:scale-95 shadow-indigo-200 dark:shadow-none'
+                  ? 'bg-primary-600 hover:bg-primary-700 active:scale-95 shadow-sky-200 dark:shadow-none'
                   : 'bg-slate-300 dark:bg-slate-700 cursor-not-allowed opacity-60'
               }`}
             >

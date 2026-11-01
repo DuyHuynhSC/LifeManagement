@@ -171,7 +171,7 @@ export const BankSyncModal: React.FC<BankSyncModalProps> = ({ onClose, onNavigat
             onClick={() => setActiveTab('simulator')}
             className={`flex-1 py-2 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 ${
               activeTab === 'simulator'
-                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs'
+                ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-300 shadow-sm'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -184,7 +184,7 @@ export const BankSyncModal: React.FC<BankSyncModalProps> = ({ onClose, onNavigat
             onClick={() => setActiveTab('settings')}
             className={`flex-1 py-2 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 ${
               activeTab === 'settings'
-                ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs'
+                ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-300 shadow-sm'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -250,7 +250,7 @@ export const BankSyncModal: React.FC<BankSyncModalProps> = ({ onClose, onNavigat
                         <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400" />
                         Nhận diện thành công ({pasteParsePreview.sourceAppName})
                       </span>
-                      <span className="text-sm font-black text-rose-600 dark:text-rose-400">
+                      <span className="text-sm font-black text-rose-600 dark:text-rose-400 font-mono tabular-nums">
                         -{pasteParsePreview.amount.toLocaleString('vi-VN')} đ
                       </span>
                     </div>
@@ -319,10 +319,10 @@ export const BankSyncModal: React.FC<BankSyncModalProps> = ({ onClose, onNavigat
                         </div>
 
                         <div className="shrink-0 text-right pt-0.5">
-                          <span className="text-xs font-black text-rose-600 dark:text-rose-400 whitespace-nowrap block">
+                          <span className="text-xs font-black text-rose-600 dark:text-rose-400 whitespace-nowrap block font-mono tabular-nums">
                             -{sample.expectedAmount.toLocaleString('vi-VN')} đ
                           </span>
-                          <span className="inline-flex items-center gap-0.5 text-[9px] text-indigo-600 dark:text-indigo-400 font-bold mt-1">
+                          <span className="inline-flex items-center gap-0.5 text-[9px] text-primary-600 dark:text-primary-400 font-bold mt-1">
                             Gửi <Send size={9} />
                           </span>
                         </div>

@@ -89,17 +89,17 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-5 pb-20">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 rounded-3xl p-5 text-white shadow-xl">
+      <div className="relative overflow-hidden bg-gradient-to-br from-sky-600 via-sky-700 to-slate-900 rounded-2xl p-4 sm:p-5 text-white shadow-md border border-sky-500/30">
         <div className="relative z-10 flex items-start justify-between">
           <div>
-            <div className="text-xs text-indigo-200 font-medium">
+            <div className="text-xs text-sky-100 font-medium">
               {t('dash_welcome')},
             </div>
             <h1 className="text-xl font-extrabold tracking-tight mt-0.5">
               {currentUser.name}
             </h1>
             <div className="inline-flex items-center gap-1.5 mt-2 bg-white/20 backdrop-blur px-2.5 py-1 rounded-full text-xs font-semibold">
-              <span>🏆 {currentUser.points} XP</span>
+              <span className="font-mono tabular-nums">🏆 {currentUser.points} XP</span>
               <span className="opacity-60">•</span>
               <span className="capitalize">{currentUser.role}</span>
             </div>
@@ -111,7 +111,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
         {/* Decorative background shapes */}
         <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute top-0 right-10 w-20 h-20 bg-purple-400/20 rounded-full blur-xl pointer-events-none" />
+        <div className="absolute top-0 right-10 w-20 h-20 bg-sky-400/20 rounded-full blur-xl pointer-events-none" />
       </div>
 
       {/* BANK / MOMO TRANSACTION SUGGESTION BANNER */}
@@ -194,13 +194,13 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
       {/* Quick Action Grid */}
       <div>
-        <h2 className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2.5">
+        <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">
           {t('action_quick_add')}
         </h2>
         <div className="grid grid-cols-4 gap-2">
           <button
             onClick={onOpenAddExpense}
-            className="flex flex-col items-center justify-center p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-400 transition group"
+            className="flex flex-col items-center justify-center p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-primary-400 transition group"
           >
             <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
               <PlusCircle size={20} />
@@ -212,9 +212,9 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
           <button
             onClick={onOpenAddAsset}
-            className="flex flex-col items-center justify-center p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-400 transition group"
+            className="flex flex-col items-center justify-center p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-primary-400 transition group"
           >
-            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center group-hover:scale-110 transition-transform">
               <PlusCircle size={20} />
             </div>
             <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 mt-1.5 text-center leading-tight">
@@ -224,7 +224,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
           <button
             onClick={onOpenVoiceInput}
-            className="flex flex-col items-center justify-center p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-400 transition group"
+            className="flex flex-col items-center justify-center p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-primary-400 transition group"
           >
             <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Mic size={20} />
@@ -236,7 +236,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
           <button
             onClick={onOpenQRScanner}
-            className="flex flex-col items-center justify-center p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-400 transition group"
+            className="flex flex-col items-center justify-center p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-primary-400 transition group"
           >
             <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
               <QrCode size={20} />
@@ -251,22 +251,22 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
       {/* Monthly Budget Summary Card */}
       <div
         onClick={() => onNavigateTab('expenses')}
-        className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-indigo-400 transition space-y-3"
+        className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/80 shadow-sm cursor-pointer hover:border-primary-400 transition space-y-3"
       >
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider">
+            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {t('dash_budget_status')} ({formatYearMonthDisplay(currentMonth)})
             </div>
             <div className="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">
-              {currentMonthExpenses.toLocaleString('vi-VN')} đ
+              <span className="font-mono tabular-nums">{currentMonthExpenses.toLocaleString('vi-VN')}</span> đ
               <span className="text-xs font-normal text-slate-500 ml-1">
-                / {totalBudget > 0 ? `${totalBudget.toLocaleString('vi-VN')} đ` : 'Chưa đặt hạn mức'}
+                / {totalBudget > 0 ? <><span className="font-mono tabular-nums">{totalBudget.toLocaleString('vi-VN')}</span> đ</> : 'Chưa đặt hạn mức'}
               </span>
             </div>
           </div>
           <div className="text-right">
-            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${totalBudget === 0
+            <span className={`text-xs font-bold px-2 py-0.5 rounded-full font-mono tabular-nums ${totalBudget === 0
               ? 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
               : budgetRatio >= 90
                 ? 'bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400'
@@ -282,7 +282,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         {/* Progress bar */}
         <div className="w-full bg-slate-100 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${budgetRatio >= 90 ? 'bg-rose-500' : budgetRatio >= 70 ? 'bg-amber-500' : 'bg-indigo-600'
+            className={`h-full rounded-full transition-all duration-500 ${budgetRatio >= 90 ? 'bg-rose-500' : budgetRatio >= 70 ? 'bg-amber-500' : 'bg-primary-600'
               }`}
             style={{ width: `${totalBudget > 0 ? budgetRatio : 0}%` }}
           />
@@ -292,11 +292,11 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           <span>
             {totalBudget > 0
               ? (currentMonthExpenses > totalBudget
-                ? `Vượt: ${(currentMonthExpenses - totalBudget).toLocaleString('vi-VN')} đ`
-                : `${t('dash_remaining_budget')}: ${(totalBudget - currentMonthExpenses).toLocaleString('vi-VN')} đ`)
+                ? <>Vượt: <span className="font-mono tabular-nums text-rose-600 dark:text-rose-400 font-bold">{(currentMonthExpenses - totalBudget).toLocaleString('vi-VN')}</span> đ</>
+                : <>{t('dash_remaining_budget')}: <span className="font-mono tabular-nums font-bold text-slate-700 dark:text-slate-200">{(totalBudget - currentMonthExpenses).toLocaleString('vi-VN')}</span> đ</>)
               : 'Chưa thiết lập ngân sách'}
           </span>
-          <span className="flex items-center gap-0.5 text-indigo-600 dark:text-indigo-400 font-semibold">
+          <span className="flex items-center gap-0.5 text-primary-600 dark:text-primary-400 font-semibold">
             {t('dash_view_details')} <ArrowUpRight size={12} />
           </span>
         </div>
@@ -305,20 +305,20 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
       {/* Investment Portfolio Summary Card */}
       <div
         onClick={() => onNavigateTab('investments')}
-        className="bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 rounded-2xl p-4 border border-indigo-800/80 shadow-md cursor-pointer hover:border-indigo-400 transition space-y-2 text-white relative overflow-hidden"
+        className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/80 shadow-sm cursor-pointer hover:border-primary-400 transition space-y-2 relative overflow-hidden"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-xl bg-white/10 flex items-center justify-center text-emerald-300">
+            <div className="w-7 h-7 rounded-xl bg-sky-50 dark:bg-sky-950/60 flex items-center justify-center text-primary-600 dark:text-primary-400">
               <TrendingUp size={16} />
             </div>
-            <span className="text-xs font-bold text-indigo-200 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {t('inv_dash_card_title')}
             </span>
           </div>
-          <span className={`text-[11px] font-black px-2 py-0.5 rounded-full ${portfolioSummary.totalUnrealizedPnL >= 0
-            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-            : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+          <span className={`text-[11px] font-black font-mono tabular-nums px-2 py-0.5 rounded-full ${portfolioSummary.totalUnrealizedPnL >= 0
+            ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
+            : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
             }`}>
             {portfolioSummary.totalUnrealizedPnL >= 0 ? '+' : ''}{portfolioSummary.unrealizedPnLPercent.toFixed(2)}%
           </span>
@@ -326,19 +326,19 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
         <div className="flex items-baseline justify-between pt-1">
           <div>
-            <div className="text-lg font-black tracking-tight text-white">
-              {portfolioSummary.currentMarketValue.toLocaleString('vi-VN')} đ
+            <div className="text-lg font-black tracking-tight text-slate-900 dark:text-white font-mono tabular-nums">
+              {portfolioSummary.currentMarketValue.toLocaleString('vi-VN')} <span className="text-xs font-bold font-sans text-slate-400">đ</span>
             </div>
-            <div className="text-[11px] text-slate-300 font-medium">
-              {t('inv_invested_capital')}: {portfolioSummary.totalInvested.toLocaleString('vi-VN')} đ
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+              {t('inv_invested_capital')}: <span className="font-mono tabular-nums font-semibold text-slate-700 dark:text-slate-300">{portfolioSummary.totalInvested.toLocaleString('vi-VN')} đ</span>
             </div>
           </div>
           <div className="text-right">
-            <span className={`text-xs font-extrabold block ${portfolioSummary.totalUnrealizedPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'
+            <span className={`text-xs font-extrabold font-mono tabular-nums block ${portfolioSummary.totalUnrealizedPnL >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
               }`}>
               {portfolioSummary.totalUnrealizedPnL >= 0 ? '+' : ''}{portfolioSummary.totalUnrealizedPnL.toLocaleString('vi-VN')} đ
             </span>
-            <span className="text-[10px] text-indigo-300 flex items-center justify-end gap-0.5 mt-0.5 font-bold">
+            <span className="text-[10px] text-primary-600 dark:text-primary-400 flex items-center justify-end gap-0.5 mt-0.5 font-bold">
               {t('dash_view_details')} <ArrowUpRight size={10} />
             </span>
           </div>
@@ -382,13 +382,13 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
       <div className="grid grid-cols-2 gap-3">
         <div
           onClick={() => onNavigateTab('assets')}
-          className="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-indigo-400 transition"
+          className="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm cursor-pointer hover:border-primary-400 transition"
         >
-          <div className="text-xs text-slate-400 dark:text-slate-400 font-medium">
+          <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             {t('dash_total_assets')}
           </div>
           <div className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">
-            {assets.length} <span className="text-xs font-normal text-slate-400">{t('dash_appliances_unit')}</span>
+            <span className="font-mono tabular-nums">{assets.length}</span> <span className="text-xs font-normal text-slate-400">{t('dash_appliances_unit')}</span>
           </div>
           <div className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1 font-semibold flex items-center gap-1">
             <CheckCircle2 size={12} />
@@ -398,15 +398,15 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
         <div
           onClick={() => onNavigateTab('family')}
-          className="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:border-indigo-400 transition"
+          className="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm cursor-pointer hover:border-primary-400 transition"
         >
-          <div className="text-xs text-slate-400 dark:text-slate-400 font-medium">
+          <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             {t('dash_active_tasks')}
           </div>
           <div className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">
-            {tasks.filter(t => t.status === 'todo').length} <span className="text-xs font-normal text-slate-400">{t('dash_tasks_unit')}</span>
+            <span className="font-mono tabular-nums">{tasks.filter(t => t.status === 'todo').length}</span> <span className="text-xs font-normal text-slate-400">{t('dash_tasks_unit')}</span>
           </div>
-          <div className="text-[10px] text-indigo-600 dark:text-indigo-400 mt-1 font-semibold flex items-center gap-1">
+          <div className="text-[10px] text-primary-600 dark:text-primary-400 mt-1 font-semibold flex items-center gap-1">
             <Zap size={12} />
             {t('dash_claim_xp')}
           </div>

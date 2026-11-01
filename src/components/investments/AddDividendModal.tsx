@@ -246,7 +246,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
             onClick={() => setDivType('stock')}
             className={`py-2 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition ${
               divType === 'stock'
-                ? 'bg-indigo-600 text-white shadow-md'
+                ? 'bg-primary-600 text-white shadow-md'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -283,7 +283,7 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
               type="date"
               value={date}
               onChange={e => setDate(e.target.value)}
-              className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-semibold"
+              className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-semibold font-mono tabular-nums"
             />
           </div>
 
@@ -300,14 +300,14 @@ export const AddDividendModal: React.FC<AddDividendModalProps> = ({
                   value={amountStr}
                   onChange={e => handleAmountChange(e.target.value.replace(/[^0-9.]/g, ''))}
                   placeholder="VD: 150000"
-                  className="w-full h-10 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full h-10 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono tabular-nums"
                 />
               </div>
 
               {/* Tax Rate & Deducted Amount */}
               <div className="space-y-2 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                <div className="flex items-center justify-between font-mono tabular-nums">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-200 font-sans">
                     {t('inv_div_tax_rate_label')}
                   </label>
                   {numTax > 0 && (

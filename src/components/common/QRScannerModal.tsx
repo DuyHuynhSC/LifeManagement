@@ -617,8 +617,8 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
                   </div>
                   <div className="space-y-1.5 max-h-32 overflow-y-auto text-[11px] text-slate-300 bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
                     {scanResult.items.map((it, idx) => (
-                      <div key={idx} className="flex justify-between items-center py-0.5">
-                        <span className="truncate pr-2 text-slate-300">• {it.name} {it.quantity ? `(x${it.quantity})` : ''}</span>
+                      <div key={idx} className="flex justify-between items-center py-0.5 font-mono tabular-nums">
+                        <span className="truncate pr-2 text-slate-300 font-sans">• {it.name} {it.quantity ? `(x${it.quantity})` : ''}</span>
                         <span className="font-semibold text-slate-100 shrink-0">
                           {it.price.toLocaleString('vi-VN')} đ
                         </span>
@@ -648,7 +648,7 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
                 onClick={() => setTargetType('asset')}
                 className={`py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition ${
                   targetType === 'asset'
-                    ? 'bg-indigo-600 text-white shadow-md'
+                    ? 'bg-primary-600 text-white shadow-md'
                     : 'text-slate-300 hover:text-white'
                 }`}
               >
@@ -684,7 +684,7 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
                       value={expenseAmountStr ? Number(expenseAmountStr).toLocaleString('vi-VN') : ''}
                       onChange={(e) => handleExpenseAmountChange(e.target.value)}
                       placeholder="0"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-base sm:text-xs text-emerald-400 font-bold focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-base sm:text-xs text-emerald-400 font-bold font-mono tabular-nums focus:outline-none focus:border-emerald-500"
                     />
                   </div>
 

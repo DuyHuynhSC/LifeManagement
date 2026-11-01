@@ -31,9 +31,9 @@ export const WaterPurifierCard: React.FC<WaterPurifierCardProps> = ({
 
   return (
     <div
-      className={`rounded-3xl border transition-all p-4 relative overflow-hidden ${
+      className={`rounded-2xl border transition-all p-4 relative overflow-hidden ${
         device.isOnline
-          ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm'
+          ? 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700/80 shadow-sm'
           : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-60'
       }`}
     >
@@ -97,7 +97,7 @@ export const WaterPurifierCard: React.FC<WaterPurifierCardProps> = ({
                   Chỉ số TDS Nước Uống
                 </span>
                 <div className="flex items-baseline gap-1.5 mt-0.5">
-                  <span className={`text-2xl font-black ${isTdsSafe ? 'text-cyan-600 dark:text-cyan-400' : 'text-amber-600'}`}>
+                  <span className={`text-2xl font-black font-mono tabular-nums ${isTdsSafe ? 'text-primary-600 dark:text-primary-400' : 'text-amber-600'}`}>
                     {wp.tdsOutPpm}
                   </span>
                   <span className="text-xs text-slate-400 font-semibold">ppm</span>
@@ -110,7 +110,7 @@ export const WaterPurifierCard: React.FC<WaterPurifierCardProps> = ({
 
               <div className="text-right">
                 <span className="text-[10px] text-slate-400 block">Nước cấp vào</span>
-                <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-300 font-mono tabular-nums">
                   {wp.tdsInPpm} ppm
                 </span>
               </div>
@@ -121,7 +121,7 @@ export const WaterPurifierCard: React.FC<WaterPurifierCardProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between text-[11px] font-medium text-slate-600 dark:text-slate-300">
               <span>Tuổi thọ Lõi Lọc</span>
-              <span className="text-[10px] text-slate-400">Đã lọc: {wp.litersToday} L hôm nay</span>
+              <span className="text-[10px] text-slate-400 font-mono tabular-nums">Đã lọc: {wp.litersToday} L hôm nay</span>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
@@ -129,14 +129,14 @@ export const WaterPurifierCard: React.FC<WaterPurifierCardProps> = ({
               <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/80">
                 <div className="flex justify-between items-center text-[11px] mb-1">
                   <span className="font-semibold text-slate-700 dark:text-slate-200">Lõi thô số 1</span>
-                  <span className={`font-bold ${wp.filter1LifePercent < 20 ? 'text-amber-600' : 'text-slate-600 dark:text-slate-400'}`}>
+                  <span className={`font-bold font-mono tabular-nums ${wp.filter1LifePercent < 20 ? 'text-amber-600' : 'text-slate-600 dark:text-slate-400'}`}>
                     {wp.filter1LifePercent}%
                   </span>
                 </div>
                 <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
-                      wp.filter1LifePercent < 20 ? 'bg-amber-500' : 'bg-cyan-500'
+                      wp.filter1LifePercent < 20 ? 'bg-amber-500' : 'bg-primary-600'
                     }`}
                     style={{ width: `${Math.min(100, Math.max(0, wp.filter1LifePercent))}%` }}
                   />
@@ -147,7 +147,7 @@ export const WaterPurifierCard: React.FC<WaterPurifierCardProps> = ({
               <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/80">
                 <div className="flex justify-between items-center text-[11px] mb-1">
                   <span className="font-semibold text-slate-700 dark:text-slate-200">Màng RO Filmtec</span>
-                  <span className={`font-bold ${wp.filterRoLifePercent < 15 ? 'text-rose-600' : 'text-slate-600 dark:text-slate-400'}`}>
+                  <span className={`font-bold font-mono tabular-nums ${wp.filterRoLifePercent < 15 ? 'text-rose-600' : 'text-slate-600 dark:text-slate-400'}`}>
                     {wp.filterRoLifePercent}%
                   </span>
                 </div>
@@ -165,14 +165,14 @@ export const WaterPurifierCard: React.FC<WaterPurifierCardProps> = ({
 
           {/* Bottom Bar: Power & Action */}
           <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-700/80 text-[11px]">
-            <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium">
+            <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium font-mono tabular-nums">
               <Zap size={13} className="text-amber-400" />
               <span>{device.currentWattage || 35}W (~{device.powerUsageKwhToday || device.powerUsageKwh} kWh/ngày)</span>
             </div>
 
             <button
               onClick={() => onCreateTask(device.id, `Kiểm tra & Vệ sinh lõi lọc nước ${device.name}`, 20)}
-              className="inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-600 dark:text-cyan-400 hover:text-cyan-700"
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700"
             >
               <Wrench size={12} />
               <span>Tạo việc bảo dưỡng (+20 XP)</span>
