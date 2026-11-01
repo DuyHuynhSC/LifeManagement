@@ -36,16 +36,16 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const t = (key: any) => getTranslation(settings.language, key);
 
-  // 4 Core Main Tabs (Đầu tư đặt ngay sau Chi tiêu, Gia đình chuyển vào menu Thêm)
+  // 4 Core Main Tabs (Đầu tư và Chi tiêu cùng nhóm, Đồ dùng đặt sau Đầu tư)
   const primaryTabs: { id: TabType; label: string; icon: LucideIcon; badge?: number }[] = [
     { id: 'dashboard', label: t('nav_dashboard'), icon: LayoutDashboard },
-    { id: 'assets', label: t('nav_assets'), icon: Tv2, badge: urgentAssetsCount },
     { id: 'expenses', label: t('nav_expenses'), icon: Wallet },
     { 
       id: 'investments', 
       label: t('nav_investments'), 
       icon: TrendingUp 
     },
+    { id: 'assets', label: t('nav_assets'), icon: Tv2, badge: urgentAssetsCount },
   ];
 
   // Secondary tabs inside "More" menu

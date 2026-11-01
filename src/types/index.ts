@@ -49,6 +49,35 @@ export interface CategoryItem {
 
 export type ExpenseCategory = string;
 
+export type PaymentAppSource =
+  | 'momo'
+  | 'zalopay'
+  | 'vcb'
+  | 'tcb'
+  | 'mbbank'
+  | 'bidv'
+  | 'vpbank'
+  | 'tpbank'
+  | 'acb'
+  | 'vietinbank'
+  | 'sms'
+  | 'clipboard'
+  | 'other';
+
+export interface PendingBankTransaction {
+  id: string;
+  sourceApp: PaymentAppSource;
+  sourceAppName: string;
+  amount: number;
+  suggestedTitle: string;
+  suggestedCategory: ExpenseCategory;
+  rawNotificationText: string;
+  timestamp: string; // ISO string
+  date: string; // YYYY-MM-DD
+  recipientOrMerchant?: string;
+  fingerprint?: string;
+}
+
 export interface Expense {
   id: string;
   title: string;
@@ -158,6 +187,9 @@ export interface AppSettings {
   lgThinqToken?: string;
   tsmartlifeAccount?: string;
   tsmartlifeToken?: string;
+  enableBankAutoSuggest?: boolean;
+  enableClipboardCheck?: boolean;
+  monitoredBankApps?: PaymentAppSource[];
 }
 
 export interface GamificationBadge {

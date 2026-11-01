@@ -56,6 +56,7 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
   const [showAddTx, setShowAddTx] = useState(false);
   const [txAssetId, setTxAssetId] = useState<string | undefined>(undefined);
   const [detailAsset, setDetailAsset] = useState<InvestmentAsset | null>(null);
+  const [showAllocation, setShowAllocation] = useState(false);
 
   // Sync market prices state
   const [isSyncingPrices, setIsSyncingPrices] = useState(false);
@@ -150,19 +151,14 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
     >
       {/* Top Bar with Title & Actions */}
       <div className="flex items-center justify-between gap-2.5">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight truncate">
-              {t('inv_title')}
-            </h1>
-            <span className="inline-flex items-center gap-1 text-[10px] bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-bold px-1.5 sm:px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800 shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              {t('inv_realtime_badge')}
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-500 dark:text-slate-300 font-medium mt-0.5 leading-snug line-clamp-2 sm:line-clamp-1">
-            {t('inv_subtitle')}
-          </p>
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight truncate">
+            {t('inv_title')}
+          </h1>
+          <span className="inline-flex items-center gap-1 text-[10px] bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 font-bold px-1.5 sm:px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800 shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            {t('inv_realtime_badge')}
+          </span>
         </div>
 
         {/* Action Button: Thêm lệnh hoặc thêm mã */}
@@ -170,7 +166,7 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
           {activeView === 'holdings' ? (
             <button
               onClick={() => handleOpenAddTx()}
-              className="h-8 px-2.5 sm:px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold text-xs shadow-md shadow-indigo-500/20 transition whitespace-nowrap flex items-center gap-1.5"
+              className="h-7 sm:h-8 px-2.5 sm:px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs shadow-xs transition whitespace-nowrap flex items-center gap-1"
             >
               <Plus size={15} />
               <span>{t('inv_action_add_tx')}</span>
@@ -178,7 +174,7 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
           ) : (
             <button
               onClick={() => handleOpenAddDividend()}
-              className="h-8 px-2.5 sm:px-3 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-extrabold text-xs shadow-md shadow-amber-500/20 transition whitespace-nowrap flex items-center gap-1.5"
+              className="h-7 sm:h-8 px-2.5 sm:px-3 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold text-xs shadow-xs transition whitespace-nowrap flex items-center gap-1"
             >
               <Plus size={15} />
               <span>{t('inv_action_add_div')}</span>
@@ -188,40 +184,40 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
       </div>
 
       {/* Sub-view Switcher: Vị thế Nắm giữ vs Cổ tức & Dòng tiền */}
-      <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+      <div className="grid grid-cols-2 gap-1 p-0.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
         <button
           onClick={() => setActiveView('holdings')}
-          className={`h-9 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 whitespace-nowrap ${activeView === 'holdings'
-            ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm font-extrabold'
+          className={`h-8 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 whitespace-nowrap ${activeView === 'holdings'
+            ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-xs font-black'
             : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
         >
-          <Layers size={14} className="shrink-0" />
+          <Layers size={13} className="shrink-0" />
           <span className="truncate">{t('inv_holdings_tab')} ({assets.length})</span>
         </button>
 
         <button
           onClick={() => setActiveView('dividends')}
-          className={`h-9 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 whitespace-nowrap ${activeView === 'dividends'
-            ? 'bg-white dark:bg-slate-700 text-amber-600 dark:text-amber-400 shadow-sm font-extrabold'
+          className={`h-8 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 whitespace-nowrap ${activeView === 'dividends'
+            ? 'bg-white dark:bg-slate-700 text-amber-600 dark:text-amber-400 shadow-xs font-black'
             : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
             }`}
         >
-          <Coins size={14} className="shrink-0" />
+          <Coins size={13} className="shrink-0" />
           <span className="truncate">{t('inv_dividends_tab')}</span>
         </button>
       </div>
 
       {/* Sync Notification Banner */}
       {syncMessage && (
-        <div className={`p-3 rounded-2xl flex items-center gap-2.5 text-xs font-bold animate-in fade-in slide-in-from-top-2 border ${syncMessage.type === 'success'
+        <div className={`p-2.5 rounded-xl flex items-center gap-2 text-xs font-bold animate-in fade-in slide-in-from-top-2 border ${syncMessage.type === 'success'
           ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
           : 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'
           }`}>
           {syncMessage.type === 'success' ? (
-            <CheckCircle2 size={16} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
+            <CheckCircle2 size={15} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
           ) : (
-            <AlertCircle size={16} className="shrink-0 text-amber-600 dark:text-amber-400" />
+            <AlertCircle size={15} className="shrink-0 text-amber-600 dark:text-amber-400" />
           )}
           <span className="flex-1 leading-snug">{syncMessage.text}</span>
         </div>
@@ -236,39 +232,46 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
             onOpenAddTransaction={() => handleOpenAddTx()}
             onSyncMarketPrices={handleSyncAllPrices}
             isSyncing={isSyncingPrices}
+            showAllocation={showAllocation}
+            onToggleAllocation={() => setShowAllocation(prev => !prev)}
           />
 
-          {/* Asset Allocation Chart */}
-          <AssetAllocationChart summary={portfolioSummary} />
+          {/* Asset Allocation Chart (Toggleable) */}
+          {showAllocation && (
+            <AssetAllocationChart 
+              summary={portfolioSummary} 
+              onClose={() => setShowAllocation(false)}
+            />
+          )}
 
           {/* Filter and Search Bar */}
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             <div className="relative">
-              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder={t('inv_search_placeholder')}
-                className="w-full text-xs sm:text-sm pl-10 pr-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-2xs"
               />
             </div>
 
             {/* Category Filter Chips */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
               {categories.map(cat => {
                 const isActive = selectedClass === cat.id;
                 return (
                   <button
                     key={cat.id}
                     onClick={() => setSelectedClass(cat.id)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 border ${isActive
-                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 border ${isActive
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs'
                       : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80'
                       }`}
                   >
                     <span>{cat.label}</span>
-                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${isActive ? 'bg-indigo-700 text-indigo-100' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300'
+                    <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-black ${isActive ? 'bg-indigo-700 text-indigo-100' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300'
                       }`}>
                       {cat.count}
                     </span>
@@ -279,9 +282,9 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
           </div>
 
           {/* Holdings List */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-extrabold text-slate-900 dark:text-white">
+              <h2 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                 {t('inv_holdings_list_title')} ({filteredAssets.length})
               </h2>
             </div>

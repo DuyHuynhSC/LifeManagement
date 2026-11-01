@@ -244,7 +244,7 @@ export const QRScannerModal: React.FC<QRScannerModalProps> = ({
         category: expenseCategory,
         date: expenseDate,
         payerId: expensePayerId,
-        notes: expenseNotes.trim() ? expenseNotes : 'Ghi nhận từ Quét QR/Hóa đơn'
+        notes: expenseNotes.trim() || undefined
       };
 
       if (onSaveExpense) {

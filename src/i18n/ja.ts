@@ -87,7 +87,7 @@ export const ja: typeof vi = {
   room_other: 'その他',
 
   // Expenses
-  expense_title: '家計簿・予算管理',
+  expense_title: '家計簿・支出管理',
   expense_add_new: '支出を入力',
   expense_amount: '金額',
   expense_category: 'カテゴリー',

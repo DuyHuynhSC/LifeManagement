@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   User, Asset, AssetComponent, Expense, Budget, Task, 
   IoTDevice, GamificationBadge, AppSettings, LanguageCode, ThemeMode,
-  CategoryItem
+  CategoryItem, PendingBankTransaction
 } from '../types';
 import { 
   initialUsers, initialAssets, initialExpenses, 
@@ -40,6 +40,7 @@ interface AppStoreState {
   iotDevices: IoTDevice[];
   badges: GamificationBadge[];
   settings: AppSettings;
+  pendingTransactions: PendingBankTransaction[];
 }
 
 function getStoredState(): AppStoreState {
@@ -60,7 +61,8 @@ function getStoredState(): AppStoreState {
         settings: {
           ...initialSettings,
           ...(parsed.settings || {})
-        }
+        },
+        pendingTransactions: Array.isArray(parsed.pendingTransactions) ? parsed.pendingTransactions : []
       };
     }
   } catch (err) {
@@ -76,7 +78,8 @@ function getStoredState(): AppStoreState {
     tasks: initialTasks,
     iotDevices: initialIoTDevices,
     badges: initialBadges,
-    settings: initialSettings
+    settings: initialSettings,
+    pendingTransactions: []
   };
 }
 
@@ -213,6 +216,61 @@ export const useAppStore = () => {
 
   const deleteExpense = (id: string) => {
     globalState.expenses = globalState.expenses.filter(e => e.id !== id);
+    notify();
+  };
+
+  const addPendingBankTransaction = (tx: PendingBankTransaction) => {
+    // Check duplication based on fingerprint or same amount + same title within recent list
+    const isDuplicate = globalState.pendingTransactions.some(p => {
+      if (p.fingerprint && tx.fingerprint && p.fingerprint === tx.fingerprint) {
+        return true;
+      }
+      return p.amount === tx.amount && p.suggestedTitle.toLowerCase() === tx.suggestedTitle.toLowerCase();
+    });
+
+    if (isDuplicate) {
+      return { success: false, duplicate: true };
+    }
+
+    globalState.pendingTransactions = [tx, ...globalState.pendingTransactions];
+    notify();
+    return { success: true, transaction: tx };
+  };
+
+  const confirmPendingBankTransaction = (
+    id: string,
+    overrides?: Partial<Omit<Expense, 'id'>>
+  ) => {
+    const item = globalState.pendingTransactions.find(t => t.id === id);
+    if (!item) return null;
+
+    const newExpense = addExpense({
+      title: overrides?.title || item.suggestedTitle || 'Mua đồ dùng',
+      amount: overrides?.amount || item.amount,
+      category: overrides?.category || item.suggestedCategory,
+      date: overrides?.date || item.date || new Date().toISOString().split('T')[0],
+      payerId: overrides?.payerId || globalState.currentUserId,
+      assetId: overrides?.assetId,
+      componentId: overrides?.componentId,
+      notes: overrides?.notes !== undefined ? overrides.notes : undefined
+    });
+
+    // Extra +15 XP bonus for smart confirmation
+    awardUserPoints(globalState.currentUserId, 15);
+
+    // Remove from pending
+    globalState.pendingTransactions = globalState.pendingTransactions.filter(t => t.id !== id);
+    notify();
+    return newExpense;
+  };
+
+  const dismissPendingBankTransaction = (id: string) => {
+    globalState.pendingTransactions = globalState.pendingTransactions.filter(t => t.id !== id);
+    notify();
+  };
+
+  const clearAllPendingBankTransactions = () => {
+    globalState.pendingTransactions = [];
     notify();
   };
 
@@ -558,13 +616,14 @@ export const useAppStore = () => {
     notify();
   };
 
-  // Clear all operational data (assets, expenses, budgets, tasks, iot) keeping admin and settings
+  // Clear all operational data (assets, expenses, budgets, tasks, iot, pending bank tx) keeping admin and settings
   const clearAllData = () => {
     globalState.assets = [];
     globalState.expenses = [];
     globalState.budgets = [];
     globalState.tasks = [];
     globalState.iotDevices = [];
+    globalState.pendingTransactions = [];
     notify();
   };
 
@@ -609,7 +668,8 @@ export const useAppStore = () => {
       tasks: initialTasks,
       iotDevices: initialIoTDevices,
       badges: initialBadges,
-      settings: initialSettings
+      settings: initialSettings,
+      pendingTransactions: []
     };
     restoreInvestmentState({ assets: [], transactions: [], dividends: [] });
     if (initialSettings.theme === 'dark') {
@@ -689,7 +749,10 @@ export const useAppStore = () => {
         tasks: nextTasks,
         iotDevices: nextIoT,
         badges: nextBadges,
-        settings: nextSettings
+        settings: nextSettings,
+        pendingTransactions: Array.isArray(backupData.pendingTransactions)
+          ? backupData.pendingTransactions
+          : globalState.pendingTransactions
       };
 
       if (nextSettings.theme === 'dark') {
@@ -722,6 +785,10 @@ export const useAppStore = () => {
     addExpense,
     updateExpense,
     deleteExpense,
+    addPendingBankTransaction,
+    confirmPendingBankTransaction,
+    dismissPendingBankTransaction,
+    clearAllPendingBankTransactions,
     updateBudget,
     resetMonthlyBudget,
     addCategory,

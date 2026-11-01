@@ -8,15 +8,16 @@ import {
 } from 'recharts';
 import { PortfolioSummary, AssetClass } from '../../types/investment';
 import { ASSET_CLASS_COLORS, getAssetClassLabel } from '../../services/investmentCalculator';
-import { PieChart as PieChartIcon } from 'lucide-react';
+import { PieChart as PieChartIcon, ChevronUp } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { getTranslation } from '../../i18n';
 
 interface AssetAllocationChartProps {
   summary: PortfolioSummary;
+  onClose?: () => void;
 }
 
-export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summary }) => {
+export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summary, onClose }) => {
   const { settings } = useAppStore();
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
 
@@ -28,27 +29,39 @@ export const AssetAllocationChart: React.FC<AssetAllocationChartProps> = ({ summ
 
   if (data.length === 0) {
     return (
-      <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700/80 shadow-sm text-center">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/80 shadow-sm text-center">
         <p className="text-xs text-slate-500 dark:text-slate-300 font-medium">{t('inv_chart_no_data')}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-3">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl p-3.5 sm:p-4 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-7 h-7 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
-            <PieChartIcon size={16} />
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+            <PieChartIcon size={14} />
           </div>
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
+          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
             {t('inv_chart_title')}
           </h3>
         </div>
-        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300 shrink-0 whitespace-nowrap bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 rounded-lg">
-          {data.length} {t('inv_chart_subtitle')}
-        </span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-300 whitespace-nowrap bg-slate-100 dark:bg-slate-700/60 px-1.5 py-0.5 rounded-md">
+            {data.length} {t('inv_chart_subtitle')}
+          </span>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs flex items-center gap-0.5 px-1.5 py-0.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700/60 transition"
+              title="Thu gọn"
+            >
+              <span>Thu gọn</span>
+              <ChevronUp size={12} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Centered Donut Chart */}

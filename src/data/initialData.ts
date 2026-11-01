@@ -182,5 +182,8 @@ export const initialSettings: AppSettings = {
   notifyDaysBeforeExpiry: 7, // Mặc định 1 tuần (7 ngày)
   theme: 'light',
   language: 'vi',
-  electricityPricePerKwh: 2500
+  electricityPricePerKwh: 2500,
+  enableBankAutoSuggest: true,
+  enableClipboardCheck: true,
+  monitoredBankApps: ['momo', 'zalopay', 'vcb', 'tcb', 'mbbank', 'bidv', 'vpbank', 'tpbank', 'acb', 'vietinbank', 'sms']
 };

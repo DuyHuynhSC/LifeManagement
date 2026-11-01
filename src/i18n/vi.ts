@@ -85,7 +85,7 @@ export const vi = {
   room_other: 'Khác',
 
   // Expenses
-  expense_title: 'Quản lý Chi tiêu & Ngân sách',
+  expense_title: 'Quản lý Chi tiêu',
   expense_add_new: 'Nhập khoản chi tiêu',
   expense_amount: 'Số tiền',
   expense_category: 'Danh mục',

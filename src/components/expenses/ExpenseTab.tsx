@@ -24,22 +24,28 @@ import {
   Tooltip, 
   Cell 
 } from 'recharts';
-import { Expense } from '../../types';
+import { Expense, PendingBankTransaction } from '../../types';
 import { useAppStore, getCurrentYearMonth } from '../../store/useAppStore';
 import { getTranslation } from '../../i18n';
 import { AddExpenseModal } from './AddExpenseModal';
 import { BudgetModal, shiftYearMonth, formatYearMonthDisplay } from './BudgetModal';
+import { BankTransactionSuggestionBanner } from './BankTransactionSuggestionBanner';
+import { Building2 } from 'lucide-react';
 
 interface ExpenseTabProps {
   onOpenVoiceInput: () => void;
   onOpenQRScanner?: () => void;
+  onEditBankTransaction?: (tx: PendingBankTransaction) => void;
+  onOpenBankSync?: () => void;
 }
 
 export const ExpenseTab: React.FC<ExpenseTabProps> = ({ 
   onOpenVoiceInput,
-  onOpenQRScanner 
+  onOpenQRScanner,
+  onEditBankTransaction,
+  onOpenBankSync
 }) => {
-  const { expenses, budgets, categories, deleteExpense, users, currentUser, settings, assets } = useAppStore();
+  const { expenses, budgets, categories, deleteExpense, users, currentUser, settings, assets, pendingTransactions } = useAppStore();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [showBudgetModal, setShowBudgetModal] = useState(false);
@@ -167,120 +173,156 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
   };
 
   return (
-    <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-5 pb-20 w-full max-w-full min-w-0">
+    <div className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 sm:p-4 space-y-3.5 sm:space-y-4 pb-20 w-full max-w-full min-w-0">
       {/* Title & Action Buttons */}
       <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0">
-          <h1 className="text-lg font-bold text-slate-900 dark:text-white truncate">
-            {t('expense_title')}
-          </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-300 font-medium truncate">
-            Kiểm soát ngân sách theo từng tháng & thu chi minh bạch
-          </p>
-        </div>
+        <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight truncate min-w-0">
+          {t('expense_title')}
+        </h1>
 
         <div className="flex items-center gap-1.5 shrink-0">
+          {onOpenBankSync && (
+            <button
+              onClick={onOpenBankSync}
+              className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center hover:bg-teal-100 dark:hover:bg-teal-900/40 transition active:scale-95"
+              title="Đồng bộ Ngân hàng & MoMo"
+            >
+              <Building2 size={15} />
+              {pendingTransactions.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-500 text-white text-[8px] font-black flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-pulse">
+                  {pendingTransactions.length}
+                </span>
+              )}
+            </button>
+          )}
           {onOpenQRScanner && (
             <button
               onClick={onOpenQRScanner}
-              className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center hover:bg-amber-100 dark:hover:bg-amber-900/40 transition"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center hover:bg-amber-100 dark:hover:bg-amber-900/40 transition active:scale-95"
               title={t('action_scan_qr')}
             >
-              <QrCode size={16} />
+              <QrCode size={15} />
             </button>
           )}
           <button
             onClick={onOpenVoiceInput}
-            className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center hover:bg-purple-100 transition"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center hover:bg-purple-100 transition active:scale-95"
             title="Nói để nhập chi tiêu"
           >
-            <Mic size={16} />
+            <Mic size={15} />
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md transition"
+            className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl text-xs font-bold shadow-xs transition"
           >
-            <Plus size={16} />
-            <span>{t('action_add')}</span>
+            <Plus size={15} />
+            <span className="hidden xs:inline">{t('action_add')}</span>
+            <span className="xs:hidden">Thêm</span>
           </button>
         </div>
       </div>
 
-      {/* Monthly Budget Summary Banner */}
-      <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 rounded-3xl p-5 text-white shadow-xl space-y-3 relative overflow-hidden w-full max-w-full min-w-0">
-        <div className="relative z-10 space-y-2">
-          {/* Month Switcher & Budget Limit Chip */}
-          <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
-            <div className="inline-flex items-center gap-1 bg-black/20 backdrop-blur-sm rounded-full p-0.5 border border-white/10">
+      {/* Suggestion Banner */}
+      {onEditBankTransaction && (
+        <BankTransactionSuggestionBanner
+          onEditTransaction={onEditBankTransaction}
+          onOpenSyncSettings={onOpenBankSync}
+        />
+      )}
+
+      {/* Monthly Budget Summary Banner - Compact Redesign */}
+      <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 rounded-2xl p-3.5 text-white shadow-md space-y-2 relative overflow-hidden w-full max-w-full min-w-0">
+        <div className="relative z-10 space-y-1.5">
+          {/* Header Row: Month Switcher & Budget Limit Chip */}
+          <div className="flex items-center justify-between gap-1.5 min-w-0">
+            <div className="inline-flex items-center gap-0.5 bg-black/20 backdrop-blur-sm rounded-full p-0.5 border border-white/10 shrink-0">
               <button
                 type="button"
                 onClick={() => setSelectedBudgetMonth(prev => shiftYearMonth(prev, -1))}
-                className="w-6 h-6 rounded-full hover:bg-white/20 flex items-center justify-center transition active:scale-95"
+                className="w-5 h-5 rounded-full hover:bg-white/20 flex items-center justify-center transition active:scale-95"
                 title="Tháng trước"
               >
-                <ChevronLeft size={14} />
+                <ChevronLeft size={13} />
               </button>
-              <span className="text-xs font-bold px-1.5 text-white">
+              <span className="text-[11px] font-bold px-1 text-white whitespace-nowrap">
                 {formatYearMonthDisplay(selectedBudgetMonth)}
               </span>
               <button
                 type="button"
                 onClick={() => setSelectedBudgetMonth(prev => shiftYearMonth(prev, 1))}
-                className="w-6 h-6 rounded-full hover:bg-white/20 flex items-center justify-center transition active:scale-95"
+                className="w-5 h-5 rounded-full hover:bg-white/20 flex items-center justify-center transition active:scale-95"
                 title="Tháng sau"
               >
-                <ChevronRight size={14} />
+                <ChevronRight size={13} />
               </button>
               {selectedBudgetMonth !== currentMonth && (
                 <button
                   type="button"
                   onClick={() => setSelectedBudgetMonth(currentMonth)}
-                  className="text-[10px] font-bold px-2 py-0.5 mr-0.5 rounded-full bg-white text-emerald-800 hover:bg-emerald-50 transition"
+                  className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-white text-emerald-800 hover:bg-emerald-50 transition shrink-0 ml-0.5"
                 >
                   Hiện tại
                 </button>
               )}
             </div>
 
-            {canManage ? (
-              <button
-                onClick={() => setShowBudgetModal(true)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition text-xs text-emerald-50 font-medium backdrop-blur-sm border border-white/10"
-                title="Cài đặt hạn mức tháng"
-              >
-                <span>
-                  {t('dash_budget_limit')}:{' '}
-                  <strong className="font-bold text-white">
-                    {totalBudget > 0 ? `${totalBudget.toLocaleString('vi-VN')} đ` : 'Chưa đặt'}
-                  </strong>
-                </span>
-                <Pencil size={11} className="opacity-80 shrink-0" />
-              </button>
-            ) : (
-              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 text-xs text-emerald-100 font-medium">
-                <span>
-                  {t('dash_budget_limit')}:{' '}
-                  <strong className="font-bold text-white">
-                    {totalBudget > 0 ? `${totalBudget.toLocaleString('vi-VN')} đ` : 'Chưa đặt'}
-                  </strong>
-                </span>
-              </div>
-            )}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {canManage ? (
+                <button
+                  onClick={() => setShowBudgetModal(true)}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition text-[11px] text-emerald-50 font-medium backdrop-blur-sm border border-white/10 shrink-0"
+                  title="Cài đặt hạn mức tháng"
+                >
+                  <span className="truncate">
+                    {t('dash_budget_limit')}:{' '}
+                    <strong className="font-bold text-white">
+                      {totalBudget > 0 ? `${totalBudget.toLocaleString('vi-VN')} đ` : 'Chưa đặt'}
+                    </strong>
+                  </span>
+                  <Pencil size={10} className="opacity-80 shrink-0" />
+                </button>
+              ) : (
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 text-[11px] text-emerald-100 font-medium shrink-0">
+                  <span className="truncate">
+                    {t('dash_budget_limit')}:{' '}
+                    <strong className="font-bold text-white">
+                      {totalBudget > 0 ? `${totalBudget.toLocaleString('vi-VN')} đ` : 'Chưa đặt'}
+                    </strong>
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Label & Main Amount */}
-          <div>
-            <div className="text-[11px] text-emerald-100 font-medium">
-              Chi tiêu trong {formatYearMonthDisplay(selectedBudgetMonth).toLowerCase()}
+          {/* Amount & Remaining Split Row */}
+          <div className="flex items-end justify-between gap-2">
+            <div className="text-xl sm:text-2xl font-black tracking-tight whitespace-nowrap leading-none">
+              {totalSpent.toLocaleString('vi-VN')} <span className="text-xs sm:text-sm font-bold opacity-80">đ</span>
             </div>
-            <div className="text-2xl sm:text-3xl font-black tracking-tight whitespace-nowrap mt-0.5">
-              {totalSpent.toLocaleString('vi-VN')} <span className="text-base sm:text-lg font-bold opacity-90">đ</span>
+
+            <div className="text-right shrink-0">
+              <div className="text-xs font-bold text-white leading-tight">
+                {totalBudget > 0 ? (
+                  totalSpent > totalBudget ? (
+                    <span className="text-rose-200">Vượt: {(totalSpent - totalBudget).toLocaleString('vi-VN')} đ</span>
+                  ) : (
+                    <span>Còn dư: {(totalBudget - totalSpent).toLocaleString('vi-VN')} đ</span>
+                  )
+                ) : (
+                  <span className="text-emerald-100 text-[11px]">Chưa đặt ngân sách</span>
+                )}
+              </div>
+              {totalBudget > 0 && (
+                <div className="text-[10px] text-emerald-100 font-semibold mt-0.5">
+                  {percentSpent}% ngân sách
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="w-full bg-black/20 backdrop-blur h-2.5 rounded-full overflow-hidden">
+        {/* Thin Progress Bar */}
+        <div className="w-full bg-black/20 backdrop-blur h-1.5 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-500 shadow-sm ${
               percentSpent > 100 ? 'bg-rose-300' : 'bg-white'
@@ -289,49 +331,25 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
           />
         </div>
 
-        {/* Bottom Details Row */}
-        <div className="relative z-10 flex items-center justify-between text-[11px] sm:text-xs text-emerald-100 font-medium gap-2 flex-wrap">
-          <span className="truncate min-w-0">
-            {totalBudget > 0 
-              ? (totalSpent > totalBudget 
-                  ? `Vượt ngân sách: ${(totalSpent - totalBudget).toLocaleString('vi-VN')} đ` 
-                  : `Còn dư: ${(totalBudget - totalSpent).toLocaleString('vi-VN')} đ`)
-              : `${formatYearMonthDisplay(selectedBudgetMonth)} chưa đặt ngân sách`}
-          </span>
-          {totalBudget > 0 ? (
-            <span className="shrink-0 font-semibold text-white">
-              {percentSpent}% ngân sách
+        {/* Bottom Micro-actions: Chart Toggle Bar */}
+        {chartData.length > 0 && (
+          <div className="pt-1 flex items-center justify-between text-[11px] text-emerald-100 border-t border-white/10">
+            <span className="text-[10px] text-emerald-100/90 font-medium">
+              {totalSpent > totalBudget && totalBudget > 0 ? '⚠️ Vượt hạn mức tháng' : '✓ Trong tầm kiểm soát'}
             </span>
-          ) : canManage ? (
             <button
-              type="button"
-              onClick={() => setShowBudgetModal(true)}
-              className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white text-emerald-800 font-bold text-[11px] shadow-sm hover:bg-emerald-50 transition active:scale-95"
+              onClick={() => setShowChart(prev => !prev)}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/20 hover:bg-white/20 active:scale-95 transition text-[11px] font-semibold text-white backdrop-blur-sm"
             >
-              <Target size={12} />
-              <span>Nhập ngân sách {formatYearMonthDisplay(selectedBudgetMonth)}</span>
+              <BarChart3 size={11} />
+              <span>{showChart ? 'Ẩn cơ cấu' : 'Xem cơ cấu'}</span>
+              <ChevronDown size={11} className={`transform transition-transform duration-200 ${showChart ? 'rotate-180' : ''}`} />
             </button>
-          ) : (
-            <span className="shrink-0 font-semibold text-white">Chưa có hạn mức</span>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none" />
+        <div className="absolute -bottom-10 -right-10 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none" />
       </div>
-
-      {/* Toggle Button for Category Breakdown Chart */}
-      {chartData.length > 0 && (
-        <div className="flex justify-end pt-0.5">
-          <button
-            onClick={() => setShowChart(prev => !prev)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-xs transition active:scale-95"
-          >
-            <BarChart3 size={14} className="text-emerald-500" />
-            <span>{showChart ? 'Ẩn cơ cấu chi tiêu' : `Xem cơ cấu & hạn mức (${formatYearMonthDisplay(selectedBudgetMonth)})`}</span>
-            <ChevronDown size={14} className={`transform transition-transform duration-200 ${showChart ? 'rotate-180' : ''}`} />
-          </button>
-        </div>
-      )}
 
       {/* Category Breakdown Chart & Per-Category Monthly Limit Progress */}
       {showChart && chartData.length > 0 && (
@@ -454,7 +472,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
             <select
               value={selectedCategoryFilter}
               onChange={e => setSelectedCategoryFilter(e.target.value)}
-              className="w-full text-[11px] py-2 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium outline-none truncate shadow-xs"
+              className="w-full text-[11px] py-1.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium outline-none truncate shadow-2xs"
             >
               <option value="all">📁 Tất cả danh mục</option>
               {categories.map(cat => (
@@ -480,7 +498,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
                   setSelectedBudgetMonth(shiftYearMonth(currentMonth, -1));
                 }
               }}
-              className="w-full text-[11px] py-2 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium outline-none truncate shadow-xs"
+              className="w-full text-[11px] py-1.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-medium outline-none truncate shadow-2xs"
             >
               <option value="all">📅 Tất cả thời gian</option>
               <option value="selected_month">🎯 Theo {formatYearMonthDisplay(selectedBudgetMonth)}</option>
@@ -542,7 +560,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
 
         {/* Filter Summary Row */}
         {isFiltered && filteredExpenses.length > 0 && (
-          <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] text-slate-600 dark:text-slate-300 font-medium border border-slate-200/60 dark:border-slate-700/60">
+          <div className="flex items-center justify-between px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-300 font-medium border border-slate-200/60 dark:border-slate-700/60">
             <span>Tổng chi tiêu đang lọc:</span>
             <span className="font-extrabold text-rose-600 dark:text-rose-400">
               -{filteredTotalSpent.toLocaleString('vi-VN')} đ
@@ -577,7 +595,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
             )}
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {filteredExpenses.map(exp => {
               const itemCat = categoryMap[exp.category];
               const cat = { label: itemCat?.name || exp.category, color: itemCat?.color || '#64748b', icon: itemCat?.icon || '📦' };
@@ -587,76 +605,55 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
               return (
                 <div
                   key={exp.id}
-                  className="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 shadow-sm hover:shadow-md transition-all space-y-2.5 w-full max-w-full overflow-hidden min-w-0"
+                  className="p-2.5 sm:p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-slate-700/70 shadow-2xs hover:shadow-xs transition-all flex items-center justify-between gap-2.5 w-full max-w-full overflow-hidden min-w-0"
                 >
-                  {/* Top Row: Category Icon + Title (+ Notes) & Amount */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-2.5 min-w-0 flex-1">
-                      {/* Category Icon */}
-                      <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 shadow-sm mt-0.5"
-                        style={{
-                          backgroundColor: `${cat.color}15`,
-                          border: `1px solid ${cat.color}35`
-                        }}
-                      >
-                        <span>{cat.icon || '💳'}</span>
-                      </div>
-
-                      {/* Title & Notes */}
-                      <div className="min-w-0 flex-1 pt-0.5">
-                        <h3
-                          className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white line-clamp-2 leading-snug break-words"
-                          title={exp.title}
-                        >
-                          {exp.title}
-                        </h3>
-                        {exp.notes && (
-                          <p className="text-[11px] text-slate-500 dark:text-slate-300 font-normal line-clamp-1 mt-0.5 italic">
-                            {exp.notes}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Amount */}
-                    <div className="shrink-0 text-right pl-1 pt-0.5">
-                      <div className="text-xs sm:text-sm font-black text-rose-600 dark:text-rose-400 whitespace-nowrap tracking-tight">
-                        -{exp.amount.toLocaleString('vi-VN')} đ
-                      </div>
-                    </div>
+                  {/* Category Icon */}
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 shadow-2xs"
+                    style={{
+                      backgroundColor: `${cat.color}15`,
+                      border: `1px solid ${cat.color}30`
+                    }}
+                  >
+                    <span>{cat.icon || '💳'}</span>
                   </div>
 
-                  {/* Bottom Row: Metadata Badges + Action Buttons */}
-                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-700/60">
-                    <div className="flex items-center gap-1.5 flex-wrap min-w-0 text-[11px] text-slate-500 dark:text-slate-300 font-medium">
-                      {/* Category Pill */}
+                  {/* Main Info */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <h3
+                        className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate"
+                        title={exp.title}
+                      >
+                        {exp.title}
+                      </h3>
+                      {exp.notes && (
+                        <span className="text-[10px] text-slate-400 dark:text-slate-400 truncate italic hidden xs:inline" title={exp.notes}>
+                          ({exp.notes})
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Metadata: Category Badge + Date + Payer (+ Asset) */}
+                    <div className="flex items-center gap-1.5 flex-wrap min-w-0 mt-0.5 text-[10px] text-slate-500 dark:text-slate-300 font-medium">
                       <span
-                        className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
+                        className="font-bold px-1.5 py-0.2 rounded-md shrink-0"
                         style={{
                           backgroundColor: `${cat.color}15`,
                           color: cat.color,
-                          border: `1px solid ${cat.color}30`
+                          border: `1px solid ${cat.color}25`
                         }}
                       >
                         {cat.label}
                       </span>
-
-                      <span className="shrink-0 text-slate-500 dark:text-slate-300">
-                        {exp.date}
-                      </span>
-
-                      <span className="text-slate-300 dark:text-slate-600 text-[10px] shrink-0">•</span>
-
-                      <span className="truncate max-w-[85px] text-slate-600 dark:text-slate-300 font-medium" title={payerName}>
-                        {payerName}
-                      </span>
-
+                      <span>{exp.date}</span>
+                      <span className="text-slate-300 dark:text-slate-600">•</span>
+                      <span className="truncate max-w-[70px]" title={payerName}>{payerName}</span>
                       {linkedAsset && (
                         <>
-                          <span className="text-slate-300 dark:text-slate-600 text-[10px] shrink-0">•</span>
+                          <span className="text-slate-300 dark:text-slate-600">•</span>
                           <span
-                            className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60 truncate max-w-[120px]"
+                            className="text-indigo-600 dark:text-indigo-400 font-medium truncate max-w-[90px]"
                             title={linkedAsset}
                           >
                             📦 {linkedAsset}
@@ -664,25 +661,30 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
                         </>
                       )}
                     </div>
+                  </div>
 
-                    {/* Action Buttons */}
+                  {/* Amount & Quick Actions */}
+                  <div className="shrink-0 text-right flex flex-col items-end justify-center pl-1">
+                    <div className="text-xs sm:text-sm font-black text-rose-600 dark:text-rose-400 whitespace-nowrap tracking-tight">
+                      -{exp.amount.toLocaleString('vi-VN')} đ
+                    </div>
                     {canManage && (
-                      <div className="flex items-center gap-1 shrink-0 ml-auto">
+                      <div className="flex items-center gap-0.5 mt-0.5">
                         <button
                           onClick={() => setEditingExpense(exp)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition active:scale-95"
+                          className="p-1 rounded-md text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition active:scale-95"
                           title="Chỉnh sửa chi tiêu"
                           aria-label="Chỉnh sửa chi tiêu"
                         >
-                          <Pencil size={14} />
+                          <Pencil size={12} />
                         </button>
                         <button
                           onClick={() => handleDelete(exp.id, exp.title)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition active:scale-95"
+                          className="p-1 rounded-md text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition active:scale-95"
                           title="Xóa chi tiêu"
                           aria-label="Xóa chi tiêu"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={12} />
                         </button>
                       </div>
                     )}

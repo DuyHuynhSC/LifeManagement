@@ -87,7 +87,7 @@ export const en: typeof vi = {
   room_other: 'Other',
 
   // Expenses
-  expense_title: 'Expenses & Budgeting',
+  expense_title: 'Expense Management',
   expense_add_new: 'Add Expense',
   expense_amount: 'Amount',
   expense_category: 'Category',

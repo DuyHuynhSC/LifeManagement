@@ -261,7 +261,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
                         {t('inv_detail_market_val')}
                       </span>
                       <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300">
-                        {asset.quantity.toLocaleString('vi-VN')} {asset.assetClass === 'stock' ? t('inv_detail_unit_shares') : (asset.assetClass === 'crypto' ? asset.symbol : asset.currency)} @ {formatCurrency(asset.currentPrice)}
+                        {asset.quantity.toLocaleString('vi-VN')} {asset.assetClass === 'stock' ? t('inv_detail_unit_shares') : (asset.assetClass === 'fund' ? 'CCQ' : asset.assetClass === 'gold' ? 'chỉ' : asset.assetClass === 'crypto' ? asset.symbol : asset.currency)} @ {formatCurrency(asset.currentPrice)}
                       </span>
                     </div>
                     <div className="text-2xl font-black text-slate-900 dark:text-white">

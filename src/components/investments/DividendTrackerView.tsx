@@ -12,13 +12,10 @@ import {
   Coins, 
   TrendingUp, 
   Calendar, 
-  Plus, 
   Trash2, 
   Edit3,
-  ArrowUpRight, 
-  Clock, 
-  Sparkles,
-  PieChart
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { useInvestmentStore } from '../../store/useInvestmentStore';
 import { groupDividendsByMonth, ASSET_CLASS_COLORS } from '../../services/investmentCalculator';
@@ -44,6 +41,7 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
 
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
+  const [showChart, setShowChart] = useState<boolean>(false);
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
@@ -70,91 +68,29 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
   ).sort((a, b) => b - a);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Passive Income Hero Card */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-600 via-amber-700 to-slate-900 p-5 text-white shadow-xl border border-amber-500/40">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-amber-100">
-              <Coins size={18} />
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-600 via-amber-700 to-slate-900 p-3.5 sm:p-4 text-white shadow-lg border border-amber-500/40 space-y-2">
+        {/* Top row: Icon, Label & Year Switcher */}
+        <div className="flex items-center justify-between relative z-10 gap-2">
+          <div className="flex items-center gap-1.5 min-w-0 shrink-0">
+            <div className="w-6 h-6 rounded-lg bg-white/20 backdrop-blur-md flex items-center justify-center text-amber-100 shrink-0">
+              <Coins size={14} />
             </div>
-            <span className="text-xs uppercase font-extrabold tracking-wider text-amber-100">
+            <span className="text-xs uppercase font-extrabold tracking-wider text-amber-100 truncate">
               {t('inv_div_view_title')}
             </span>
           </div>
 
-          <button
-            onClick={onOpenAddDividend}
-            className="flex items-center gap-1 bg-white/20 hover:bg-white/30 active:scale-95 text-white font-extrabold text-xs px-2.5 py-1.5 rounded-xl backdrop-blur-sm border border-white/20 transition"
-          >
-            <Plus size={14} />
-            <span>{t('inv_div_record_btn')}</span>
-          </button>
-        </div>
-
-        {/* Total Cash Dividends */}
-        <div className="my-1">
-          <div className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-            +{formatCurrency(portfolioSummary.totalDividendsReceived)}
-          </div>
-          <p className="text-xs text-amber-100 font-medium mt-0.5">
-            {t('inv_div_hero_desc')}
-          </p>
-        </div>
-
-        {/* 3 Metric Pills */}
-        <div className="grid grid-cols-3 gap-2 mt-4 pt-3.5 border-t border-white/15">
-          <div>
-            <span className="text-[11px] text-amber-200 font-medium block">
-              {t('inv_div_in_year', { year: selectedYear })}
-            </span>
-            <span className="text-xs sm:text-sm font-extrabold text-white mt-0.5 block">
-              +{formatCurrency(totalInYear)}
-            </span>
-          </div>
-
-          <div>
-            <span className="text-[11px] text-amber-200 font-medium block">
-              {t('inv_div_monthly_avg')}
-            </span>
-            <span className="text-xs sm:text-sm font-extrabold text-white mt-0.5 block">
-              +{formatCurrency(monthlyAvg)}
-            </span>
-          </div>
-
-          <div>
-            <span className="text-[11px] text-amber-200 font-medium block">
-              {t('inv_div_yoc_rate')}
-            </span>
-            <span className="text-xs sm:text-sm font-extrabold text-amber-200 mt-0.5 block">
-              {avgYieldOnCost.toFixed(2)}% / {t('inv_holding_years').replace('{years}', '').trim() || 'năm'}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Monthly Dividend Bar Chart */}
-      <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
-              <span>{t('inv_div_chart_title')}</span>
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-300 font-medium">
-              {t('inv_div_chart_subtitle')}
-            </p>
-          </div>
-
-          {/* Year Selector */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-700/80 p-1 rounded-xl">
+          <div className="flex items-center gap-1 bg-black/20 backdrop-blur-sm p-0.5 rounded-lg border border-white/10 shrink-0">
             {availableYears.map(yr => (
               <button
                 key={yr}
                 onClick={() => setSelectedYear(yr)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                className={`px-2 py-0.5 rounded-md text-[11px] font-bold transition ${
                   selectedYear === yr
-                    ? 'bg-white dark:bg-slate-800 text-amber-600 dark:text-amber-400 shadow-sm'
-                    : 'text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-white text-amber-800 shadow-2xs'
+                    : 'text-amber-100/80 hover:text-white'
                 }`}
               >
                 {yr}
@@ -163,69 +99,127 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
           </div>
         </div>
 
-        {/* Chart */}
-        <div className="w-full h-44 sm:h-52 pt-2">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={monthlyData} margin={{ top: 10, right: 5, left: -25, bottom: 0 }}>
-              <XAxis 
-                dataKey="month" 
-                tick={{ fontSize: 11, fill: '#94a3b8' }} 
-                axisLine={false} 
-                tickLine={false} 
-              />
-              <YAxis 
-                tick={{ fontSize: 10, fill: '#94a3b8' }} 
-                axisLine={false} 
-                tickLine={false}
-                tickFormatter={(val) => val >= 1000000 ? `${(val / 1000000).toFixed(1)}M` : `${(val / 1000).toFixed(0)}k`}
-              />
-              <Tooltip 
-                formatter={(val: any) => [formatCurrency(Number(val)), t('inv_div_chart_received')]}
-                contentStyle={{
-                  backgroundColor: '#1e293b',
-                  borderColor: '#334155',
-                  borderRadius: '12px',
-                  color: '#fff',
-                  fontSize: '12px',
-                  fontWeight: 600
-                }}
-                itemStyle={{ color: '#fbbf24' }}
-              />
-              <Bar dataKey="amount" radius={[6, 6, 0, 0]}>
-                {monthlyData.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={entry.amount > 0 ? '#f59e0b' : '#e2e8f0'} 
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+        {/* Total Cash Dividends & Sub-stats */}
+        <div className="relative z-10 flex items-baseline justify-between gap-2 flex-wrap pt-0.5">
+          <div className="text-xl sm:text-2xl font-black tracking-tight text-white leading-tight">
+            +{formatCurrency(portfolioSummary.totalDividendsReceived)}
+          </div>
+          <div className="text-xs font-bold text-amber-200">
+            YoC: {avgYieldOnCost.toFixed(2)}%/năm
+          </div>
+        </div>
+
+        {/* 2 Metric Pills in Year */}
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/15 relative z-10">
+          <div className="bg-white/5 rounded-xl p-1.5 sm:p-2 border border-white/5">
+            <span className="text-[10px] text-amber-200 font-medium block truncate">
+              Năm {selectedYear}
+            </span>
+            <span className="text-xs sm:text-sm font-extrabold text-white mt-0.5 block truncate">
+              +{formatCurrency(totalInYear)}
+            </span>
+          </div>
+
+          <div className="bg-white/5 rounded-xl p-1.5 sm:p-2 border border-white/5">
+            <span className="text-[10px] text-amber-200 font-medium block truncate">
+              Trung bình tháng
+            </span>
+            <span className="text-xs sm:text-sm font-extrabold text-white mt-0.5 block truncate">
+              +{formatCurrency(monthlyAvg)}
+            </span>
+          </div>
+        </div>
+
+        {/* Bottom Toggle Bar */}
+        <div className="pt-1.5 flex items-center justify-between text-[11px] text-amber-100 border-t border-white/15 relative z-10">
+          <span className="text-[10px] text-amber-200/90 font-medium truncate">
+            {filteredDividends.length} đợt nhận cổ tức năm {selectedYear}
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowChart(prev => !prev)}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 active:scale-95 transition text-[11px] font-semibold text-white backdrop-blur-sm shrink-0"
+          >
+            <TrendingUp size={11} className="text-amber-300" />
+            <span>{showChart ? 'Ẩn biểu đồ' : 'Xem dòng tiền'}</span>
+            <ChevronDown size={11} className={`transform transition-transform duration-200 ${showChart ? 'rotate-180' : ''}`} />
+          </button>
         </div>
       </div>
 
+      {/* Monthly Dividend Bar Chart (Toggleable) */}
+      {showChart && (
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-3.5 sm:p-4 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+              <span>{t('inv_div_chart_title')} {selectedYear}</span>
+            </h3>
+            <button
+              onClick={() => setShowChart(false)}
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs flex items-center gap-0.5 px-1.5 py-0.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700/60 transition"
+              title="Thu gọn"
+            >
+              <span>Thu gọn</span>
+              <ChevronUp size={12} />
+            </button>
+          </div>
+
+          <div className="w-full h-40 pt-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={monthlyData} margin={{ top: 10, right: 5, left: -25, bottom: 0 }}>
+                <XAxis 
+                  dataKey="month" 
+                  tick={{ fontSize: 10, fill: '#94a3b8' }} 
+                  axisLine={false} 
+                  tickLine={false} 
+                />
+                <YAxis 
+                  tick={{ fontSize: 9, fill: '#94a3b8' }} 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tickFormatter={(val) => val >= 1000000 ? `${(val / 1000000).toFixed(1)}M` : `${(val / 1000).toFixed(0)}k`}
+                />
+                <Tooltip 
+                  formatter={(val: any) => [formatCurrency(Number(val)), t('inv_div_chart_received')]}
+                  contentStyle={{
+                    backgroundColor: '#1e293b',
+                    borderColor: '#334155',
+                    borderRadius: '12px',
+                    color: '#fff',
+                    fontSize: '11px',
+                    fontWeight: 600
+                  }}
+                  itemStyle={{ color: '#fbbf24' }}
+                />
+                <Bar dataKey="amount" radius={[5, 5, 0, 0]}>
+                  {monthlyData.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.amount > 0 ? '#f59e0b' : '#e2e8f0'} 
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
       {/* Dividend Transactions List */}
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
             {t('inv_div_log_title', { year: selectedYear })} ({filteredDividends.length})
           </h3>
-          <button
-            onClick={onOpenAddDividend}
-            className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 hover:underline"
-          >
-            <Plus size={14} />
-            <span>{t('inv_action_add_div')}</span>
-          </button>
         </div>
 
         {filteredDividends.length === 0 ? (
-          <div className="p-8 text-center bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 space-y-1.5">
-            <Coins size={32} className="mx-auto text-slate-400" />
-            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+          <div className="p-6 text-center bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 space-y-1.5">
+            <Coins size={28} className="mx-auto text-slate-400" />
+            <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
               {t('inv_div_empty_year', { year: selectedYear })}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-300">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
               {t('inv_div_empty_year_desc')}
             </p>
           </div>
@@ -253,25 +247,24 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
             return (
               <div
                 key={div.id}
-                className="w-full max-w-full overflow-hidden min-w-0 p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm transition hover:border-slate-300 dark:hover:border-slate-600 space-y-2.5"
+                className="w-full max-w-full overflow-hidden min-w-0 p-2.5 sm:p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/70 shadow-2xs hover:shadow-xs transition-all space-y-1.5"
               >
-                {/* Row 1: Asset Badge & Info on Left, Actions on Right */}
+                {/* Row 1: Symbol Avatar, Symbol, Tag, Date & Net Amount */}
                 <div className="flex items-center justify-between gap-2 min-w-0">
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    {/* Visual Asset Pill / Avatar */}
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
                     <div 
-                      className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-white text-xs shrink-0 shadow-sm"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-[11px] shrink-0 shadow-2xs"
                       style={{ backgroundColor: classColor }}
                     >
                       {asset ? asset.symbol.slice(0, 3).toUpperCase() : 'DIV'}
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-sm font-extrabold text-slate-900 dark:text-white truncate">
+                      <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                        <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
                           {asset ? asset.symbol : 'Tài sản'}
                         </span>
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-md shrink-0 ${
+                        <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded shrink-0 ${
                           div.type === 'cash'
                             ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
                             : 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300'
@@ -279,74 +272,59 @@ export const DividendTrackerView: React.FC<DividendTrackerViewProps> = ({
                           {div.type === 'cash' ? t('inv_div_badge_cash') : t('inv_div_badge_stock')}
                         </span>
                         {div.reinvested && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 border border-blue-200/50 dark:border-blue-900/50 shrink-0">
+                          <span className="text-[9px] font-bold px-1 py-0.2 rounded bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 border border-blue-200/50 shrink-0">
                             DRIP
                           </span>
                         )}
+                        <span className="text-[10px] text-slate-400 dark:text-slate-400 font-medium">
+                          {div.date}
+                        </span>
                       </div>
-                      {asset?.name && (
-                        <p className="text-[11px] text-slate-500 dark:text-slate-300 truncate font-medium">
-                          {asset.name}
-                        </p>
-                      )}
                     </div>
                   </div>
 
-                  {/* Actions: Edit & Delete buttons */}
-                  <div className="flex items-center gap-1 shrink-0">
+                  {/* Net Amount */}
+                  <div className="shrink-0 text-right">
+                    <span className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400 tracking-tight whitespace-nowrap">
+                      {div.type === 'cash' ? `+${formatCurrency(netAmount)}` : `+${div.amountOrQuantity.toLocaleString('vi-VN')} ${t('inv_detail_unit_shares')}`}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Row 2: Sub-row: Notes / Gross amount & Action Buttons */}
+                <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-700/60 text-[10px] text-slate-500 dark:text-slate-300">
+                  <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                    {div.type === 'cash' && div.taxDeducted && div.taxDeducted > 0 && (
+                      <span className="text-rose-600 dark:text-rose-400 font-semibold bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.2 rounded text-[10px] shrink-0">
+                        Thuế {taxRateStr ? `(${taxRateStr})` : ''}: -{formatCurrency(div.taxDeducted)}
+                      </span>
+                    )}
+                    {div.notes && (
+                      <span className="italic truncate max-w-[150px] sm:max-w-xs text-slate-400" title={div.notes}>
+                        {div.notes.replace(/^["']+|["']+$/g, '')}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex items-center gap-0.5 shrink-0 ml-auto">
                     {onOpenEditDividend && (
                       <button
                         onClick={() => onOpenEditDividend(div)}
                         title={t('inv_div_action_edit')}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                        className="p-1 rounded text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-700/60 transition active:scale-95"
                       >
-                        <Edit3 size={15} />
+                        <Edit3 size={12} />
                       </button>
                     )}
                     <button
                       onClick={() => deleteDividend(div.id)}
                       title="Xóa bản ghi cổ tức"
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                      className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition active:scale-95"
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={12} />
                     </button>
                   </div>
-                </div>
-
-                {/* Row 2: Amounts & Breakdown */}
-                <div className="flex items-baseline justify-between gap-2 flex-wrap min-w-0 pt-0.5">
-                  <div className="min-w-0">
-                    <span className="text-base sm:text-lg font-black text-amber-600 dark:text-amber-400 block tracking-tight">
-                      {div.type === 'cash' ? `+${formatCurrency(netAmount)}` : `+${div.amountOrQuantity.toLocaleString('vi-VN')} ${t('inv_detail_unit_shares')}`}
-                    </span>
-                  </div>
-
-                  {div.type === 'cash' && div.taxDeducted && div.taxDeducted > 0 ? (
-                    <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium text-right shrink-0">
-                      <span>{t('inv_div_gross_label')}: {formatCurrency(div.amountOrQuantity)}</span>
-                    </div>
-                  ) : null}
-                </div>
-
-                {/* Row 3: Meta Row: Date, Tax Badge, Notes */}
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex flex-wrap items-center justify-between gap-y-1.5 gap-x-2 text-[11px] text-slate-500 dark:text-slate-300 font-medium">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <div className="flex items-center gap-1">
-                      <Calendar size={12} className="text-slate-400 shrink-0" />
-                      <span>{div.date}</span>
-                    </div>
-                    {div.taxDeducted && div.taxDeducted > 0 ? (
-                      <span className="inline-flex items-center text-rose-600 dark:text-rose-400 font-semibold bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-md border border-rose-200/50 dark:border-rose-900/40 text-[10px]">
-                        {taxRateStr ? `Thuế (${taxRateStr}): -${formatCurrency(div.taxDeducted)}` : `${t('inv_div_tax_short')}: -${formatCurrency(div.taxDeducted)}`}
-                      </span>
-                    ) : null}
-                  </div>
-
-                  {div.notes && (
-                    <div className="text-slate-600 dark:text-slate-300 italic text-[11px] truncate max-w-full sm:max-w-xs">
-                      {div.notes.replace(/^["']+|["']+$/g, '')}
-                    </div>
-                  )}
                 </div>
               </div>
             );

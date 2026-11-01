@@ -11,6 +11,8 @@ interface AddExpenseModalProps {
   prefillCategory?: ExpenseCategory;
   prefillAmount?: number;
   prefillTitle?: string;
+  prefillNotes?: string;
+  onSuccess?: () => void;
   expenseToEdit?: Expense;
 }
 
@@ -21,6 +23,8 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
   prefillCategory,
   prefillAmount,
   prefillTitle,
+  prefillNotes,
+  onSuccess,
   expenseToEdit
 }) => {
   const { addExpense, updateExpense, assets, users, currentUser, settings, expenses, categories } = useAppStore();
@@ -38,7 +42,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
   const [date, setDate] = useState(expenseToEdit?.date || new Date().toISOString().split('T')[0]);
   const [payerId, setPayerId] = useState(expenseToEdit?.payerId || currentUser.id);
   const [assetId, setAssetId] = useState(expenseToEdit?.assetId || '');
-  const [notes, setNotes] = useState(expenseToEdit?.notes || '');
+  const [notes, setNotes] = useState(expenseToEdit?.notes || prefillNotes || '');
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -228,6 +232,9 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
       });
     }
 
+    if (onSuccess) {
+      onSuccess();
+    }
     onClose();
   };
 

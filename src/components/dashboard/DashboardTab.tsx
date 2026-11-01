@@ -21,6 +21,8 @@ import { getTranslation } from '../../i18n';
 import { generateAIInsights } from '../../services/aiService';
 import { exportHouseholdReport } from '../../services/pdfService';
 import { TabType } from '../layout/BottomNav';
+import { BankTransactionSuggestionBanner } from '../expenses/BankTransactionSuggestionBanner';
+import { PendingBankTransaction } from '../../types';
 
 interface DashboardTabProps {
   onNavigateTab: (tab: TabType) => void;
@@ -29,6 +31,8 @@ interface DashboardTabProps {
   onOpenVoiceInput: () => void;
   onOpenQRScanner: () => void;
   onSelectAsset: (assetId: string) => void;
+  onEditBankTransaction?: (tx: PendingBankTransaction) => void;
+  onOpenBankSync?: () => void;
 }
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({
@@ -38,8 +42,10 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   onOpenVoiceInput,
   onOpenQRScanner,
   onSelectAsset,
+  onEditBankTransaction,
+  onOpenBankSync,
 }) => {
-  const { assets, expenses, budgets, tasks, currentUser, settings, users } = useAppStore();
+  const { assets, expenses, budgets, tasks, currentUser, settings, users, pendingTransactions } = useAppStore();
   const { portfolioSummary } = useInvestmentStore();
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
 
@@ -107,6 +113,14 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
         <div className="absolute top-0 right-10 w-20 h-20 bg-purple-400/20 rounded-full blur-xl pointer-events-none" />
       </div>
+
+      {/* BANK / MOMO TRANSACTION SUGGESTION BANNER */}
+      {onEditBankTransaction && (
+        <BankTransactionSuggestionBanner
+          onEditTransaction={onEditBankTransaction}
+          onOpenSyncSettings={onOpenBankSync}
+        />
+      )}
 
       {/* URGENT ALERTS SECTION (DỰA THEO SETTING SỐ NGÀY THÔNG BÁO) */}
       {totalUrgent > 0 && (

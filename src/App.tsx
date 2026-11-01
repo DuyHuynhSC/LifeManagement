@@ -16,10 +16,20 @@ import { AddAssetModal } from './components/assets/AddAssetModal';
 import { VoiceInputModal } from './components/common/VoiceInputModal';
 import { QRScannerModal } from './components/common/QRScannerModal';
 import { AlertsModal } from './components/dashboard/AlertsModal';
-import { Asset, Expense, ExpenseCategory } from './types';
+import { BankSyncModal } from './components/expenses/BankSyncModal';
+import { Asset, Expense, ExpenseCategory, PendingBankTransaction } from './types';
+import { fetchNativePendingBankTransactions, checkClipboardForBankTransaction } from './services/bankListenerBridge';
 
 export const App: React.FC = () => {
-  const { assets, settings, addExpense, addAsset, currentUser } = useAppStore();
+  const { 
+    assets, 
+    settings, 
+    addExpense, 
+    addAsset, 
+    currentUser, 
+    addPendingBankTransaction, 
+    dismissPendingBankTransaction 
+  } = useAppStore();
   const [activeTab, setActiveTab] = useState<TabType>(() => {
     try {
       const saved = localStorage.getItem('famlife_active_tab') as TabType;
@@ -47,7 +57,38 @@ export const App: React.FC = () => {
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [qrScannerInitialType, setQrScannerInitialType] = useState<'expense' | 'asset'>('expense');
   const [showAlertsModal, setShowAlertsModal] = useState(false);
+  const [showBankSyncModal, setShowBankSyncModal] = useState(false);
+  const [bankTxToEdit, setBankTxToEdit] = useState<PendingBankTransaction | null>(null);
   const [preselectedAssetId, setPreselectedAssetId] = useState<string | null>(null);
+
+  // Background and clipboard listener for Bank/MoMo transactions
+  useEffect(() => {
+    const checkIncoming = async () => {
+      if (settings.enableBankAutoSuggest !== false) {
+        try {
+          const nativeTxs = await fetchNativePendingBankTransactions();
+          nativeTxs.forEach(t => addPendingBankTransaction(t));
+        } catch {}
+      }
+      if (settings.enableClipboardCheck !== false) {
+        try {
+          const clipTx = await checkClipboardForBankTransaction();
+          if (clipTx) {
+            addPendingBankTransaction(clipTx);
+          }
+        } catch {}
+      }
+    };
+
+    checkIncoming();
+    window.addEventListener('focus', checkIncoming);
+    document.addEventListener('visibilitychange', checkIncoming);
+
+    return () => {
+      window.removeEventListener('focus', checkIncoming);
+      document.removeEventListener('visibilitychange', checkIncoming);
+    };
+  }, [settings.enableBankAutoSuggest, settings.enableClipboardCheck]);
 
   // Sync theme with html document element
   useEffect(() => {
@@ -120,6 +161,11 @@ export const App: React.FC = () => {
     setActiveTab('assets');
   };
 
+  const handleEditBankTransaction = (tx: PendingBankTransaction) => {
+    setBankTxToEdit(tx);
+    setShowAddExpense(true);
+  };
+
   return (
     <MobileFrame>
       <Header
@@ -139,6 +185,8 @@ export const App: React.FC = () => {
               setShowQRScanner(true);
             }}
             onSelectAsset={handleSelectAsset}
+            onEditBankTransaction={handleEditBankTransaction}
+            onOpenBankSync={() => setShowBankSyncModal(true)}
           />
         )}
 
@@ -153,6 +201,8 @@ export const App: React.FC = () => {
               setQrScannerInitialType('expense');
               setShowQRScanner(true);
             }}
+            onEditBankTransaction={handleEditBankTransaction}
+            onOpenBankSync={() => setShowBankSyncModal(true)}
           />
         )}
 
@@ -176,7 +226,20 @@ export const App: React.FC = () => {
       {/* Global Modals */}
       {showAddExpense && (
         <AddExpenseModal
-          onClose={() => setShowAddExpense(false)}
+          onClose={() => {
+            setShowAddExpense(false);
+            setBankTxToEdit(null);
+          }}
+          prefillTitle={bankTxToEdit ? (bankTxToEdit.suggestedTitle || 'Mua đồ dùng') : undefined}
+          prefillAmount={bankTxToEdit?.amount}
+          prefillCategory={bankTxToEdit?.suggestedCategory}
+          prefillNotes=""
+          onSuccess={() => {
+            if (bankTxToEdit) {
+              dismissPendingBankTransaction(bankTxToEdit.id);
+              setBankTxToEdit(null);
+            }
+          }}
           onOpenVoiceInput={() => {
             setShowAddExpense(false);
             setShowVoiceInput(true);
@@ -221,6 +284,12 @@ export const App: React.FC = () => {
         <AlertsModal
           onClose={() => setShowAlertsModal(false)}
           onSelectAsset={handleSelectAsset}
+        />
+      )}
+
+      {showBankSyncModal && (
+        <BankSyncModal
+          onClose={() => setShowBankSyncModal(false)}
         />
       )}
     </MobileFrame>

@@ -26,6 +26,8 @@ import { getInvestmentExportData, restoreInvestmentState } from '../../store/use
 import { UserManagementModal } from '../admin/UserManagementModal';
 import { RestoreDataModal } from './RestoreDataModal';
 import { CategoryManagementModal } from './CategoryManagementModal';
+import { BankSyncModal } from '../expenses/BankSyncModal';
+import { Building2 } from 'lucide-react';
 
 export const SettingsTab: React.FC = () => {
   const { 
@@ -49,23 +51,10 @@ export const SettingsTab: React.FC = () => {
   const [showUserManagementModal, setShowUserManagementModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showRestoreModal, setShowRestoreModal] = useState(false);
+  const [showBankSyncModal, setShowBankSyncModal] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
-
-  const notifyOptions = [
-    { days: 1, label: t('settings_1_day'), desc: t('settings_1_day_desc') },
-    { days: 3, label: t('settings_3_days'), desc: t('settings_3_days_desc') },
-    { days: 7, label: t('settings_7_days'), desc: t('settings_7_days_desc') },
-    { days: 14, label: t('settings_14_days'), desc: t('settings_14_days_desc') },
-    { days: 30, label: t('settings_30_days'), desc: t('settings_30_days_desc') },
-  ];
-
-  const languages = [
-    { code: 'vi' as const, name: 'Tiếng Việt', flag: '🇻🇳', default: true },
-    { code: 'en' as const, name: 'English', flag: '🇬🇧', default: false },
-    { code: 'ja' as const, name: '日本語', flag: '🇯🇵', default: false },
-  ];
 
   const handleExportJSON = async () => {
     try {
@@ -142,56 +131,49 @@ export const SettingsTab: React.FC = () => {
         </div>
       </div>
 
-      {/* SECTION 1: EXPIRY NOTIFICATION DAYS (YÊU CẦU ĐẶC BIỆT CỦA USER) */}
+      {/* SECTION 1: EXPIRY NOTIFICATION DAYS (Slider 1 - 30 ngày) */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
-        <div className="flex items-start gap-3">
-          <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 shrink-0">
-            <Bell size={20} />
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 shrink-0">
+              <Bell size={20} />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                {t('settings_notify_expiry')}
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-300 font-medium">
+                {t('settings_notify_desc')}
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-              {t('settings_notify_expiry')}
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-300 font-medium">
-              {t('settings_notify_desc')}
-            </p>
+
+          <div className="shrink-0 text-right">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-black text-sm border border-amber-200 dark:border-amber-800 shadow-2xs">
+              {settings.notifyDaysBeforeExpiry} ngày
+            </span>
           </div>
         </div>
 
+        {/* Range Slider from 1 to 30 */}
         <div className="space-y-2 pt-1">
-          {notifyOptions.map(opt => {
-            const isSelected = settings.notifyDaysBeforeExpiry === opt.days;
-            return (
-              <button
-                key={opt.days}
-                onClick={() => setNotifyDaysBeforeExpiry(opt.days)}
-                className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all ${
-                  isSelected
-                    ? 'border-indigo-500 bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-900 dark:text-indigo-200 shadow-sm ring-1 ring-indigo-500'
-                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-slate-50/50 dark:bg-slate-800/50'
-                }`}
-              >
-                <div>
-                  <div className="text-xs font-bold flex items-center gap-1.5">
-                    {opt.label}
-                    {opt.days === 7 && (
-                      <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded font-semibold">
-                        {t('settings_suggested')}
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium mt-0.5">
-                    {opt.desc}
-                  </div>
-                </div>
-                {isSelected ? (
-                  <CheckCircle2 size={18} className="text-indigo-600 dark:text-indigo-400 shrink-0 ml-2" />
-                ) : (
-                  <div className="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-600 shrink-0 ml-2" />
-                )}
-              </button>
-            );
-          })}
+          <input
+            type="range"
+            min={1}
+            max={30}
+            step={1}
+            value={settings.notifyDaysBeforeExpiry}
+            onChange={e => setNotifyDaysBeforeExpiry(Number(e.target.value))}
+            className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
+          />
+
+          {/* Quick Marks */}
+          <div className="flex justify-between text-[10px] font-bold text-slate-400 dark:text-slate-400 px-0.5">
+            <button type="button" onClick={() => setNotifyDaysBeforeExpiry(1)} className="hover:text-amber-600">1 ngày</button>
+            <button type="button" onClick={() => setNotifyDaysBeforeExpiry(7)} className="hover:text-amber-600">7 ngày</button>
+            <button type="button" onClick={() => setNotifyDaysBeforeExpiry(14)} className="hover:text-amber-600">14 ngày</button>
+            <button type="button" onClick={() => setNotifyDaysBeforeExpiry(30)} className="hover:text-amber-600">30 ngày</button>
+          </div>
         </div>
 
         <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 text-[11px] text-slate-600 dark:text-slate-300 font-medium flex items-center gap-2 border border-slate-100 dark:border-slate-700">
@@ -247,7 +229,7 @@ export const SettingsTab: React.FC = () => {
         </div>
       </div>
 
-      {/* SECTION 3: MULTI-LANGUAGE (YÊU CẦU CỦA USER: ANH, NHẬT, VIỆT - DEFAULT VIỆT) */}
+      {/* SECTION 3: MULTI-LANGUAGE (Combobox 3 ngôn ngữ) */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
         <div className="flex items-start gap-3">
           <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 shrink-0">
@@ -263,39 +245,16 @@ export const SettingsTab: React.FC = () => {
           </div>
         </div>
 
-        <div className="space-y-2 pt-1">
-          {languages.map(l => {
-            const isSelected = settings.language === l.code;
-            return (
-              <button
-                key={l.code}
-                onClick={() => setLanguage(l.code)}
-                className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all ${
-                  isSelected
-                    ? 'border-indigo-500 bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-900 dark:text-indigo-200 shadow-sm ring-1 ring-indigo-500'
-                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{l.flag}</span>
-                  <div>
-                    <div className="text-xs font-bold flex items-center gap-1.5">
-                      {l.name}
-                      {l.default && (
-                        <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-1.5 py-0.5 rounded font-semibold">
-                          {t('settings_lang_default_badge')}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-300 font-medium">
-                      {l.code === 'vi' ? t('settings_lang_vi_desc') : l.code === 'en' ? t('settings_lang_en_desc') : t('settings_lang_ja_desc')}
-                    </div>
-                  </div>
-                </div>
-                {isSelected && <CheckCircle2 size={18} className="text-indigo-600 dark:text-indigo-400" />}
-              </button>
-            );
-          })}
+        <div className="pt-1">
+          <select
+            value={settings.language}
+            onChange={e => setLanguage(e.target.value as any)}
+            className="w-full text-xs sm:text-sm py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-indigo-500 shadow-2xs cursor-pointer"
+          >
+            <option value="vi">🇻🇳 Tiếng Việt (Mặc định)</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="ja">🇯🇵 日本語</option>
+          </select>
         </div>
       </div>
 
@@ -315,38 +274,64 @@ export const SettingsTab: React.FC = () => {
           </div>
         </div>
 
-        {/* Category Preview Chips */}
-        <div className="flex flex-wrap gap-1.5 pt-1">
-          {categories.map(cat => (
-            <span
-              key={cat.id}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-600"
-            >
-              <span>{cat.icon}</span>
-              <span>{cat.name}</span>
-            </span>
-          ))}
+        <button
+          onClick={() => setShowCategoryModal(true)}
+          className="w-full flex items-center justify-between p-3 rounded-xl border border-teal-200 dark:border-teal-800/80 bg-teal-50/50 dark:bg-teal-950/30 hover:bg-teal-100/60 dark:hover:bg-teal-900/40 transition text-left group active:scale-98"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-teal-500 text-white shadow-sm">
+              <Sliders size={16} />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-teal-900 dark:text-teal-200 group-hover:text-teal-700 dark:group-hover:text-teal-100">
+                Quản lý Thêm / Sửa / Xóa Danh mục
+              </div>
+              <div className="text-[10px] text-teal-700/90 dark:text-teal-300/90 font-medium">
+                Bấm để mở bảng điều khiển quản lý danh mục ({categories.length} danh mục)
+              </div>
+            </div>
+          </div>
+          <span className="text-xs font-bold text-teal-600 dark:text-teal-400">
+            Chi tiết →
+          </span>
+        </button>
+      </div>
+
+      {/* SECTION: BANK & MOMO SYNC */}
+      <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+        <div className="flex items-start gap-3">
+          <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 shrink-0">
+            <Building2 size={20} />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+              Đồng bộ Ngân hàng & Ví MoMo
+            </h2>
+            <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+              Tự động bắt thông báo chuyển tiền và gợi ý thêm mới chi tiêu tức thì
+            </p>
+          </div>
         </div>
 
         <div className="pt-1">
           <button
-            onClick={() => setShowCategoryModal(true)}
-            className="w-full flex items-center justify-between p-3 rounded-xl border border-teal-200 dark:border-teal-800/80 bg-teal-50/50 dark:bg-teal-950/30 hover:bg-teal-100/60 dark:hover:bg-teal-900/40 transition text-left group active:scale-98"
+            onClick={() => setShowBankSyncModal(true)}
+            className="w-full flex items-center justify-between p-3 rounded-xl border border-indigo-200 dark:border-indigo-800/80 bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-100/60 dark:hover:bg-indigo-900/40 transition text-left group active:scale-98"
           >
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-teal-500 text-white shadow-sm">
-                <Sliders size={16} />
+              <div className="p-2 rounded-lg bg-indigo-600 text-white shadow-sm">
+                <Sparkles size={16} />
               </div>
               <div>
-                <div className="text-xs font-bold text-teal-900 dark:text-teal-200 group-hover:text-teal-700 dark:group-hover:text-teal-100">
-                  Quản lý Thêm / Sửa / Xóa Danh mục
+                <div className="text-xs font-bold text-indigo-900 dark:text-indigo-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-100">
+                  Cài đặt Đồng bộ & Giả lập giao dịch
                 </div>
-                <div className="text-[10px] text-teal-700/90 dark:text-teal-300/90 font-medium">
-                  Bấm để mở bảng điều khiển quản lý danh mục
+                <div className="text-[10px] text-indigo-700/90 dark:text-indigo-300/90 font-medium">
+                  {settings.enableBankAutoSuggest !== false ? 'Đang bật tự động gợi ý' : 'Đang tắt tự động gợi ý'} • Quét clipboard
                 </div>
               </div>
             </div>
-            <span className="text-xs font-bold text-teal-600 dark:text-teal-400">
+            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
               Chi tiết →
             </span>
           </button>
@@ -535,6 +520,11 @@ export const SettingsTab: React.FC = () => {
       {/* Restore Data Modal */}
       {showRestoreModal && (
         <RestoreDataModal onClose={() => setShowRestoreModal(false)} />
+      )}
+
+      {/* Bank & MoMo Sync Modal */}
+      {showBankSyncModal && (
+        <BankSyncModal onClose={() => setShowBankSyncModal(false)} />
       )}
     </div>
   );
