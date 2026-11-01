@@ -136,7 +136,7 @@ export function identifyPaymentSource(packageName?: string, text?: string): Paym
 /**
  * Filter out messages that are clearly NOT debit / outgoing transactions
  */
-export function isLikelyDebitNotification(text: string): boolean {
+export function isLikelyDebitNotification(text: string, isManualOrSimulated: boolean = false): boolean {
   const lower = text.toLowerCase();
 
   // 1. Check for OTP / Security verification codes
@@ -151,7 +151,23 @@ export function isLikelyDebitNotification(text: string): boolean {
     return false;
   }
 
-  // 2. Filter out pure marketing, promos, rewards without an actual payment
+  // 2. Filter out Incoming/Credit money (tiền vào) unless it's explicitly an outgoing payment
+  const isIncoming =
+    lower.includes('nhận tiền từ') ||
+    lower.includes('nhan duoc') ||
+    lower.includes('nhận được') ||
+    /\+\s*\d+([.,]\d+)?\s*(đ|vnd|dong)/i.test(text);
+
+  if (isIncoming && !lower.includes('thanh toán') && !lower.includes('chuyển tiền') && !lower.includes('chuyển khoản')) {
+    return false;
+  }
+
+  // If manual paste or simulation, any non-OTP and non-incoming text with amount is accepted!
+  if (isManualOrSimulated) {
+    return true;
+  }
+
+  // 3. Filter out pure marketing, promos, rewards without an actual payment
   if (
     (lower.includes('khuyến mãi') ||
       lower.includes('ưu đãi') ||
@@ -159,41 +175,95 @@ export function isLikelyDebitNotification(text: string): boolean {
       lower.includes('hoàn tiền') ||
       lower.includes('tặng bạn') ||
       lower.includes('chúc mừng bạn nhận được')) &&
-    !lower.includes('thanh toán thành công') &&
-    !lower.includes('chuyển tiền thành công')
+    !lower.includes('thanh toán') &&
+    !lower.includes('chuyển tiền') &&
+    !lower.includes('chuyển khoản')
   ) {
     return false;
   }
 
-  // 3. Filter out Incoming/Credit money (tiền vào) unless it's explicitly an outgoing payment
-  const isIncoming =
-    lower.includes('nhận tiền từ') ||
-    lower.includes('nhan duoc') ||
-    lower.includes('nhận được') ||
-    /\+\s*\d+([.,]\d+)?\s*(đ|vnd|dong)/i.test(text);
-
-  if (isIncoming && !lower.includes('thanh toán') && !lower.includes('chuyển tiền')) {
-    return false;
-  }
-
   // 4. Look for debit signals: negative signs or payment/transfer keywords
-  const hasNegativeSign = /[-−–]\s*\d+([.,]\d+)?\s*(đ|vnd|dong|k|triệu)?/i.test(text);
+  const hasNegativeSign = /[-−–]\s*\d+/i.test(text);
   const hasDebitAction =
-    lower.includes('thanh toán thành công') ||
-    lower.includes('chuyển tiền thành công') ||
-    lower.includes('thanh toan thanh cong') ||
-    lower.includes('chuyen tien thanh cong') ||
-    lower.includes('giao dịch thành công') ||
-    lower.includes('chuyển khoản thành công') ||
-    lower.includes('bạn vừa thanh toán') ||
+    lower.includes('thanh toán') ||
+    lower.includes('thanh toan') ||
+    lower.includes('chuyển tiền') ||
+    lower.includes('chuyen tien') ||
+    lower.includes('chuyển khoản') ||
+    lower.includes('chuyen khoan') ||
+    lower.includes('giao dịch') ||
+    lower.includes('bạn vừa') ||
     lower.includes('vừa trừ') ||
     lower.includes('sd tk') ||
-    lower.includes('số dư tk') ||
+    lower.includes('số dư') ||
     lower.includes('biến động số dư') ||
-    lower.includes('gd: -') ||
-    lower.includes('tai khoan');
+    lower.includes('gd:') ||
+    lower.includes('tai khoan') ||
+    lower.includes('tài khoản') ||
+    lower.includes('giảm') ||
+    lower.includes('giam') ||
+    lower.includes('trừ') ||
+    lower.includes('tru') ||
+    lower.includes('ck');
 
   return hasNegativeSign || hasDebitAction;
+}
+
+/**
+ * Universal amount extractor handling all Vietnamese banking formats, shorthand (k, tr), and separators
+ */
+export function extractAmountFromText(text: string): number {
+  const trimmed = text.trim();
+
+  // 1. Shorthand with million: 1.5 triệu, 2tr, 1tr5, 500 nghìn, 50k, 100k
+  const kRegex = /(\d+([.,]\d+)?)\s*(?:k|nghìn|ngàn)\b/i;
+  const kMatch = trimmed.match(kRegex);
+  if (kMatch) {
+    return Math.round(parseFloat(kMatch[1].replace(',', '.')) * 1000);
+  }
+
+  const trRegex = /(\d+([.,]\d+)?)\s*(?:tr|triệu|củ)\b/i;
+  const trMatch = trimmed.match(trRegex);
+  if (trMatch) {
+    return Math.round(parseFloat(trMatch[1].replace(',', '.')) * 1000000);
+  }
+
+  // 2. Explicit negative amounts: -50.000, - 150,000 VND
+  const negRegex = /[-−–]\s*([0-9]{1,3}(?:[.,][0-9]{3})+|[0-9]{4,10})/i;
+  const negMatch = trimmed.match(negRegex);
+  if (negMatch) {
+    return parseInt(negMatch[1].replace(/[.,]/g, ''), 10);
+  }
+
+  // 3. Amount with currency: 65.000đ, 65,000 VND, 150000 dong, 65.000 d
+  const currRegex = /([0-9]{1,3}(?:[.,][0-9]{3})+|[0-9]{4,10})\s*(?:đ|d|vnd|đồng|dong)/i;
+  const currMatch = trimmed.match(currRegex);
+  if (currMatch) {
+    return parseInt(currMatch[1].replace(/[.,]/g, ''), 10);
+  }
+
+  // 4. Labeled amount: số tiền, thanh toán, chuyển, trừ ... 65.000
+  const labeledRegex = /(?:số tiền|so tien|thanh toán|thanh toan|chuyển|chuyen|trừ|tru|giao dịch|tổng cộng|tong cong)[^0-9]{0,25}([0-9]{1,3}(?:[.,][0-9]{3})+|[0-9]{4,10})/i;
+  const labMatch = trimmed.match(labeledRegex);
+  if (labMatch) {
+    return parseInt(labMatch[1].replace(/[.,]/g, ''), 10);
+  }
+
+  // 5. Any dotted/comma formatted number with at least one thousand separator (e.g. 50.000 or 1.250.000)
+  const formattedRegex = /\b([0-9]{1,3}(?:[.,][0-9]{3})+)\b/;
+  const fmtMatch = trimmed.match(formattedRegex);
+  if (fmtMatch) {
+    return parseInt(fmtMatch[1].replace(/[.,]/g, ''), 10);
+  }
+
+  // 6. Plain 4-9 digit number
+  const plainRegex = /\b([0-9]{4,9})\b/;
+  const plainMatch = trimmed.match(plainRegex);
+  if (plainMatch) {
+    return parseInt(plainMatch[1], 10);
+  }
+
+  return 0;
 }
 
 /**
@@ -202,42 +272,18 @@ export function isLikelyDebitNotification(text: string): boolean {
 export function parseBankNotification(
   rawText: string,
   sourceOverride?: PaymentAppSource,
-  availableCategories?: CategoryItem[]
+  availableCategories?: CategoryItem[],
+  isManualOrSimulated: boolean = false
 ): PendingBankTransaction | null {
   const trimmed = rawText.trim();
-  if (!trimmed || !isLikelyDebitNotification(trimmed)) {
+  if (!trimmed || !isLikelyDebitNotification(trimmed, isManualOrSimulated)) {
     return null;
   }
 
   const detectedSource = sourceOverride || identifyPaymentSource(undefined, trimmed);
   const sourceMeta = SUPPORTED_PAYMENT_APPS[detectedSource] || SUPPORTED_PAYMENT_APPS.other;
 
-  // 1. Regex to capture amount
-  // Format examples: "-50.000đ", "- 150,000 VND", "Số tiền: 250.000đ", "GD: -85,000VND", "50.000 VND", "1.200.000đ"
-  let amount = 0;
-
-  // Match explicitly negative amounts first (-150.000, - 85,000 VND)
-  const negativeRegex = /[-−–]\s*([0-9]{1,3}(?:[.,][0-9]{3})+|[0-9]{4,10})\s*(?:đ|vnd|dong)?/i;
-  // Match labeled amounts ("Số tiền: 150.000", "So tien: 150.000")
-  const labeledRegex = /(?:số tiền|so tien|thanh toán|chuyển|chuyen|trừ|tru|tong tien|tổng tiền)[:\s]+([0-9]{1,3}(?:[.,][0-9]{3})+|[0-9]{4,10})\s*(?:đ|vnd|dong)?/i;
-  // General currency regex (e.g. "150.000 VND", "250,000 đ")
-  const currencyRegex = /([0-9]{1,3}(?:[.,][0-9]{3})+|[0-9]{4,10})\s*(?:đ|vnd|đồng|dong)\b/i;
-
-  const negMatch = trimmed.match(negativeRegex);
-  const labMatch = trimmed.match(labeledRegex);
-  const currMatch = trimmed.match(currencyRegex);
-
-  if (negMatch) {
-    const rawNum = negMatch[1].replace(/[.,]/g, '');
-    amount = parseInt(rawNum, 10);
-  } else if (labMatch) {
-    const rawNum = labMatch[1].replace(/[.,]/g, '');
-    amount = parseInt(rawNum, 10);
-  } else if (currMatch) {
-    const rawNum = currMatch[1].replace(/[.,]/g, '');
-    amount = parseInt(rawNum, 10);
-  }
-
+  const amount = extractAmountFromText(trimmed);
   if (!amount || isNaN(amount) || amount <= 0) {
     return null;
   }
@@ -259,10 +305,12 @@ export function parseBankNotification(
     }
   }
 
-  // 4. Fingerprint for deduplication (same source + amount + date)
+  // 4. Fingerprint for deduplication (unique for manual/simulated; 5-min window for real background notifications)
   const now = new Date();
   const dateStr = now.toISOString().split('T')[0];
-  const fingerprint = `${detectedSource}_${amount}_${dateStr}`;
+  const fingerprint = isManualOrSimulated
+    ? `sim_${Date.now()}_${Math.random()}`
+    : `${detectedSource}_${amount}_${Math.floor(Date.now() / (5 * 60 * 1000))}`;
 
   return {
     id: `bank-tx-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,

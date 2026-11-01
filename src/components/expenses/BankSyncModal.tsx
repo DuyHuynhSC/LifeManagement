@@ -11,8 +11,8 @@ import {
   ExternalLink,
   CheckCircle2,
   AlertCircle,
-  ToggleLeft,
-  ToggleRight
+  Send,
+  ArrowRight
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { 
@@ -22,17 +22,17 @@ import {
 } from '../../services/bankingParserService';
 import { 
   checkBankNotificationPermission, 
-  openBankNotificationSettings,
-  checkClipboardForBankTransaction
+  openBankNotificationSettings
 } from '../../services/bankListenerBridge';
 import { Capacitor } from '@capacitor/core';
 import { PaymentAppSource } from '../../types';
 
 interface BankSyncModalProps {
   onClose: () => void;
+  onNavigateTab?: (tab: 'dashboard' | 'expenses') => void;
 }
 
-export const BankSyncModal: React.FC<BankSyncModalProps> = ({ onClose }) => {
+export const BankSyncModal: React.FC<BankSyncModalProps> = ({ onClose, onNavigateTab }) => {
   const { 
     settings, 
     updateAppSettings, 
@@ -45,6 +45,7 @@ export const BankSyncModal: React.FC<BankSyncModalProps> = ({ onClose }) => {
   const [pastedText, setPastedText] = useState('');
   const [pasteParsePreview, setPasteParsePreview] = useState<any>(null);
   const [simulatedSuccessId, setSimulatedSuccessId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     checkBankNotificationPermission().then(setHasPermission);
@@ -68,27 +69,57 @@ export const BankSyncModal: React.FC<BankSyncModalProps> = ({ onClose }) => {
       setPasteParsePreview(null);
       return;
     }
-    const parsed = parseBankNotification(text, 'clipboard', categories);
+    // isManualOrSimulated = true to accept any format with an amount
+    const parsed = parseBankNotification(text, 'clipboard', categories, true);
     setPasteParsePreview(parsed);
+  };
+
+  const handlePasteFromClipboard = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          handleParsePastedText(text);
+        }
+      }
+    } catch {
+      // ignore
+    }
   };
 
   const handleAddPastedTransaction = () => {
     if (!pasteParsePreview) return;
-    addPendingBankTransaction(pasteParsePreview);
+    addPendingBankTransaction(pasteParsePreview, true);
+    setToastMessage(`Đã thêm gợi ý chi tiêu: -${pasteParsePreview.amount.toLocaleString('vi-VN')} đ!`);
     setPastedText('');
     setPasteParsePreview(null);
-    onClose();
+
+    setTimeout(() => {
+      setToastMessage(null);
+      if (onNavigateTab) {
+        onNavigateTab('expenses');
+      } else {
+        onClose();
+      }
+    }, 800);
   };
 
   const handleTriggerSimulation = (sample: typeof SAMPLE_BANK_NOTIFICATIONS[0]) => {
-    const parsed = parseBankNotification(sample.rawText, sample.source, categories);
+    const parsed = parseBankNotification(sample.rawText, sample.source, categories, true);
     if (parsed) {
-      addPendingBankTransaction(parsed);
+      addPendingBankTransaction(parsed, true);
       setSimulatedSuccessId(sample.id);
+      setToastMessage(`Đã gửi thông báo giả lập: -${parsed.amount.toLocaleString('vi-VN')} đ (${sample.badge})!`);
+
       setTimeout(() => {
         setSimulatedSuccessId(null);
-        onClose();
-      }, 400);
+        setToastMessage(null);
+        if (onNavigateTab) {
+          onNavigateTab('expenses');
+        } else {
+          onClose();
+        }
+      }, 800);
     }
   };
 
@@ -119,6 +150,19 @@ export const BankSyncModal: React.FC<BankSyncModalProps> = ({ onClose }) => {
             <X size={18} />
           </button>
         </div>
+
+        {/* Success Toast Banner inside modal */}
+        {toastMessage && (
+          <div className="mx-4 mt-3 p-3 bg-emerald-600 text-white rounded-2xl flex items-center justify-between shadow-lg animate-in slide-in-from-top-2 duration-200">
+            <div className="flex items-center gap-2 text-xs font-bold">
+              <CheckCircle2 size={16} className="shrink-0" />
+              <span>{toastMessage}</span>
+            </div>
+            <span className="text-[10px] font-bold opacity-80 flex items-center gap-1">
+              Đang mở Chi tiêu <ArrowRight size={11} />
+            </span>
+          </div>
+        )}
 
         {/* Tab switchers */}
         <div className="flex border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-1">
@@ -155,66 +199,90 @@ export const BankSyncModal: React.FC<BankSyncModalProps> = ({ onClose }) => {
             <div className="space-y-4">
               {/* Quick Paste Box */}
               <div className="space-y-2">
-                <label className="block font-bold text-slate-700 dark:text-slate-200 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                     <Clipboard size={14} className="text-indigo-500" />
                     Dán tin nhắn trừ tiền / Biên lai MoMo:
-                  </span>
-                  {pastedText && (
+                  </label>
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => handleParsePastedText('')}
-                      className="text-[10px] text-rose-500 hover:underline font-normal"
+                      onClick={handlePasteFromClipboard}
+                      className="text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline font-bold"
                     >
-                      Xóa
+                      Dán từ Clipboard
                     </button>
-                  )}
-                </label>
+                    {pastedText && (
+                      <button
+                        type="button"
+                        onClick={() => handleParsePastedText('')}
+                        className="text-[10px] text-rose-500 hover:underline font-normal"
+                      >
+                        Xóa
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 <textarea
                   rows={2}
                   value={pastedText}
                   onChange={e => handleParsePastedText(e.target.value)}
-                  placeholder="Dán nội dung tin nhắn biến động số dư hoặc biên lai giao dịch vào đây..."
+                  placeholder="Dán nội dung tin nhắn biến động số dư hoặc biên lai giao dịch (VD: 'MoMo: Bạn vừa thanh toán 65.000đ' hoặc 'Chuyển 50k')..."
                   className="w-full p-2.5 text-base sm:text-xs rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none leading-relaxed"
                 />
 
+                {/* Explicit parse action if user just typed text */}
+                {pastedText.trim() && !pasteParsePreview && (
+                  <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-800 dark:text-amber-200 flex items-center gap-2 animate-in fade-in">
+                    <AlertCircle size={15} className="shrink-0 text-amber-600 dark:text-amber-400" />
+                    <span className="text-[11px]">
+                      Chưa tìm thấy số tiền trong tin nhắn. Bạn hãy đảm bảo có số tiền (VD: 50.000đ, 50k, 100,000 VND).
+                    </span>
+                  </div>
+                )}
+
                 {/* Live Preview Card */}
                 {pasteParsePreview && (
-                  <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl space-y-2 animate-in fade-in">
+                  <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 rounded-2xl space-y-2.5 animate-in fade-in">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-extrabold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-1">
-                        <CheckCircle2 size={13} />
+                        <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400" />
                         Nhận diện thành công ({pasteParsePreview.sourceAppName})
                       </span>
-                      <span className="text-xs font-black text-rose-600 dark:text-rose-400">
+                      <span className="text-sm font-black text-rose-600 dark:text-rose-400">
                         -{pasteParsePreview.amount.toLocaleString('vi-VN')} đ
                       </span>
                     </div>
 
-                    <div className="text-xs font-bold text-slate-800 dark:text-slate-100">
-                      {pasteParsePreview.suggestedTitle}
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-100">
+                      <span>Nội dung gợi ý:</span>
+                      <span className="text-emerald-700 dark:text-emerald-300 font-extrabold">
+                        {pasteParsePreview.suggestedTitle}
+                      </span>
                     </div>
 
                     <button
                       type="button"
                       onClick={handleAddPastedTransaction}
-                      className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl shadow-xs transition"
+                      className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl shadow-md transition active:scale-98 flex items-center justify-center gap-1.5"
                     >
-                      + Tạo Gợi ý Chi tiêu ngay
+                      <Send size={14} />
+                      <span>+ Tạo Gợi ý Chi tiêu ngay</span>
                     </button>
                   </div>
                 )}
               </div>
 
               {/* Instant Simulation Presets */}
-              <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-slate-700">
+              <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-700">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                     <Play size={14} className="text-emerald-500" />
                     Thử nghiệm nhanh mẫu giao dịch:
                   </span>
                   <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium">
-                    Bấm để gửi thông báo giả lập
+                    Chạm để gửi thông báo giả lập
                   </span>
                 </div>
 
@@ -227,10 +295,10 @@ export const BankSyncModal: React.FC<BankSyncModalProps> = ({ onClose }) => {
                         key={sample.id}
                         type="button"
                         onClick={() => handleTriggerSimulation(sample)}
-                        className={`p-2.5 rounded-2xl border text-left transition-all flex items-start justify-between gap-2 ${
+                        className={`p-2.5 rounded-2xl border text-left transition-all flex items-start justify-between gap-2 cursor-pointer active:scale-98 ${
                           isSuccess
-                            ? 'bg-emerald-100 dark:bg-emerald-950 border-emerald-400 shadow-sm'
-                            : 'bg-white dark:bg-slate-700/60 border-slate-200 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-400'
+                            ? 'bg-emerald-100 dark:bg-emerald-950 border-emerald-500 shadow-md ring-2 ring-emerald-500'
+                            : 'bg-white dark:bg-slate-700/60 border-slate-200 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-400 hover:shadow-xs'
                         }`}
                       >
                         <div className="min-w-0 flex-1">
@@ -245,14 +313,17 @@ export const BankSyncModal: React.FC<BankSyncModalProps> = ({ onClose }) => {
                               {sample.title}
                             </span>
                           </div>
-                          <div className="text-[10px] text-slate-500 dark:text-slate-300 font-medium mt-1 truncate">
-                            {sample.rawText}
+                          <div className="text-[10px] text-slate-500 dark:text-slate-300 font-medium mt-1 line-clamp-1 italic">
+                            "{sample.rawText}"
                           </div>
                         </div>
 
                         <div className="shrink-0 text-right pt-0.5">
-                          <span className="text-xs font-extrabold text-rose-600 dark:text-rose-400 whitespace-nowrap">
+                          <span className="text-xs font-black text-rose-600 dark:text-rose-400 whitespace-nowrap block">
                             -{sample.expectedAmount.toLocaleString('vi-VN')} đ
+                          </span>
+                          <span className="inline-flex items-center gap-0.5 text-[9px] text-indigo-600 dark:text-indigo-400 font-bold mt-1">
+                            Gửi <Send size={9} />
                           </span>
                         </div>
                       </button>

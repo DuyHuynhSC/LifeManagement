@@ -29,7 +29,11 @@ import { CategoryManagementModal } from './CategoryManagementModal';
 import { BankSyncModal } from '../expenses/BankSyncModal';
 import { Building2 } from 'lucide-react';
 
-export const SettingsTab: React.FC = () => {
+interface SettingsTabProps {
+  onOpenBankSync?: () => void;
+}
+
+export const SettingsTab: React.FC<SettingsTabProps> = ({ onOpenBankSync }) => {
   const { 
     settings, 
     setNotifyDaysBeforeExpiry, 
@@ -315,7 +319,13 @@ export const SettingsTab: React.FC = () => {
 
         <div className="pt-1">
           <button
-            onClick={() => setShowBankSyncModal(true)}
+            onClick={() => {
+              if (onOpenBankSync) {
+                onOpenBankSync();
+              } else {
+                setShowBankSyncModal(true);
+              }
+            }}
             className="w-full flex items-center justify-between p-3 rounded-xl border border-indigo-200 dark:border-indigo-800/80 bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-100/60 dark:hover:bg-indigo-900/40 transition text-left group active:scale-98"
           >
             <div className="flex items-center gap-3">

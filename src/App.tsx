@@ -214,7 +214,9 @@ export const App: React.FC = () => {
 
         {activeTab === 'investments' && <InvestmentTab />}
 
-        {activeTab === 'settings' && <SettingsTab />}
+        {activeTab === 'settings' && (
+          <SettingsTab onOpenBankSync={() => setShowBankSyncModal(true)} />
+        )}
       </main>
 
       <BottomNav
@@ -290,6 +292,10 @@ export const App: React.FC = () => {
       {showBankSyncModal && (
         <BankSyncModal
           onClose={() => setShowBankSyncModal(false)}
+          onNavigateTab={(tab) => {
+            setShowBankSyncModal(false);
+            setActiveTab(tab);
+          }}
         />
       )}
     </MobileFrame>

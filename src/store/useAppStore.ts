@@ -219,17 +219,19 @@ export const useAppStore = () => {
     notify();
   };
 
-  const addPendingBankTransaction = (tx: PendingBankTransaction) => {
-    // Check duplication based on fingerprint or same amount + same title within recent list
-    const isDuplicate = globalState.pendingTransactions.some(p => {
-      if (p.fingerprint && tx.fingerprint && p.fingerprint === tx.fingerprint) {
-        return true;
-      }
-      return p.amount === tx.amount && p.suggestedTitle.toLowerCase() === tx.suggestedTitle.toLowerCase();
-    });
+  const addPendingBankTransaction = (tx: PendingBankTransaction, forceAdd: boolean = false) => {
+    if (!forceAdd) {
+      const isDuplicate = globalState.pendingTransactions.some(p => {
+        if (p.id === tx.id) return true;
+        if (p.fingerprint && tx.fingerprint && p.fingerprint === tx.fingerprint) {
+          return true;
+        }
+        return false;
+      });
 
-    if (isDuplicate) {
-      return { success: false, duplicate: true };
+      if (isDuplicate) {
+        return { success: false, duplicate: true };
+      }
     }
 
     globalState.pendingTransactions = [tx, ...globalState.pendingTransactions];
