@@ -10,11 +10,12 @@ import {
   Landmark,
   Edit3
 } from 'lucide-react';
-import { InvestmentAsset } from '../../types/investment';
+import { InvestmentAsset, AssetClass } from '../../types/investment';
 import { fetchPriceForAsset } from '../../services/marketPriceService';
 import { useInvestmentStore } from '../../store/useInvestmentStore';
 import { useAppStore } from '../../store/useAppStore';
 import { getTranslation } from '../../i18n';
+import { ASSET_CLASS_COLORS, getAssetClassLabel } from '../../services/investmentCalculator';
 
 interface QuickUpdatePriceModalProps {
   asset: InvestmentAsset;
@@ -37,6 +38,8 @@ export const QuickUpdatePriceModal: React.FC<QuickUpdatePriceModalProps> = ({
 
   // Standard asset state (stock, crypto, gold, etc.)
   const [priceInput, setPriceInput] = useState(asset.currentPrice.toString());
+  const [avgBuyPriceInput, setAvgBuyPriceInput] = useState(asset.avgBuyPrice.toString());
+  const [quantityInput, setQuantityInput] = useState(asset.quantity.toString());
   const [isFetchingPrice, setIsFetchingPrice] = useState(false);
   const [fetchNotice, setFetchNotice] = useState<string | null>(null);
 
@@ -58,10 +61,34 @@ export const QuickUpdatePriceModal: React.FC<QuickUpdatePriceModalProps> = ({
 
   const canFetchOnline = asset.assetClass === 'stock' || asset.assetClass === 'crypto';
 
+  const getAssetUnit = (assetClass: AssetClass, sym: string) => {
+    switch (assetClass) {
+      case 'stock':
+        return 'CP';
+      case 'fund':
+        return 'CCQ';
+      case 'gold':
+        return 'chỉ';
+      case 'crypto':
+        return sym;
+      default:
+        return asset.currency;
+    }
+  };
+  const assetUnit = getAssetUnit(asset.assetClass, asset.symbol);
+
   // Calculations for standard asset
-  const numPrice = parseFloat(priceInput.replace(/,/g, '')) || 0;
-  const priceDiff = numPrice - asset.avgBuyPrice;
-  const pnlPercent = asset.avgBuyPrice > 0 ? (priceDiff / asset.avgBuyPrice) * 100 : 0;
+  const numPrice = Math.max(0, parseFloat(priceInput.replace(/,/g, '')) || 0);
+  const numAvgPrice = Math.max(0, parseFloat(avgBuyPriceInput.replace(/,/g, '')) || 0);
+  const numQuantity = Math.max(0, parseFloat(quantityInput.replace(/,/g, '')) || 0);
+
+  const totalInvested = numQuantity * numAvgPrice;
+  const currentValue = numQuantity * numPrice;
+  const priceDiff = numPrice - numAvgPrice;
+  const unrealizedPnL = currentValue - totalInvested;
+  const pnlPercent = totalInvested > 0 
+    ? (unrealizedPnL / totalInvested) * 100 
+    : (numAvgPrice > 0 ? (priceDiff / numAvgPrice) * 100 : 0);
 
   // Safe calculations for savings asset
   const depositPrincipal = Math.max(0, parseFloat(savingsAmountStr.replace(/[^0-9.]/g, '')) || 0);
@@ -124,15 +151,33 @@ export const QuickUpdatePriceModal: React.FC<QuickUpdatePriceModalProps> = ({
     }
   };
 
-  const handleSaveStandardPrice = () => {
+  const handleSaveStandardAsset = () => {
+    setError('');
     if (numPrice <= 0) {
       setError(t('inv_price_invalid_val'));
       return;
     }
+    if (numAvgPrice <= 0) {
+      setError(t('inv_price_err_dca'));
+      return;
+    }
+    if (numQuantity < 0 || isNaN(numQuantity)) {
+      setError(t('inv_price_err_qty'));
+      return;
+    }
+
+    const updated = updateAsset(asset.id, {
+      currentPrice: numPrice,
+      avgBuyPrice: numAvgPrice,
+      quantity: numQuantity,
+      notes: notes.trim() || undefined
+    });
+
+    if (updated) {
+      onAssetUpdated?.(updated);
+    }
     if (onSave) {
       onSave(asset.id, numPrice);
-    } else {
-      updateAssetPrice(asset.id, numPrice);
     }
     onClose();
   };
@@ -191,17 +236,33 @@ export const QuickUpdatePriceModal: React.FC<QuickUpdatePriceModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black ${
-              isSavings 
-                ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400' 
-                : 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400'
-            }`}>
-              {isSavings ? <PiggyBank size={20} /> : <RefreshCw size={18} />}
+            <div 
+              className={`w-9 h-9 rounded-xl flex items-center justify-center font-black ${
+                isSavings 
+                  ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400' 
+                  : 'text-white text-xs font-mono font-black shadow-xs'
+              }`}
+              style={!isSavings ? { backgroundColor: ASSET_CLASS_COLORS[asset.assetClass] || '#6366f1' } : undefined}
+            >
+              {isSavings ? <PiggyBank size={20} /> : asset.symbol.slice(0, 3).toUpperCase()}
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                {isSavings ? t('inv_savings_edit_title') : t('inv_price_title')}
-              </h3>
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                  {isSavings ? t('inv_savings_edit_title') : t('inv_asset_edit_title')}
+                </h3>
+                {!isSavings && (
+                  <span 
+                    className="text-[9px] font-bold px-1.5 py-0.2 rounded-md shrink-0"
+                    style={{
+                      backgroundColor: `${ASSET_CLASS_COLORS[asset.assetClass] || '#64748b'}18`,
+                      color: ASSET_CLASS_COLORS[asset.assetClass] || '#64748b'
+                    }}
+                  >
+                    {getAssetClassLabel(asset.assetClass, t)}
+                  </span>
+                )}
+              </div>
               <p className="text-xs font-medium text-slate-500 dark:text-slate-300">
                 {isSavings ? t('inv_savings_edit_subtitle') : `${asset.symbol} - ${asset.name}`}
               </p>
@@ -442,32 +503,12 @@ export const QuickUpdatePriceModal: React.FC<QuickUpdatePriceModalProps> = ({
             </div>
           </div>
         ) : (
-          /* STANDARD ASSET EDIT (STOCK, CRYPTO, GOLD, ETC. - MARKET PRICE UPDATE) */
-          <div className="space-y-4">
-            {/* Current State Info */}
-            <div className="grid grid-cols-2 gap-2 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-              <div>
-                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
-                  {t('inv_price_current_avg')}
-                </span>
-                <span className="text-xs font-bold text-slate-900 dark:text-white mt-0.5 block font-mono tabular-nums">
-                  {formatCurrency(asset.avgBuyPrice)}
-                </span>
-              </div>
-              <div className="text-right">
-                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300 block">
-                  {t('inv_price_current_qty')}
-                </span>
-                <span className="text-xs font-bold text-slate-900 dark:text-white mt-0.5 block font-mono tabular-nums">
-                  {asset.quantity.toLocaleString('vi-VN')} {asset.currency}
-                </span>
-              </div>
-            </div>
-
-            {/* New Price Input */}
+          /* STANDARD ASSET EDIT (STOCK, CRYPTO, GOLD, ETC. - PRICE, DCA & QUANTITY UPDATE) */
+          <div className="space-y-3.5">
+            {/* Input 1: Giá thị trường (Current Market Price) */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-extrabold text-slate-700 dark:text-slate-200">
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-200">
                   {t('inv_price_new_label')} ({asset.currency})
                 </label>
                 {canFetchOnline && (
@@ -488,47 +529,156 @@ export const QuickUpdatePriceModal: React.FC<QuickUpdatePriceModalProps> = ({
                   inputMode="decimal"
                   value={priceInput}
                   onChange={e => {
-                    const val = e.target.value.replace(/[^0-9.]/g, '');
-                    setPriceInput(val);
+                    const raw = e.target.value.replace(/,/g, '.');
+                    const cleaned = raw.replace(/[^0-9.]/g, '');
+                    const parts = cleaned.split('.');
+                    const sanitized = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : cleaned;
+                    setPriceInput(sanitized);
                     setError('');
                   }}
                   onKeyDown={handleInputKeyDown}
                   placeholder={t('inv_price_placeholder')}
                   autoFocus
-                  className="w-full h-10 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 font-mono tabular-nums"
+                  className="w-full h-10 text-xs sm:text-sm font-bold px-3 py-2 pr-12 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 font-mono tabular-nums"
                 />
-              </div>
-              {fetchNotice && (
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1">
-                  ✓ {fetchNotice}
-                </p>
-              )}
-              {error && (
-                <p className="text-xs text-rose-500 font-bold mt-1">{error}</p>
-              )}
-            </div>
-
-            {/* Realtime P&L Preview with this new price */}
-            <div className={`p-3 rounded-2xl border flex items-center justify-between font-mono tabular-nums ${
-              priceDiff >= 0 
-                ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/80 text-emerald-800 dark:text-emerald-300' 
-                : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/80 text-rose-800 dark:text-rose-300'
-            }`}>
-              <div className="flex items-center gap-1.5 font-sans">
-                {priceDiff >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-                <span className="text-xs font-bold">{t('inv_price_expected_pnl')}:</span>
-              </div>
-              <div className="text-right">
-                <span className="text-xs font-extrabold block">
-                  {priceDiff >= 0 ? '+' : ''}{formatCurrency(priceDiff * asset.quantity)}
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                  {asset.currency}
                 </span>
-                <span className="text-[10px] font-bold block">
-                  ({priceDiff >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%)
+              </div>
+              <div className="flex items-center justify-between mt-1 text-[11px]">
+                <span className="text-slate-400 dark:text-slate-400 font-mono tabular-nums">
+                  ≈ {formatCurrency(numPrice)}
                 </span>
+                {fetchNotice && (
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                    ✓ {fetchNotice}
+                  </span>
+                )}
               </div>
             </div>
 
-            {/* Save button for standard asset */}
+            {/* Input 2: Giá vốn trung bình / Giá DCA & Input 3: Số lượng sở hữu in 2 columns */}
+            <div className="grid grid-cols-2 gap-2.5">
+              {/* Giá vốn trung bình (DCA) */}
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1 truncate">
+                  {t('inv_price_dca_label')} ({asset.currency})
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={avgBuyPriceInput}
+                    onChange={e => {
+                      const raw = e.target.value.replace(/,/g, '.');
+                      const cleaned = raw.replace(/[^0-9.]/g, '');
+                      const parts = cleaned.split('.');
+                      const sanitized = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : cleaned;
+                      setAvgBuyPriceInput(sanitized);
+                      setError('');
+                    }}
+                    onKeyDown={handleInputKeyDown}
+                    placeholder={t('inv_price_dca_placeholder')}
+                    className="w-full h-10 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 font-mono tabular-nums"
+                  />
+                </div>
+                <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono tabular-nums mt-0.5 block truncate">
+                  ≈ {formatCurrency(numAvgPrice)}
+                </span>
+              </div>
+
+              {/* Số lượng sở hữu */}
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1 truncate">
+                  {t('inv_price_qty_label')} ({assetUnit})
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={quantityInput}
+                    onChange={e => {
+                      const raw = e.target.value.replace(/,/g, '.');
+                      const cleaned = raw.replace(/[^0-9.]/g, '');
+                      const parts = cleaned.split('.');
+                      const sanitized = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : cleaned;
+                      setQuantityInput(sanitized);
+                      setError('');
+                    }}
+                    onKeyDown={handleInputKeyDown}
+                    placeholder={t('inv_price_qty_placeholder')}
+                    className="w-full h-10 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 font-mono tabular-nums"
+                  />
+                </div>
+                <span className="text-[10px] text-slate-400 dark:text-slate-400 font-mono tabular-nums mt-0.5 block truncate">
+                  ≈ {numQuantity.toLocaleString('vi-VN')} {assetUnit}
+                </span>
+              </div>
+            </div>
+
+            {/* Ghi chú */}
+            <div>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">
+                {t('inv_tx_notes_label')}
+              </label>
+              <input
+                type="text"
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                onKeyDown={handleInputKeyDown}
+                placeholder={t('inv_tx_notes_placeholder')}
+                className="w-full h-10 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+
+            {/* Realtime Investment & P&L Summary Preview Card */}
+            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 space-y-2">
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block">
+                    {t('inv_price_invested_val')}
+                  </span>
+                  <span className="font-bold text-slate-900 dark:text-white font-mono tabular-nums">
+                    {formatCurrency(totalInvested)}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block">
+                    {t('inv_price_market_val')}
+                  </span>
+                  <span className="font-bold text-slate-900 dark:text-white font-mono tabular-nums">
+                    {formatCurrency(currentValue)}
+                  </span>
+                </div>
+              </div>
+
+              <div className={`pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between font-mono tabular-nums ${
+                unrealizedPnL >= 0 
+                  ? 'text-emerald-600 dark:text-emerald-400' 
+                  : 'text-rose-600 dark:text-rose-400'
+              }`}>
+                <div className="flex items-center gap-1.5 font-sans">
+                  {unrealizedPnL >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                    {t('inv_price_expected_pnl')}:
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs font-extrabold block">
+                    {unrealizedPnL >= 0 ? '+' : ''}{formatCurrency(unrealizedPnL)}
+                  </span>
+                  <span className="text-[10px] font-bold block">
+                    ({unrealizedPnL >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {error && (
+              <p className="text-xs text-rose-500 font-bold">{error}</p>
+            )}
+
+            {/* Save buttons for standard asset */}
             <div className="flex items-center gap-2 pt-1">
               <button
                 type="button"
@@ -539,7 +689,7 @@ export const QuickUpdatePriceModal: React.FC<QuickUpdatePriceModalProps> = ({
               </button>
               <button
                 type="button"
-                onClick={handleSaveStandardPrice}
+                onClick={handleSaveStandardAsset}
                 className="flex-1 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 active:scale-95 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-sky-500/25 flex items-center justify-center gap-1.5 transition"
               >
                 <Check size={16} />

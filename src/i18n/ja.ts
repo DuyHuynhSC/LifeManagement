@@ -53,6 +53,13 @@ export const ja: typeof vi = {
   dash_active_tasks: '未完了タスク',
   dash_family_points: '家族XP',
   dash_ai_suggestions: 'AIアドバイス',
+  dash_ai_smart_badge: 'AIアドバイザー',
+  dash_ai_cat_investment: '投資・ポートフォリオ',
+  dash_ai_cat_budget: '予算・支出',
+  dash_ai_cat_maintenance: '家電・メンテナンス',
+  dash_ai_cat_general: 'スマートヒント',
+  dash_ai_portfolio_health: 'ポートフォリオ健全度',
+  dash_ai_action_navigate: '詳細を見る',
 
   // Assets
   asset_title: '家電および交換部品の管理',
@@ -418,7 +425,7 @@ export const ja: typeof vi = {
   inv_card_market_val: '時価評価額',
   inv_card_market_price: '現在値',
   inv_card_dividend_yoc: '配当: +{amount} (YoC: {percent}%)',
-  inv_card_edit_price: '時価を手動編集',
+  inv_card_edit_price: 'ポジションを編集',
 
   // Add / Record Transaction Modal
   inv_tx_title: '新規取引の記録',
@@ -577,6 +584,16 @@ export const ja: typeof vi = {
 
   // Quick Update Price Modal
   inv_price_title: '時価の更新',
+  inv_asset_edit_title: '保有ポジションの編集',
+  inv_asset_edit_subtitle: '時価、平均取得単価（DCA）、保有数量を更新',
+  inv_price_dca_label: '平均取得単価 (DCA)',
+  inv_price_qty_label: '保有数量',
+  inv_price_invested_val: '投資元本',
+  inv_price_market_val: '評価額',
+  inv_price_dca_placeholder: '例: 24500',
+  inv_price_qty_placeholder: '例: 1000',
+  inv_price_err_dca: '有効な取得単価を入力してください（0超）',
+  inv_price_err_qty: '有効な保有数量を入力してください（0以上）',
   inv_price_modal_title: '時価の更新',
   inv_price_current_avg: '平均取得価額 (DCA)',
   inv_price_avg_cost: '平均取得価額 (DCA)',

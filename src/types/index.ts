@@ -204,8 +204,13 @@ export interface GamificationBadge {
 export interface AIInsight {
   id: string;
   type: 'forecast' | 'warning' | 'tip';
+  category?: 'investment' | 'budget' | 'maintenance' | 'general';
+  priority?: 'high' | 'medium' | 'low';
   title: string;
   message: string;
   estimatedSaving?: number;
+  metric?: string;
   actionText?: string;
+  targetTab?: 'dashboard' | 'assets' | 'expenses' | 'iot' | 'family' | 'game' | 'settings' | 'investments';
+  targetAssetId?: string;
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   AlertTriangle,
   PlusCircle,
@@ -46,7 +46,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   onOpenBankSync,
 }) => {
   const { assets, expenses, budgets, tasks, currentUser, settings, users, pendingTransactions } = useAppStore();
-  const { portfolioSummary } = useInvestmentStore();
+  const { portfolioSummary, assets: investmentAssets, transactions: investmentTransactions } = useInvestmentStore();
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
 
   // Calculate urgent alerts based on settings.notifyDaysBeforeExpiry
@@ -84,7 +84,44 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   const budgetRatio = totalBudget > 0 ? Math.min(Math.round((currentMonthExpenses / totalBudget) * 100), 100) : 0;
 
   // AI insights
-  const aiInsights = generateAIInsights(assets, expenses, budgets, settings.notifyDaysBeforeExpiry);
+  const aiInsights = useMemo(() => generateAIInsights(
+    assets,
+    expenses,
+    budgets,
+    settings.notifyDaysBeforeExpiry,
+    investmentAssets,
+    portfolioSummary,
+    investmentTransactions
+  ), [assets, expenses, budgets, settings.notifyDaysBeforeExpiry, investmentAssets, portfolioSummary, investmentTransactions]);
+
+  const getCategoryBadge = (cat?: string) => {
+    switch (cat) {
+      case 'investment':
+        return {
+          label: t('dash_ai_cat_investment'),
+          icon: <TrendingUp size={11} className="shrink-0" />,
+          className: 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/80'
+        };
+      case 'budget':
+        return {
+          label: t('dash_ai_cat_budget'),
+          icon: <AlertTriangle size={11} className="shrink-0" />,
+          className: 'bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/80'
+        };
+      case 'maintenance':
+        return {
+          label: t('dash_ai_cat_maintenance'),
+          icon: <Wrench size={11} className="shrink-0" />,
+          className: 'bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800/80'
+        };
+      default:
+        return {
+          label: t('dash_ai_cat_general'),
+          icon: <Sparkles size={11} className="shrink-0" />,
+          className: 'bg-purple-50 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/80'
+        };
+    }
+  };
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-5 pb-20">
@@ -347,33 +384,73 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
 
       {/* AI Suggestions & Forecast */}
       {aiInsights.length > 0 && (
-        <div className="bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-blue-500/10 dark:from-purple-950/30 dark:to-indigo-950/30 border border-purple-200 dark:border-purple-800/50 rounded-2xl p-4 shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-bold text-xs uppercase tracking-wider">
-              <Sparkles size={16} className="text-purple-500" />
-              <span>{t('dash_ai_suggestions')}</span>
+        <div className="bg-gradient-to-br from-purple-500/10 via-indigo-500/10 to-blue-500/10 dark:from-purple-950/40 dark:via-indigo-950/30 dark:to-slate-900/40 border border-purple-200/80 dark:border-purple-800/50 rounded-2xl p-4 shadow-xs space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-extrabold text-xs uppercase tracking-wider min-w-0">
+              <Sparkles size={16} className="text-purple-500 shrink-0" />
+              <span className="truncate">{t('dash_ai_suggestions')}</span>
             </div>
-            <span className="text-[10px] bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full font-bold">
-              AI Smart
+            <span className="text-[10px] bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full font-bold shrink-0 border border-purple-200/60 dark:border-purple-800">
+              {t('dash_ai_smart_badge')}
             </span>
           </div>
 
-          <div className="space-y-2">
-            {aiInsights.slice(0, 2).map(item => (
-              <div key={item.id} className="bg-white/80 dark:bg-slate-800/80 backdrop-blur p-3 rounded-xl border border-purple-100 dark:border-purple-900/40 text-xs">
-                <div className="font-bold text-slate-800 dark:text-slate-100 flex items-center justify-between">
-                  <span>{item.title}</span>
-                  {item.estimatedSaving && (
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
-                      {t('dash_estimated_saving', { amount: item.estimatedSaving.toLocaleString('vi-VN') })}
+          <div className="space-y-2.5">
+            {aiInsights.slice(0, 3).map(item => {
+              const catBadge = getCategoryBadge(item.category);
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => {
+                    if (item.targetTab) onNavigateTab(item.targetTab);
+                  }}
+                  className={`bg-white/95 dark:bg-slate-800/90 backdrop-blur p-3.5 rounded-xl border border-purple-100 dark:border-purple-900/40 text-xs shadow-2xs transition hover:border-purple-300 dark:hover:border-purple-700 ${item.targetTab ? 'cursor-pointer' : ''}`}
+                >
+                  {/* Category Pill & Metric Pill row (No collision) */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md border ${catBadge.className}`}>
+                      {catBadge.icon}
+                      <span className="truncate max-w-[150px]">{catBadge.label}</span>
                     </span>
+
+                    {item.metric ? (
+                      <span className="text-[10px] font-black font-mono px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700/80 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-600 shrink-0">
+                        {item.metric}
+                      </span>
+                    ) : item.estimatedSaving ? (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shrink-0">
+                        +{t('dash_estimated_saving', { amount: item.estimatedSaving.toLocaleString('vi-VN') })}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {/* Title row */}
+                  <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100 mt-2 leading-snug break-words">
+                    {item.title}
+                  </h4>
+
+                  {/* Message */}
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1 leading-relaxed break-words">
+                    {item.message}
+                  </p>
+
+                  {/* Action Link (CTA) */}
+                  {item.actionText && (
+                    <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-primary-600 dark:text-primary-400 inline-flex items-center gap-1 hover:underline">
+                        {item.actionText}
+                        <ArrowUpRight size={12} />
+                      </span>
+                      {item.priority === 'high' && (
+                        <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 uppercase">
+                          Cần lưu ý
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-                  {item.message}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

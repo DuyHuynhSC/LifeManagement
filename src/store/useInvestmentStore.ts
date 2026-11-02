@@ -137,6 +137,65 @@ export const useInvestmentStore = () => {
         }
         return t;
       });
+    } else if (targetAsset && (updates.avgBuyPrice !== undefined || updates.quantity !== undefined)) {
+      const assetTx = updatedTransactions.filter(t => t.assetId === id);
+      const newQty = updates.quantity !== undefined ? updates.quantity : targetAsset.quantity;
+      const newAvgPrice = updates.avgBuyPrice !== undefined ? updates.avgBuyPrice : targetAsset.avgBuyPrice;
+
+      // Tính tổng cổ tức bằng cổ phiếu đã nhận (nếu có)
+      const stockDivQty = globalState.dividends
+        .filter(d => d.assetId === id && d.type === 'stock')
+        .reduce((sum, d) => sum + d.amountOrQuantity, 0);
+
+      const baseQty = Math.max(0, newQty - stockDivQty);
+      const totalCost = Math.round(newQty * newAvgPrice);
+      const pricePerUnit = baseQty > 0 ? Math.round((totalCost / baseQty) * 100) / 100 : newAvgPrice;
+
+      if (assetTx.length === 0) {
+        if (newQty > 0 || newAvgPrice > 0) {
+          const newTx: InvestmentTransaction = {
+            id: `tx-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+            assetId: id,
+            type: 'buy',
+            date: updates.firstBuyDate || targetAsset.firstBuyDate || new Date().toISOString().split('T')[0],
+            quantity: baseQty,
+            pricePerUnit,
+            fees: 0,
+            tax: 0,
+            totalAmount: totalCost,
+            notes: 'Vị thế thiết lập ban đầu'
+          };
+          updatedTransactions = [newTx, ...updatedTransactions];
+        }
+      } else if (assetTx.length === 1 && assetTx[0].type === 'buy') {
+        updatedTransactions = updatedTransactions.map(t => {
+          if (t.id === assetTx[0].id) {
+            return {
+              ...t,
+              quantity: baseQty,
+              pricePerUnit,
+              totalAmount: totalCost
+            };
+          }
+          return t;
+        });
+      } else {
+        // Có nhiều lệnh giao dịch: hợp nhất vị thế cơ sở để khớp số lượng và giá vốn mới
+        const otherTx = updatedTransactions.filter(t => t.assetId !== id);
+        const consolidatedTx: InvestmentTransaction = {
+          id: `tx-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+          assetId: id,
+          type: 'buy',
+          date: targetAsset.firstBuyDate || new Date().toISOString().split('T')[0],
+          quantity: baseQty,
+          pricePerUnit,
+          fees: 0,
+          tax: 0,
+          totalAmount: totalCost,
+          notes: 'Vị thế điều chỉnh (DCA & Số lượng)'
+        };
+        updatedTransactions = [consolidatedTx, ...otherTx];
+      }
     }
 
     let updatedAsset: InvestmentAsset | undefined;

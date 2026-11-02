@@ -51,6 +51,13 @@ export const vi = {
   dash_active_tasks: 'Việc cần làm',
   dash_family_points: 'Điểm gia đình',
   dash_ai_suggestions: 'Trợ lý AI đề xuất',
+  dash_ai_smart_badge: 'AI Smart Advisor',
+  dash_ai_cat_investment: 'Đầu tư & Cổ phiếu',
+  dash_ai_cat_budget: 'Ngân sách & Chi tiêu',
+  dash_ai_cat_maintenance: 'Thiết bị & Bảo dưỡng',
+  dash_ai_cat_general: 'Mẹo thông minh',
+  dash_ai_portfolio_health: 'Sức khỏe danh mục',
+  dash_ai_action_navigate: 'Xem chi tiết',
 
   // Assets
   asset_title: 'Quản lý Đồ dùng & Linh kiện',
@@ -416,7 +423,7 @@ export const vi = {
   inv_card_market_val: 'Giá trị thị trường',
   inv_card_market_price: 'Giá TT',
   inv_card_dividend_yoc: 'Cổ tức: +{amount} (YoC: {percent}%)',
-  inv_card_edit_price: 'Sửa giá thị trường',
+  inv_card_edit_price: 'Chỉnh sửa vị thế',
 
   // Add / Record Transaction Modal
   inv_tx_title: 'Ghi nhận Giao dịch Mới',
@@ -575,6 +582,16 @@ export const vi = {
 
   // Quick Update Price Modal
   inv_price_title: 'Cập nhật giá thị trường',
+  inv_asset_edit_title: 'Chỉnh sửa vị thế đầu tư',
+  inv_asset_edit_subtitle: 'Cập nhật giá thị trường, giá DCA và số lượng sở hữu',
+  inv_price_dca_label: 'Giá vốn trung bình (DCA)',
+  inv_price_qty_label: 'Số lượng sở hữu',
+  inv_price_invested_val: 'Tổng vốn đầu tư',
+  inv_price_market_val: 'Giá trị thị trường',
+  inv_price_dca_placeholder: 'VD: 24500',
+  inv_price_qty_placeholder: 'VD: 1000',
+  inv_price_err_dca: 'Vui lòng nhập giá DCA hợp lệ lớn hơn 0',
+  inv_price_err_qty: 'Vui lòng nhập số lượng sở hữu hợp lệ (từ 0 trở lên)',
   inv_price_modal_title: 'Cập nhật giá thị trường',
   inv_price_current_avg: 'Giá vốn trung bình (DCA)',
   inv_price_avg_cost: 'Giá vốn trung bình (DCA)',

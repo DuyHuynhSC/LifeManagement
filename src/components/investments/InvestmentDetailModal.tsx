@@ -37,7 +37,7 @@ interface InvestmentDetailModalProps {
 }
 
 export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
-  asset,
+  asset: initialAsset,
   onClose,
   onOpenAddTransaction,
   onOpenAddDividend,
@@ -48,6 +48,7 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
 
   const { 
+    assets,
     getAssetPnL, 
     getAssetTransactions, 
     getAssetDividends, 
@@ -55,6 +56,8 @@ export const InvestmentDetailModal: React.FC<InvestmentDetailModalProps> = ({
     deleteTransaction,
     deleteDividend
   } = useInvestmentStore();
+
+  const asset = assets.find(a => a.id === initialAsset.id) || initialAsset;
 
   const [activeTab, setActiveTab] = useState<'overview' | 'history' | 'dividends'>('overview');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

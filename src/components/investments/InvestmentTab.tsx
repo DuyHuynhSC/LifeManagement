@@ -15,6 +15,7 @@ import {
 import { useInvestmentStore } from '../../store/useInvestmentStore';
 import { InvestmentHeroCard } from './InvestmentHeroCard';
 import { AssetAllocationChart } from './AssetAllocationChart';
+import { InvestmentAIAdvisorCard } from './InvestmentAIAdvisorCard';
 import { InvestmentAssetCard } from './InvestmentAssetCard';
 import { QuickUpdatePriceModal } from './QuickUpdatePriceModal';
 import { AddTransactionModal } from './AddTransactionModal';
@@ -45,6 +46,7 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
   const {
     assets,
     portfolioSummary,
+    transactions,
     getAssetPnL,
     updateAssetPrice,
     resetToInitialData
@@ -239,6 +241,14 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
               onClose={() => setShowAllocation(false)}
             />
           )}
+
+          {/* AI Portfolio Advisor & Health Check */}
+          <InvestmentAIAdvisorCard
+            assets={assets}
+            portfolioSummary={portfolioSummary}
+            transactions={transactions}
+            onSelectAsset={setDetailAsset}
+          />
 
           {/* Filter and Search Bar */}
           <div className="space-y-2">

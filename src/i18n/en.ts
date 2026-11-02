@@ -53,6 +53,13 @@ export const en: typeof vi = {
   dash_active_tasks: 'Pending Tasks',
   dash_family_points: 'Family XP',
   dash_ai_suggestions: 'AI Recommendations',
+  dash_ai_smart_badge: 'AI Smart Advisor',
+  dash_ai_cat_investment: 'Investments & Portfolio',
+  dash_ai_cat_budget: 'Budget & Expenses',
+  dash_ai_cat_maintenance: 'Assets & Maintenance',
+  dash_ai_cat_general: 'Smart Tips',
+  dash_ai_portfolio_health: 'Portfolio Health',
+  dash_ai_action_navigate: 'View details',
 
   // Assets
   asset_title: 'Appliances & Components',
@@ -418,7 +425,7 @@ export const en: typeof vi = {
   inv_card_market_val: 'Market Value',
   inv_card_market_price: 'Price',
   inv_card_dividend_yoc: 'Dividends: +{amount} (YoC: {percent}%)',
-  inv_card_edit_price: 'Edit market price',
+  inv_card_edit_price: 'Edit position',
 
   // Add / Record Transaction Modal
   inv_tx_title: 'Record New Transaction',
@@ -577,6 +584,16 @@ export const en: typeof vi = {
 
   // Quick Update Price Modal
   inv_price_title: 'Update Market Price',
+  inv_asset_edit_title: 'Edit Investment Position',
+  inv_asset_edit_subtitle: 'Update market price, DCA cost and holding quantity',
+  inv_price_dca_label: 'Average Cost (DCA)',
+  inv_price_qty_label: 'Holding Quantity',
+  inv_price_invested_val: 'Total Invested',
+  inv_price_market_val: 'Market Value',
+  inv_price_dca_placeholder: 'e.g. 24500',
+  inv_price_qty_placeholder: 'e.g. 1000',
+  inv_price_err_dca: 'Please enter a valid DCA price greater than 0',
+  inv_price_err_qty: 'Please enter a valid holding quantity (0 or greater)',
   inv_price_modal_title: 'Update Market Price',
   inv_price_current_avg: 'Average Cost (DCA)',
   inv_price_avg_cost: 'Average Cost (DCA)',
