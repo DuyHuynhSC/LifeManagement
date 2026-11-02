@@ -657,4 +657,26 @@ export const ja: typeof vi = {
   // Dashboard Overview Card
   inv_dash_card_title: '投資ポートフォリオ',
   inv_dash_view_portfolio: '詳細を表示',
+
+  // Recurring Bills (Feature 1)
+  bills_title: '定期請求・サブスクリプション',
+  bills_subtitle: '電気、水道、ネット、学費、Netflixなどを追跡',
+  bills_monthly_total: '月間固定費合計',
+  bills_add_new: '定期請求を追加',
+  bills_due_soon: '期日直前',
+  bills_overdue: '期限超過',
+  bills_pay_one_tap: '支払済にする',
+  bills_cycle_monthly: '毎月',
+  bills_cycle_quarterly: '四半期ごと',
+  bills_cycle_yearly: '毎年',
+
+  // Medicine Cabinet (Feature 6)
+  med_cabinet_title: '家庭用救急箱・常備薬',
+  med_cabinet_subtitle: '使用期限・用法用量・在庫数の管理',
+  med_add_new: '医薬品を追加',
+  med_expired_alert: '期限切れ！',
+  med_expiring_soon: '30日以内に期限切れ',
+  med_low_stock: '在庫僅か',
+  med_dosage_label: '用法・用量',
+  med_storage_label: '保管場所'
 };

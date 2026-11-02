@@ -214,3 +214,49 @@ export interface AIInsight {
   targetTab?: 'dashboard' | 'assets' | 'expenses' | 'iot' | 'family' | 'game' | 'settings' | 'investments';
   targetAssetId?: string;
 }
+
+// ---------------------------------------------------------------------------
+// TÍNH NĂNG 1: HÓA ĐƠN ĐỊNH KỲ & GÓI ĐĂNG KÝ (RECURRING BILLS)
+// ---------------------------------------------------------------------------
+export type BillFrequency = 'monthly' | 'quarterly' | 'yearly';
+
+export interface RecurringBill {
+  id: string;
+  title: string;
+  amount: number;
+  category: ExpenseCategory;
+  billingCycle: BillFrequency;
+  dueDay: number; // 1 - 31
+  nextDueDate: string; // YYYY-MM-DD
+  isAutoPaid?: boolean;
+  payerId: string;
+  provider?: string; // EVN, Viettel, VNPT, Netflix, v.v.
+  notes?: string;
+  lastPaidDate?: string;
+}
+
+// ---------------------------------------------------------------------------
+// TÍNH NĂNG 6: TỦ THUỐC GIA ĐÌNH & HẠN DÙNG (FAMILY MEDICINE CABINET)
+// ---------------------------------------------------------------------------
+export type MedicineCategory = 
+  | 'fever_pain'      // Hạ sốt & Giảm đau
+  | 'digestive'       // Tiêu hóa & Dạ dày
+  | 'respiratory'     // Hô hấp & Cảm cúm
+  | 'allergy'         // Dị ứng
+  | 'first_aid'       // Sơ cứu & Băng gạc
+  | 'supplements'     // Vitamin & Bổ sung
+  | 'other';          // Khác
+
+export interface MedicineItem {
+  id: string;
+  name: string;
+  category: MedicineCategory;
+  quantity: number;
+  unit: string; // viên, gói, chai, vỉ, tuýp, hộp...
+  expiryDate: string; // YYYY-MM-DD
+  dosageInstructions?: string; // Liều dùng & chỉ định
+  storageLocation?: string; // Tủ phòng khách, ngăn kéo...
+  minQuantityAlert?: number; // Cảnh báo khi số lượng <= ngưỡng này
+  notes?: string;
+}
+

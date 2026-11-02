@@ -12,7 +12,9 @@ import {
   CheckCircle2,
   ShieldAlert,
   Zap,
-  TrendingUp
+  TrendingUp,
+  Pill,
+  Calendar
 } from 'lucide-react';
 import { useAppStore, getCurrentYearMonth } from '../../store/useAppStore';
 import { formatYearMonthDisplay } from '../expenses/BudgetModal';
@@ -33,6 +35,7 @@ interface DashboardTabProps {
   onSelectAsset: (assetId: string) => void;
   onEditBankTransaction?: (tx: PendingBankTransaction) => void;
   onOpenBankSync?: () => void;
+  onOpenMedicineCabinet?: () => void;
 }
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({
@@ -44,8 +47,9 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   onSelectAsset,
   onEditBankTransaction,
   onOpenBankSync,
+  onOpenMedicineCabinet,
 }) => {
-  const { assets, expenses, budgets, tasks, currentUser, settings, users, pendingTransactions } = useAppStore();
+  const { assets, expenses, budgets, tasks, currentUser, settings, users, pendingTransactions, recurringBills, medicineItems } = useAppStore();
   const { portfolioSummary, assets: investmentAssets, transactions: investmentTransactions } = useInvestmentStore();
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
 
@@ -75,7 +79,23 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
     });
   });
 
-  const totalUrgent = warrantyExpiringAssets.length + urgentComponents.length;
+  // 3. Urgent Recurring Bills (quá hạn hoặc đến hạn <= 5 ngày)
+  const urgentBills = recurringBills.map(b => {
+    const due = new Date(b.nextDueDate);
+    due.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return { ...b, diffDays };
+  }).filter(b => b.diffDays <= (settings.notifyDaysBeforeExpiry || 5));
+
+  // 4. Urgent Medicine Items (quá hạn hoặc hết hạn trong vòng 30 ngày)
+  const urgentMedicines = medicineItems.map(m => {
+    const exp = new Date(m.expiryDate);
+    exp.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return { ...m, diffDays };
+  }).filter(m => m.diffDays <= 30);
+
+  const totalUrgent = warrantyExpiringAssets.length + urgentComponents.length + urgentBills.length + urgentMedicines.length;
 
   // Monthly expense calculation
   const currentMonth = getCurrentYearMonth();
@@ -173,6 +193,60 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           </div>
 
           <div className="space-y-2">
+            {/* Medicine Expiry Warnings */}
+            {urgentMedicines.map(med => (
+              <div
+                key={med.id}
+                onClick={() => onOpenMedicineCabinet?.()}
+                className="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-rose-300 dark:border-rose-800/80 flex items-center justify-between cursor-pointer hover:border-rose-500 transition"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950 text-rose-600">
+                    <Pill size={16} />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[180px] flex items-center gap-1.5">
+                      <span>{med.name}</span>
+                      <span className="text-[9px] font-black bg-rose-100 text-rose-700 px-1 rounded">Tủ thuốc</span>
+                    </div>
+                    <div className="text-[10px] text-rose-600 dark:text-rose-400 font-semibold font-mono tabular-nums">
+                      {med.diffDays < 0 ? `ĐÃ HẾT HẠN (${Math.abs(med.diffDays)} ngày trước)` : `Hết hạn sau ${med.diffDays} ngày (${med.expiryDate})`}
+                    </div>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">
+                  Xem ngay
+                </span>
+              </div>
+            ))}
+
+            {/* Recurring Bills Warnings */}
+            {urgentBills.map(bill => (
+              <div
+                key={bill.id}
+                onClick={() => onNavigateTab('expenses')}
+                className="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-teal-300 dark:border-teal-800/80 flex items-center justify-between cursor-pointer hover:border-teal-500 transition"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600">
+                    <Calendar size={16} />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[180px] flex items-center gap-1.5">
+                      <span>{bill.title}</span>
+                      <span className="text-[9px] font-black bg-teal-100 text-teal-700 px-1 rounded font-mono">{bill.amount.toLocaleString()} ₫</span>
+                    </div>
+                    <div className={`text-[10px] font-semibold font-mono tabular-nums ${bill.diffDays < 0 ? 'text-rose-600' : 'text-teal-700 dark:text-teal-300'}`}>
+                      {bill.diffDays < 0 ? `Quá hạn đóng tiền (${Math.abs(bill.diffDays)} ngày)` : `Đến hạn sau ${bill.diffDays} ngày (${bill.nextDueDate})`}
+                    </div>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400">
+                  Đóng tiền
+                </span>
+              </div>
+            ))}
+
             {/* Warranty Warnings */}
             {warrantyExpiringAssets.map(asset => {
               const diff = Math.ceil((new Date(asset.warrantyExpiryDate).getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
@@ -234,54 +308,68 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">
           {t('action_quick_add')}
         </h2>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
           <button
             onClick={onOpenAddExpense}
-            className="flex flex-col items-center justify-center p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-primary-400 transition group"
+            className="flex flex-col items-center justify-center p-2 sm:p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-primary-400 transition group"
           >
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <PlusCircle size={20} />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <PlusCircle size={19} />
             </div>
-            <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 mt-1.5 text-center leading-tight">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-700 dark:text-slate-200 mt-1.5 text-center leading-tight truncate w-full">
               {t('nav_expenses')}
             </span>
           </button>
 
           <button
             onClick={onOpenAddAsset}
-            className="flex flex-col items-center justify-center p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-primary-400 transition group"
+            className="flex flex-col items-center justify-center p-2 sm:p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-primary-400 transition group"
           >
-            <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <PlusCircle size={20} />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <PlusCircle size={19} />
             </div>
-            <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 mt-1.5 text-center leading-tight">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-700 dark:text-slate-200 mt-1.5 text-center leading-tight truncate w-full">
               {t('nav_assets')}
             </span>
           </button>
 
           <button
             onClick={onOpenVoiceInput}
-            className="flex flex-col items-center justify-center p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-primary-400 transition group"
+            className="flex flex-col items-center justify-center p-2 sm:p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-primary-400 transition group"
           >
-            <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Mic size={20} />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Mic size={19} />
             </div>
-            <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 mt-1.5 text-center leading-tight">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-700 dark:text-slate-200 mt-1.5 text-center leading-tight truncate w-full">
               {t('action_voice_input')}
             </span>
           </button>
 
           <button
             onClick={onOpenQRScanner}
-            className="flex flex-col items-center justify-center p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-primary-400 transition group"
+            className="flex flex-col items-center justify-center p-2 sm:p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-primary-400 transition group"
           >
-            <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <QrCode size={20} />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <QrCode size={19} />
             </div>
-            <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 mt-1.5 text-center leading-tight">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-700 dark:text-slate-200 mt-1.5 text-center leading-tight truncate w-full">
               {t('action_scan_qr')}
             </span>
           </button>
+
+          {onOpenMedicineCabinet && (
+            <button
+              onClick={onOpenMedicineCabinet}
+              className="flex flex-col items-center justify-center p-2 sm:p-2.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm hover:border-rose-400 transition group"
+            >
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Pill size={19} />
+              </div>
+              <span className="text-[10px] sm:text-[11px] font-semibold text-slate-700 dark:text-slate-200 mt-1.5 text-center leading-tight truncate w-full">
+                Tủ thuốc
+              </span>
+            </button>
+          )}
         </div>
       </div>
 

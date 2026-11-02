@@ -17,6 +17,7 @@ import { VoiceInputModal } from './components/common/VoiceInputModal';
 import { QRScannerModal } from './components/common/QRScannerModal';
 import { AlertsModal } from './components/dashboard/AlertsModal';
 import { BankSyncModal } from './components/expenses/BankSyncModal';
+import { MedicineCabinetModal } from './components/medicine/MedicineCabinetModal';
 import { Asset, Expense, ExpenseCategory, PendingBankTransaction } from './types';
 import { fetchNativePendingBankTransactions, checkClipboardForBankTransaction } from './services/bankListenerBridge';
 
@@ -28,7 +29,9 @@ export const App: React.FC = () => {
     addAsset, 
     currentUser, 
     addPendingBankTransaction, 
-    dismissPendingBankTransaction 
+    dismissPendingBankTransaction,
+    recurringBills,
+    medicineItems
   } = useAppStore();
   const [activeTab, setActiveTab] = useState<TabType>(() => {
     try {
@@ -58,6 +61,7 @@ export const App: React.FC = () => {
   const [qrScannerInitialType, setQrScannerInitialType] = useState<'expense' | 'asset'>('expense');
   const [showAlertsModal, setShowAlertsModal] = useState(false);
   const [showBankSyncModal, setShowBankSyncModal] = useState(false);
+  const [showMedicineCabinetModal, setShowMedicineCabinetModal] = useState(false);
   const [bankTxToEdit, setBankTxToEdit] = useState<PendingBankTransaction | null>(null);
   const [preselectedAssetId, setPreselectedAssetId] = useState<string | null>(null);
 
@@ -99,12 +103,15 @@ export const App: React.FC = () => {
     }
   }, [settings.theme]);
 
-  // Calculate urgent alerts based on notifyDaysBeforeExpiry
+  // Calculate urgent alerts based on notifyDaysBeforeExpiry, bills, medicine
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
   let urgentCount = 0;
 
+  // 1. Assets warranty & wear
   assets.forEach(asset => {
     const exp = new Date(asset.warrantyExpiryDate);
+    exp.setHours(0, 0, 0, 0);
     const diffDays = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     if (diffDays >= 0 && diffDays <= settings.notifyDaysBeforeExpiry) {
       urgentCount++;
@@ -114,6 +121,26 @@ export const App: React.FC = () => {
         urgentCount++;
       }
     });
+  });
+
+  // 2. Urgent Recurring bills
+  recurringBills.forEach(b => {
+    const due = new Date(b.nextDueDate);
+    due.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays <= (settings.notifyDaysBeforeExpiry || 5)) {
+      urgentCount++;
+    }
+  });
+
+  // 3. Urgent Medicine
+  medicineItems.forEach(m => {
+    const exp = new Date(m.expiryDate);
+    exp.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays <= 30) {
+      urgentCount++;
+    }
   });
 
   const handleVoiceExpenseConfirm = (parsed: { title: string; amount: number; category: ExpenseCategory }) => {
@@ -187,6 +214,7 @@ export const App: React.FC = () => {
             onSelectAsset={handleSelectAsset}
             onEditBankTransaction={handleEditBankTransaction}
             onOpenBankSync={() => setShowBankSyncModal(true)}
+            onOpenMedicineCabinet={() => setShowMedicineCabinetModal(true)}
           />
         )}
 
@@ -286,6 +314,14 @@ export const App: React.FC = () => {
         <AlertsModal
           onClose={() => setShowAlertsModal(false)}
           onSelectAsset={handleSelectAsset}
+          onOpenMedicineCabinet={() => setShowMedicineCabinetModal(true)}
+          onOpenRecurringBills={() => setActiveTab('expenses')}
+        />
+      )}
+
+      {showMedicineCabinetModal && (
+        <MedicineCabinetModal
+          onClose={() => setShowMedicineCabinetModal(false)}
         />
       )}
 

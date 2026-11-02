@@ -657,4 +657,26 @@ export const en: typeof vi = {
   // Dashboard Overview Card
   inv_dash_card_title: 'Investment Portfolio',
   inv_dash_view_portfolio: 'View Portfolio',
+
+  // Recurring Bills (Feature 1)
+  bills_title: 'Recurring Bills & Subscriptions',
+  bills_subtitle: 'Track electricity, water, internet, tuition, Netflix...',
+  bills_monthly_total: 'Total Monthly Fixed Cost',
+  bills_add_new: 'Add Recurring Bill',
+  bills_due_soon: 'Due Soon',
+  bills_overdue: 'Overdue',
+  bills_pay_one_tap: 'Mark as Paid',
+  bills_cycle_monthly: 'Monthly',
+  bills_cycle_quarterly: 'Quarterly',
+  bills_cycle_yearly: 'Yearly',
+
+  // Medicine Cabinet (Feature 6)
+  med_cabinet_title: 'Family Medicine Cabinet',
+  med_cabinet_subtitle: 'Manage expiration dates, dosages & safety supplies',
+  med_add_new: 'Add Medicine',
+  med_expired_alert: 'Expired!',
+  med_expiring_soon: 'Expiring in 30 days',
+  med_low_stock: 'Low Stock',
+  med_dosage_label: 'Dosage & Instructions',
+  med_storage_label: 'Storage Location'
 };

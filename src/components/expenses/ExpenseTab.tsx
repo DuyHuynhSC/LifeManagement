@@ -30,6 +30,7 @@ import { getTranslation } from '../../i18n';
 import { AddExpenseModal } from './AddExpenseModal';
 import { BudgetModal, shiftYearMonth, formatYearMonthDisplay } from './BudgetModal';
 import { BankTransactionSuggestionBanner } from './BankTransactionSuggestionBanner';
+import { RecurringBillsView } from '../bills/RecurringBillsView';
 import { Building2 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
@@ -46,11 +47,24 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
   onEditBankTransaction,
   onOpenBankSync
 }) => {
-  const { expenses, budgets, categories, deleteExpense, users, currentUser, settings, assets, pendingTransactions } = useAppStore();
+  const { expenses, budgets, categories, deleteExpense, users, currentUser, settings, assets, pendingTransactions, recurringBills } = useAppStore();
+  const [activeSubView, setActiveSubView] = useState<'transactions' | 'bills'>('transactions');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [showBudgetModal, setShowBudgetModal] = useState(false);
   const [showChart, setShowChart] = useState(false);
+
+  // Số hóa đơn sắp đến hạn (5 ngày) hoặc quá hạn
+  const pendingBillsCount = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return recurringBills.filter(b => {
+      const due = new Date(b.nextDueDate);
+      due.setHours(0, 0, 0, 0);
+      const diff = Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      return diff <= (settings.notifyDaysBeforeExpiry || 5);
+    }).length;
+  }, [recurringBills, settings.notifyDaysBeforeExpiry]);
 
   const currentMonth = getCurrentYearMonth();
   const [selectedBudgetMonth, setSelectedBudgetMonth] = useState<string>(currentMonth);
@@ -223,15 +237,49 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
         </div>
       </div>
 
-      {/* Suggestion Banner */}
-      {onEditBankTransaction && (
-        <BankTransactionSuggestionBanner
-          onEditTransaction={onEditBankTransaction}
-          onOpenSyncSettings={onOpenBankSync}
-        />
-      )}
+      {/* Sub-view Switcher: Giao dịch chi tiêu vs Hóa đơn định kỳ */}
+      <div className="grid grid-cols-2 gap-1 p-0.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+        <button
+          onClick={() => setActiveSubView('transactions')}
+          className={`h-8 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 whitespace-nowrap ${
+            activeSubView === 'transactions'
+              ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-300 shadow-xs font-black'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <Wallet size={13} className="shrink-0" />
+          <span className="truncate">Chi tiêu hàng ngày</span>
+        </button>
 
-      {/* Monthly Budget Summary Banner - FinTech Clean Surface */}
+        <button
+          onClick={() => setActiveSubView('bills')}
+          className={`h-8 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 whitespace-nowrap relative ${
+            activeSubView === 'bills'
+              ? 'bg-white dark:bg-slate-700 text-teal-600 dark:text-teal-300 shadow-xs font-black'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <Calendar size={13} className="shrink-0" />
+          <span className="truncate">Hóa đơn định kỳ ({recurringBills.length})</span>
+          {pendingBillsCount > 0 && (
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse ml-0.5" />
+          )}
+        </button>
+      </div>
+
+      {activeSubView === 'bills' ? (
+        <RecurringBillsView />
+      ) : (
+        <>
+          {/* Suggestion Banner */}
+          {onEditBankTransaction && (
+            <BankTransactionSuggestionBanner
+              onEditTransaction={onEditBankTransaction}
+              onOpenSyncSettings={onOpenBankSync}
+            />
+          )}
+
+          {/* Monthly Budget Summary Banner - FinTech Clean Surface */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl p-3.5 sm:p-4 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-3 relative w-full max-w-full overflow-hidden min-w-0">
         <div className="space-y-2">
           {/* Header Row: Month Switcher & Budget Limit Chip */}
@@ -760,6 +808,8 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
           </div>
         )}
       </div>
+      </>
+      )}
 
       {showAddModal && (
         <AddExpenseModal

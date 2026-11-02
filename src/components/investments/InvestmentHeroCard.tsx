@@ -8,7 +8,8 @@ import {
   Clock,
   RefreshCw,
   PieChart,
-  ChevronDown
+  ChevronDown,
+  Sparkles
 } from 'lucide-react';
 import { PortfolioSummary } from '../../types/investment';
 import { useAppStore } from '../../store/useAppStore';
@@ -21,6 +22,8 @@ interface InvestmentHeroCardProps {
   isSyncing?: boolean;
   showAllocation?: boolean;
   onToggleAllocation?: () => void;
+  healthScore?: number;
+  onOpenAIAdvisor?: () => void;
 }
 
 export const InvestmentHeroCard: React.FC<InvestmentHeroCardProps> = ({
@@ -29,7 +32,9 @@ export const InvestmentHeroCard: React.FC<InvestmentHeroCardProps> = ({
   onSyncMarketPrices,
   isSyncing = false,
   showAllocation = false,
-  onToggleAllocation
+  onToggleAllocation,
+  healthScore,
+  onOpenAIAdvisor
 }) => {
   const { settings } = useAppStore();
   const t = (key: any, params?: any) => getTranslation(settings.language, key, params);
@@ -133,21 +138,36 @@ export const InvestmentHeroCard: React.FC<InvestmentHeroCardProps> = ({
         </div>
       </div>
 
-      {/* Bottom Micro-actions: Allocation Chart Toggle Bar */}
-      {onToggleAllocation && (
-        <div className="pt-1.5 flex items-center justify-between text-[11px] text-indigo-100 border-t border-white/10 relative z-10">
-          <span className="text-[10px] text-indigo-200/90 font-medium">
-            {summary.allocationByClass.filter(i => i.value > 0).length} nhóm danh mục
-          </span>
-          <button
-            type="button"
-            onClick={onToggleAllocation}
-            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 active:scale-95 transition text-[11px] font-semibold text-white backdrop-blur-sm"
-          >
-            <PieChart size={11} className="text-indigo-300" />
-            <span>{showAllocation ? 'Ẩn phân bổ' : 'Xem phân bổ'}</span>
-            <ChevronDown size={11} className={`transform transition-transform duration-200 ${showAllocation ? 'rotate-180' : ''}`} />
-          </button>
+      {/* Bottom Micro-actions: Allocation Chart Toggle Bar & AI Advisor Pill */}
+      {(onToggleAllocation || onOpenAIAdvisor) && (
+        <div className="pt-1.5 flex items-center justify-between text-[11px] text-indigo-100 border-t border-white/10 relative z-10 gap-2">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-[10px] text-indigo-200/90 font-medium truncate">
+              {summary.allocationByClass.filter(i => i.value > 0).length} nhóm danh mục
+            </span>
+            {onOpenAIAdvisor && healthScore !== undefined && (
+              <button
+                type="button"
+                onClick={onOpenAIAdvisor}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/25 hover:bg-purple-500/40 border border-purple-400/30 text-purple-200 text-[10px] font-bold transition active:scale-95 shadow-2xs"
+              >
+                <Sparkles size={10} className="text-purple-300" />
+                <span>AI: {healthScore}/100</span>
+              </button>
+            )}
+          </div>
+
+          {onToggleAllocation && (
+            <button
+              type="button"
+              onClick={onToggleAllocation}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 active:scale-95 transition text-[11px] font-semibold text-white backdrop-blur-sm shrink-0"
+            >
+              <PieChart size={11} className="text-indigo-300" />
+              <span>{showAllocation ? 'Ẩn phân bổ' : 'Xem phân bổ'}</span>
+              <ChevronDown size={11} className={`transform transition-transform duration-200 ${showAllocation ? 'rotate-180' : ''}`} />
+            </button>
+          )}
         </div>
       )}
     </div>

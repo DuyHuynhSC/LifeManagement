@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Plus,
   Search,
@@ -15,7 +15,8 @@ import {
 import { useInvestmentStore } from '../../store/useInvestmentStore';
 import { InvestmentHeroCard } from './InvestmentHeroCard';
 import { AssetAllocationChart } from './AssetAllocationChart';
-import { InvestmentAIAdvisorCard } from './InvestmentAIAdvisorCard';
+import { InvestmentAIAdvisorModal } from './InvestmentAIAdvisorModal';
+import { generatePortfolioInsights } from '../../services/investmentAdvisor';
 import { InvestmentAssetCard } from './InvestmentAssetCard';
 import { QuickUpdatePriceModal } from './QuickUpdatePriceModal';
 import { AddTransactionModal } from './AddTransactionModal';
@@ -59,6 +60,12 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
   const [txAssetId, setTxAssetId] = useState<string | undefined>(undefined);
   const [detailAsset, setDetailAsset] = useState<InvestmentAsset | null>(null);
   const [showAllocation, setShowAllocation] = useState(false);
+  const [showAIModal, setShowAIModal] = useState(false);
+
+  const { health: portfolioHealth } = useMemo(() => 
+    generatePortfolioInsights(assets, portfolioSummary, transactions),
+    [assets, portfolioSummary, transactions]
+  );
 
   // Sync market prices state
   const [isSyncingPrices, setIsSyncingPrices] = useState(false);
@@ -232,6 +239,8 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
             isSyncing={isSyncingPrices}
             showAllocation={showAllocation}
             onToggleAllocation={() => setShowAllocation(prev => !prev)}
+            healthScore={portfolioHealth.score}
+            onOpenAIAdvisor={() => setShowAIModal(true)}
           />
 
           {/* Asset Allocation Chart (Toggleable) */}
@@ -242,13 +251,6 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
             />
           )}
 
-          {/* AI Portfolio Advisor & Health Check */}
-          <InvestmentAIAdvisorCard
-            assets={assets}
-            portfolioSummary={portfolioSummary}
-            transactions={transactions}
-            onSelectAsset={setDetailAsset}
-          />
 
           {/* Filter and Search Bar */}
           <div className="space-y-2">
@@ -399,6 +401,15 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
           }}
         />
       )}
+      {/* AI Advisor Modal */}
+      <InvestmentAIAdvisorModal
+        isOpen={showAIModal}
+        onClose={() => setShowAIModal(false)}
+        assets={assets}
+        portfolioSummary={portfolioSummary}
+        transactions={transactions}
+        onSelectAsset={setDetailAsset}
+      />
     </PullToRefresh>
   );
 };

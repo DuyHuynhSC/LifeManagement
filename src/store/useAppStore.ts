@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { 
   User, Asset, AssetComponent, Expense, Budget, Task, 
   IoTDevice, GamificationBadge, AppSettings, LanguageCode, ThemeMode,
-  CategoryItem, PendingBankTransaction
+  CategoryItem, PendingBankTransaction, RecurringBill, MedicineItem, BillFrequency
 } from '../types';
 import { 
   initialUsers, initialAssets, initialExpenses, 
   initialBudgets, initialCategories, initialTasks, initialIoTDevices, 
-  initialBadges, initialSettings 
+  initialBadges, initialSettings, initialRecurringBills, initialMedicineItems
 } from '../data/initialData';
 import { restoreInvestmentState } from './useInvestmentStore';
 import { SimulationService, LGThinQService } from '../services/iot';
@@ -18,6 +18,37 @@ export function getCurrentYearMonth(date: Date = new Date()): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   return `${year}-${month}`;
+}
+
+export function calculateNextDueDate(currentDueDateStr: string, cycle: BillFrequency, dueDay: number): string {
+  const date = new Date(currentDueDateStr);
+  const baseDate = isNaN(date.getTime()) ? new Date() : new Date(date);
+
+  let targetYear = baseDate.getFullYear();
+  let targetMonth = baseDate.getMonth();
+
+  if (cycle === 'quarterly') {
+    targetMonth += 3;
+  } else if (cycle === 'yearly') {
+    targetYear += 1;
+  } else {
+    // monthly
+    targetMonth += 1;
+  }
+
+  // Handle year overflow
+  if (targetMonth > 11) {
+    targetYear += Math.floor(targetMonth / 12);
+    targetMonth = targetMonth % 12;
+  }
+
+  const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+  const validDay = Math.min(Math.max(1, dueDay), daysInMonth);
+
+  const yyyy = targetYear;
+  const mm = String(targetMonth + 1).padStart(2, '0');
+  const dd = String(validDay).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 function normalizeBudgets(rawBudgets: Budget[] | undefined): Budget[] {
@@ -41,6 +72,8 @@ interface AppStoreState {
   badges: GamificationBadge[];
   settings: AppSettings;
   pendingTransactions: PendingBankTransaction[];
+  recurringBills: RecurringBill[];
+  medicineItems: MedicineItem[];
 }
 
 function getStoredState(): AppStoreState {
@@ -62,7 +95,13 @@ function getStoredState(): AppStoreState {
           ...initialSettings,
           ...(parsed.settings || {})
         },
-        pendingTransactions: Array.isArray(parsed.pendingTransactions) ? parsed.pendingTransactions : []
+        pendingTransactions: Array.isArray(parsed.pendingTransactions) ? parsed.pendingTransactions : [],
+        recurringBills: Array.isArray(parsed.recurringBills) && parsed.recurringBills.length > 0
+          ? parsed.recurringBills
+          : initialRecurringBills,
+        medicineItems: Array.isArray(parsed.medicineItems) && parsed.medicineItems.length > 0
+          ? parsed.medicineItems
+          : initialMedicineItems
       };
     }
   } catch (err) {
@@ -79,7 +118,9 @@ function getStoredState(): AppStoreState {
     iotDevices: initialIoTDevices,
     badges: initialBadges,
     settings: initialSettings,
-    pendingTransactions: []
+    pendingTransactions: [],
+    recurringBills: initialRecurringBills,
+    medicineItems: initialMedicineItems
   };
 }
 
@@ -382,6 +423,113 @@ export const useAppStore = () => {
     notify();
   };
 
+  // ---------------------------------------------------------------------------
+  // TÍNH NĂNG 1: QUẢN LÝ HÓA ĐƠN ĐỊNH KỲ (RECURRING BILLS)
+  // ---------------------------------------------------------------------------
+  const addRecurringBill = (bill: Omit<RecurringBill, 'id'>) => {
+    const newBill: RecurringBill = {
+      ...bill,
+      id: `bill-${Date.now()}`
+    };
+    globalState.recurringBills = [newBill, ...globalState.recurringBills];
+    awardUserPoints(globalState.currentUserId, 15);
+    notify();
+    return newBill;
+  };
+
+  const updateRecurringBill = (id: string, updates: Partial<Omit<RecurringBill, 'id'>>) => {
+    globalState.recurringBills = globalState.recurringBills.map(b =>
+      b.id === id ? { ...b, ...updates } : b
+    );
+    notify();
+  };
+
+  const deleteRecurringBill = (id: string) => {
+    globalState.recurringBills = globalState.recurringBills.filter(b => b.id !== id);
+    notify();
+  };
+
+  const payRecurringBill = (
+    billId: string, 
+    customAmount?: number, 
+    paidDate?: string, 
+    notes?: string
+  ) => {
+    const bill = globalState.recurringBills.find(b => b.id === billId);
+    if (!bill) return null;
+
+    const actualDate = paidDate || new Date().toISOString().split('T')[0];
+    const actualAmount = customAmount !== undefined ? customAmount : bill.amount;
+
+    // 1. Tự động tạo giao dịch chi tiêu tương ứng
+    const newExpense = addExpense({
+      title: `Thanh toán: ${bill.title}`,
+      amount: actualAmount,
+      category: bill.category,
+      date: actualDate,
+      payerId: bill.payerId || globalState.currentUserId,
+      notes: notes || `Hóa đơn ${bill.title} (${bill.billingCycle === 'monthly' ? 'Hàng tháng' : bill.billingCycle === 'quarterly' ? 'Hàng quý' : 'Hàng năm'}) qua ${bill.provider || 'FamLife'}`
+    });
+
+    // 2. Tính ngày đến hạn kỳ tiếp theo
+    const nextDue = calculateNextDueDate(bill.nextDueDate, bill.billingCycle, bill.dueDay);
+
+    // 3. Cập nhật hóa đơn
+    globalState.recurringBills = globalState.recurringBills.map(b =>
+      b.id === billId
+        ? {
+            ...b,
+            lastPaidDate: actualDate,
+            nextDueDate: nextDue
+          }
+        : b
+    );
+
+    // 4. Thưởng thêm 25 XP vì thanh toán đúng hạn
+    awardUserPoints(bill.payerId || globalState.currentUserId, 25);
+
+    notify();
+    return { expense: newExpense, nextDueDate: nextDue };
+  };
+
+  // ---------------------------------------------------------------------------
+  // TÍNH NĂNG 6: TỦ THUỐC GIA ĐÌNH & HẠN DÙNG (FAMILY MEDICINE CABINET)
+  // ---------------------------------------------------------------------------
+  const addMedicineItem = (item: Omit<MedicineItem, 'id'>) => {
+    const newMed: MedicineItem = {
+      ...item,
+      id: `med-${Date.now()}`
+    };
+    globalState.medicineItems = [newMed, ...globalState.medicineItems];
+    awardUserPoints(globalState.currentUserId, 10);
+    notify();
+    return newMed;
+  };
+
+  const updateMedicineItem = (id: string, updates: Partial<Omit<MedicineItem, 'id'>>) => {
+    globalState.medicineItems = globalState.medicineItems.map(m =>
+      m.id === id ? { ...m, ...updates } : m
+    );
+    notify();
+  };
+
+  const deleteMedicineItem = (id: string) => {
+    globalState.medicineItems = globalState.medicineItems.filter(m => m.id !== id);
+    notify();
+  };
+
+  const useMedicine = (id: string, amount: number = 1) => {
+    const med = globalState.medicineItems.find(m => m.id === id);
+    if (!med) return null;
+
+    const nextQty = Math.max(0, med.quantity - amount);
+    globalState.medicineItems = globalState.medicineItems.map(m =>
+      m.id === id ? { ...m, quantity: nextQty } : m
+    );
+    notify();
+    return nextQty;
+  };
+
   const awardUserPoints = (userId: string, pts: number) => {
     globalState.users = globalState.users.map(u => 
       u.id === userId ? { ...u, points: u.points + pts } : u
@@ -618,7 +766,7 @@ export const useAppStore = () => {
     notify();
   };
 
-  // Clear all operational data (assets, expenses, budgets, tasks, iot, pending bank tx) keeping admin and settings
+  // Clear all operational data (assets, expenses, budgets, tasks, iot, pending bank tx, recurring bills, medicine) keeping admin and settings
   const clearAllData = () => {
     globalState.assets = [];
     globalState.expenses = [];
@@ -626,6 +774,8 @@ export const useAppStore = () => {
     globalState.tasks = [];
     globalState.iotDevices = [];
     globalState.pendingTransactions = [];
+    globalState.recurringBills = [];
+    globalState.medicineItems = [];
     notify();
   };
 
@@ -671,7 +821,9 @@ export const useAppStore = () => {
       iotDevices: initialIoTDevices,
       badges: initialBadges,
       settings: initialSettings,
-      pendingTransactions: []
+      pendingTransactions: [],
+      recurringBills: initialRecurringBills,
+      medicineItems: initialMedicineItems
     };
     restoreInvestmentState({ assets: [], transactions: [], dividends: [] });
     if (initialSettings.theme === 'dark') {
@@ -754,7 +906,13 @@ export const useAppStore = () => {
         settings: nextSettings,
         pendingTransactions: Array.isArray(backupData.pendingTransactions)
           ? backupData.pendingTransactions
-          : globalState.pendingTransactions
+          : globalState.pendingTransactions,
+        recurringBills: Array.isArray(backupData.recurringBills)
+          ? backupData.recurringBills
+          : globalState.recurringBills,
+        medicineItems: Array.isArray(backupData.medicineItems)
+          ? backupData.medicineItems
+          : globalState.medicineItems
       };
 
       if (nextSettings.theme === 'dark') {
@@ -798,6 +956,14 @@ export const useAppStore = () => {
     deleteCategory,
     addTask,
     completeTask,
+    addRecurringBill,
+    updateRecurringBill,
+    deleteRecurringBill,
+    payRecurringBill,
+    addMedicineItem,
+    updateMedicineItem,
+    deleteMedicineItem,
+    useMedicine,
     setNotifyDaysBeforeExpiry,
     setTheme,
     setLanguage,

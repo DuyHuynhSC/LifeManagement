@@ -1,4 +1,7 @@
-import { User, Asset, Expense, Budget, Task, IoTDevice, GamificationBadge, AppSettings, CategoryItem } from '../types';
+import { 
+  User, Asset, Expense, Budget, Task, IoTDevice, GamificationBadge, 
+  AppSettings, CategoryItem, RecurringBill, MedicineItem 
+} from '../types';
 
 export const initialUsers: User[] = [
   {
@@ -187,3 +190,147 @@ export const initialSettings: AppSettings = {
   enableClipboardCheck: true,
   monitoredBankApps: ['momo', 'zalopay', 'vcb', 'tcb', 'mbbank', 'bidv', 'vpbank', 'tpbank', 'acb', 'vietinbank', 'sms']
 };
+
+export const initialRecurringBills: RecurringBill[] = [
+  {
+    id: 'bill-evn',
+    title: 'Tiền điện EVN',
+    amount: 1250000,
+    category: 'utilities',
+    billingCycle: 'monthly',
+    dueDay: 15,
+    nextDueDate: '2026-11-15',
+    isAutoPaid: false,
+    payerId: 'user-admin',
+    provider: 'EVN Miền Bắc / EVN HCMC',
+    notes: 'Mã khách hàng: PD04001294829'
+  },
+  {
+    id: 'bill-water',
+    title: 'Tiền nước sinh hoạt',
+    amount: 165000,
+    category: 'utilities',
+    billingCycle: 'monthly',
+    dueDay: 20,
+    nextDueDate: '2026-11-20',
+    isAutoPaid: false,
+    payerId: 'user-admin',
+    provider: 'Công ty Cấp nước',
+    notes: 'Kỳ nước sinh hoạt gia đình'
+  },
+  {
+    id: 'bill-internet',
+    title: 'Internet Cáp quang Viettel',
+    amount: 220000,
+    category: 'utilities',
+    billingCycle: 'monthly',
+    dueDay: 5,
+    nextDueDate: '2026-11-05',
+    isAutoPaid: true,
+    payerId: 'user-admin',
+    provider: 'Viettel Telecom',
+    notes: 'Gói NetPlus 150Mbps'
+  },
+  {
+    id: 'bill-building',
+    title: 'Phí dịch vụ & Quản lý chung cư',
+    amount: 680000,
+    category: 'other',
+    billingCycle: 'monthly',
+    dueDay: 10,
+    nextDueDate: '2026-11-10',
+    isAutoPaid: false,
+    payerId: 'user-admin',
+    provider: 'Ban Quản trị Tòa nhà',
+    notes: 'Phí gửi 2 xe máy + dịch vụ hành lang'
+  },
+  {
+    id: 'bill-netflix',
+    title: 'Gói Netflix Premium 4K',
+    amount: 260000,
+    category: 'entertainment',
+    billingCycle: 'monthly',
+    dueDay: 28,
+    nextDueDate: '2026-11-28',
+    isAutoPaid: true,
+    payerId: 'user-admin',
+    provider: 'Netflix',
+    notes: 'Trừ thẻ Visa tự động'
+  }
+];
+
+export const initialMedicineItems: MedicineItem[] = [
+  {
+    id: 'med-para',
+    name: 'Paracetamol 500mg',
+    category: 'fever_pain',
+    quantity: 16,
+    unit: 'viên',
+    expiryDate: '2027-10-15',
+    dosageInstructions: 'Uống 1-2 viên khi sốt trên 38.5°C, mỗi lần cách nhau 4-6 tiếng. Tối đa 4g/ngày.',
+    storageLocation: 'Tủ thuốc phòng khách - Ngăn 1',
+    minQuantityAlert: 4,
+    notes: 'Dùng cho người lớn và trẻ trên 12 tuổi'
+  },
+  {
+    id: 'med-oresol',
+    name: 'Bột bù nước Oresol 245',
+    category: 'digestive',
+    quantity: 6,
+    unit: 'gói',
+    expiryDate: '2027-06-20',
+    dosageInstructions: 'Pha đúng 1 gói với 200ml nước đun sôi để nguội. Uống rải rác trong ngày.',
+    storageLocation: 'Tủ thuốc phòng khách - Ngăn 2',
+    minQuantityAlert: 2,
+    notes: 'Bù điện giải khi sốt hoặc tiêu chảy'
+  },
+  {
+    id: 'med-siro',
+    name: 'Siro ho Bảo Thanh',
+    category: 'respiratory',
+    quantity: 1,
+    unit: 'chai',
+    expiryDate: '2027-04-10',
+    dosageInstructions: 'Người lớn: 15ml/lần, ngày 3 lần. Trẻ em: 10ml/lần.',
+    storageLocation: 'Tủ thuốc phòng khách - Ngăn 1',
+    minQuantityAlert: 1,
+    notes: 'Dùng khi ho gió, ho khan, rát họng'
+  },
+  {
+    id: 'med-saline',
+    name: 'Nước muối sinh lý NaCl 0.9%',
+    category: 'respiratory',
+    quantity: 3,
+    unit: 'chai',
+    expiryDate: '2026-11-25', // Gần hết hạn trong tháng để kích hoạt cảnh báo
+    dosageInstructions: 'Nhỏ mắt, mũi hoặc súc miệng hàng ngày sau khi ra ngoài bụi về.',
+    storageLocation: 'Kệ gương phòng tắm & Tủ thuốc',
+    minQuantityAlert: 2,
+    notes: 'Chai 500ml và chai nhỏ 10ml'
+  },
+  {
+    id: 'med-urgo',
+    name: 'Băng dán vết thương Urgo',
+    category: 'first_aid',
+    quantity: 25,
+    unit: 'miếng',
+    expiryDate: '2028-12-31',
+    dosageInstructions: 'Rửa sạch vết thương bằng cồn sát khuẩn trước khi băng dán.',
+    storageLocation: 'Hộp sơ cứu khẩn cấp',
+    minQuantityAlert: 5,
+    notes: 'Chống thấm nước tốt'
+  },
+  {
+    id: 'med-entero',
+    name: 'Men vi sinh Enterogermina',
+    category: 'digestive',
+    quantity: 4,
+    unit: 'ống',
+    expiryDate: '2027-08-15',
+    dosageInstructions: 'Lắc đều trước khi uống. 1-2 ống/ngày sau bữa ăn.',
+    storageLocation: 'Tủ thuốc phòng khách - Ngăn 2',
+    minQuantityAlert: 6, // 4 <= 6 -> Sắp hết số lượng
+    notes: 'Phục hồi hệ vi sinh đường ruột'
+  }
+];
+

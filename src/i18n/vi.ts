@@ -655,5 +655,27 @@ export const vi = {
   // Dashboard Overview Card
   inv_dash_card_title: 'Danh mục Đầu tư',
   inv_dash_view_portfolio: 'Xem chi tiết',
+
+  // Recurring Bills (Tính năng 1)
+  bills_title: 'Hóa đơn định kỳ & Dịch vụ',
+  bills_subtitle: 'Theo dõi tiền điện, nước, internet, học phí, netflix...',
+  bills_monthly_total: 'Tổng chi phí định kỳ / tháng',
+  bills_add_new: 'Thêm hóa đơn mới',
+  bills_due_soon: 'Sắp đến hạn',
+  bills_overdue: 'Đã quá hạn',
+  bills_pay_one_tap: 'Đã thanh toán',
+  bills_cycle_monthly: 'Hàng tháng',
+  bills_cycle_quarterly: 'Hàng quý',
+  bills_cycle_yearly: 'Hàng năm',
+
+  // Medicine Cabinet (Tính năng 6)
+  med_cabinet_title: 'Tủ thuốc Gia đình',
+  med_cabinet_subtitle: 'Quản lý hạn sử dụng, liều dùng & cơ số dự phòng',
+  med_add_new: 'Thêm thuốc mới',
+  med_expired_alert: 'Đã hết hạn!',
+  med_expiring_soon: 'Sắp hết hạn trong 30 ngày',
+  med_low_stock: 'Sắp hết số lượng',
+  med_dosage_label: 'Liều dùng & chỉ định',
+  med_storage_label: 'Vị trí cất giữ'
 };
 
