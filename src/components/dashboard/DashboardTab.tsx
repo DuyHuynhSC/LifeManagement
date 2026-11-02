@@ -198,23 +198,27 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
               <div
                 key={med.id}
                 onClick={() => onOpenMedicineCabinet?.()}
-                className="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-rose-300 dark:border-rose-800/80 flex items-center justify-between cursor-pointer hover:border-rose-500 transition"
+                className="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-rose-300 dark:border-rose-800/80 flex items-center justify-between gap-2.5 cursor-pointer hover:border-rose-500 transition shadow-2xs"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950 text-rose-600">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950 text-rose-600 shrink-0">
                     <Pill size={16} />
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[180px] flex items-center gap-1.5">
-                      <span>{med.name}</span>
-                      <span className="text-[9px] font-black bg-rose-100 text-rose-700 px-1 rounded">Tủ thuốc</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        {med.name}
+                      </span>
+                      <span className="text-[9px] font-black bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 px-1.5 py-0.2 rounded shrink-0">
+                        Tủ thuốc
+                      </span>
                     </div>
-                    <div className="text-[10px] text-rose-600 dark:text-rose-400 font-semibold font-mono tabular-nums">
+                    <div className="text-[10px] text-rose-600 dark:text-rose-400 font-semibold font-mono tabular-nums truncate mt-0.5">
                       {med.diffDays < 0 ? `ĐÃ HẾT HẠN (${Math.abs(med.diffDays)} ngày trước)` : `Hết hạn sau ${med.diffDays} ngày (${med.expiryDate})`}
                     </div>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">
+                <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 shrink-0">
                   Xem ngay
                 </span>
               </div>
@@ -225,23 +229,27 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
               <div
                 key={bill.id}
                 onClick={() => onNavigateTab('expenses')}
-                className="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-teal-300 dark:border-teal-800/80 flex items-center justify-between cursor-pointer hover:border-teal-500 transition"
+                className="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-teal-300 dark:border-teal-800/80 flex items-center justify-between gap-2.5 cursor-pointer hover:border-teal-500 transition shadow-2xs"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="p-1.5 rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 shrink-0">
                     <Calendar size={16} />
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[180px] flex items-center gap-1.5">
-                      <span>{bill.title}</span>
-                      <span className="text-[9px] font-black bg-teal-100 text-teal-700 px-1 rounded font-mono">{bill.amount.toLocaleString()} ₫</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        {bill.title}
+                      </span>
+                      <span className="text-[9px] font-black bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-300 px-1.5 py-0.2 rounded font-mono shrink-0">
+                        {bill.amount.toLocaleString('vi-VN')} ₫
+                      </span>
                     </div>
-                    <div className={`text-[10px] font-semibold font-mono tabular-nums ${bill.diffDays < 0 ? 'text-rose-600' : 'text-teal-700 dark:text-teal-300'}`}>
+                    <div className={`text-[10px] font-semibold font-mono tabular-nums truncate mt-0.5 ${bill.diffDays < 0 ? 'text-rose-600' : 'text-teal-700 dark:text-teal-300'}`}>
                       {bill.diffDays < 0 ? `Quá hạn đóng tiền (${Math.abs(bill.diffDays)} ngày)` : `Đến hạn sau ${bill.diffDays} ngày (${bill.nextDueDate})`}
                     </div>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400">
+                <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 shrink-0">
                   Đóng tiền
                 </span>
               </div>
@@ -254,22 +262,22 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
                 <div
                   key={asset.id}
                   onClick={() => onSelectAsset(asset.id)}
-                  className="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-rose-200 dark:border-rose-800/60 flex items-center justify-between cursor-pointer hover:border-rose-400 transition"
+                  className="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-rose-200 dark:border-rose-800/60 flex items-center justify-between gap-2.5 cursor-pointer hover:border-rose-400 transition"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 shrink-0">
                       <ShieldAlert size={16} />
                     </div>
-                    <div>
-                      <div className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[180px]">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
                         {asset.name}
                       </div>
-                      <div className="text-[10px] text-rose-600 dark:text-rose-400 font-semibold">
+                      <div className="text-[10px] text-rose-600 dark:text-rose-400 font-semibold font-mono tabular-nums truncate mt-0.5">
                         {t('dash_warranty_expired_after', { days: diff, date: asset.warrantyExpiryDate })}
                       </div>
                     </div>
                   </div>
-                  <ChevronRight size={14} className="text-slate-400" />
+                  <ChevronRight size={14} className="text-slate-400 shrink-0" />
                 </div>
               );
             })}
@@ -279,22 +287,22 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
               <div
                 key={idx}
                 onClick={() => onSelectAsset(comp.assetId)}
-                className="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-rose-200 dark:border-rose-800/60 flex items-center justify-between cursor-pointer hover:border-rose-400 transition"
+                className="bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-rose-200 dark:border-rose-800/60 flex items-center justify-between gap-2.5 cursor-pointer hover:border-rose-400 transition"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950 text-rose-600">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950 text-rose-600 shrink-0">
                     <Wrench size={16} />
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[180px]">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
                       {comp.compName}
                     </div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                       {t('dash_component_of', { asset: comp.assetName, wear: comp.wear })}
                     </div>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
+                <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 shrink-0">
                   {t('dash_view_now')}
                 </span>
               </div>

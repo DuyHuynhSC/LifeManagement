@@ -12,7 +12,7 @@ interface AddMedicineModalProps {
 export const MEDICINE_CATEGORY_LABELS: Record<MedicineCategory, { label: string; icon: string; color: string }> = {
   fever_pain: { label: 'Hạ sốt & Giảm đau', icon: '🌡️', color: '#ef4444' },
   digestive: { label: 'Tiêu hóa & Dạ dày', icon: '🍵', color: '#f59e0b' },
-  respiratory: { label: 'Hô hấp & Cảm cúm', icon: '🫁', color: '#3b82f6' },
+  respiratory: { label: 'Hô hấp & Cảm cúm', icon: '🤧', color: '#3b82f6' },
   allergy: { label: 'Chống Dị ứng', icon: '🌿', color: '#10b981' },
   first_aid: { label: 'Sơ cứu & Băng gạc', icon: '🩹', color: '#8b5cf6' },
   supplements: { label: 'Vitamin & Bổ sung', icon: '✨', color: '#ec4899' },
