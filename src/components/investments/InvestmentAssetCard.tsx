@@ -151,17 +151,19 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
               <span className="font-semibold text-slate-700 dark:text-slate-200">
                 Gốc: <span className="font-mono tabular-nums">{formatCurrency(asset.avgBuyPrice)}</span>
               </span>
-              <span className="text-slate-300 dark:text-slate-600">•</span>
-              <span className="text-amber-700 dark:text-amber-400 font-bold font-mono tabular-nums">
-                {asset.termMonths || 0}T • {asset.interestRate || 0}%/năm
+              <span className="inline-flex items-center gap-1 min-w-0">
+                <span className="text-slate-300 dark:text-slate-600">•</span>
+                <span className="text-amber-700 dark:text-amber-400 font-bold font-mono tabular-nums">
+                  {asset.termMonths || 0}T • {asset.interestRate || 0}%/năm
+                </span>
               </span>
               {asset.maturityDate && (
-                <>
+                <span className="inline-flex items-center gap-1 min-w-0">
                   <span className="text-slate-300 dark:text-slate-600">•</span>
                   <span className="text-primary-600 dark:text-primary-400 font-medium truncate font-mono tabular-nums">
                     Đáo hạn: {asset.maturityDate}
                   </span>
-                </>
+                </span>
               )}
             </>
           ) : (
@@ -169,21 +171,25 @@ export const InvestmentAssetCard: React.FC<InvestmentAssetCardProps> = ({
               <span className="font-semibold text-slate-700 dark:text-slate-200">
                 SL: <span className="font-mono tabular-nums">{asset.quantity.toLocaleString('vi-VN')}</span> {getAssetUnit(asset.assetClass, asset.symbol)}
               </span>
-              <span className="text-slate-300 dark:text-slate-600">•</span>
-              <span>
-                Giá vốn: <span className="font-mono tabular-nums">{formatCurrency(asset.avgBuyPrice)}</span>
+              <span className="inline-flex items-center gap-1 min-w-0">
+                <span className="text-slate-300 dark:text-slate-600">•</span>
+                <span>
+                  Giá vốn: <span className="font-mono tabular-nums">{formatCurrency(asset.avgBuyPrice)}</span>
+                </span>
               </span>
-              <span className="text-slate-300 dark:text-slate-600">•</span>
-              <span className={`px-1.5 py-0.2 rounded font-bold ${holdingBadge.bgColor} ${holdingBadge.textColor}`}>
-                {holdingBadge.label}
+              <span className="inline-flex items-center gap-1 min-w-0">
+                <span className="text-slate-300 dark:text-slate-600">•</span>
+                <span className={`px-1.5 py-0.2 rounded font-bold ${holdingBadge.bgColor} ${holdingBadge.textColor}`}>
+                  {holdingBadge.label}
+                </span>
               </span>
               {pnl.totalDividends > 0 && (
-                <>
+                <span className="inline-flex items-center gap-1 min-w-0">
                   <span className="text-slate-300 dark:text-slate-600">•</span>
                   <span className="text-emerald-600 dark:text-emerald-400 font-bold font-mono tabular-nums">
                     Cổ tức: +{formatCurrency(pnl.totalDividends)}
                   </span>
-                </>
+                </span>
               )}
             </>
           )}

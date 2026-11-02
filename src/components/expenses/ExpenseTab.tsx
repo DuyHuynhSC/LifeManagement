@@ -232,7 +232,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
       )}
 
       {/* Monthly Budget Summary Banner - FinTech Clean Surface */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-3.5 relative w-full max-w-full min-w-0">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl p-3.5 sm:p-4 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-3 relative w-full max-w-full overflow-hidden min-w-0">
         <div className="space-y-2">
           {/* Header Row: Month Switcher & Budget Limit Chip */}
           <div className="flex items-center justify-between gap-1.5 min-w-0">
@@ -246,7 +246,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
                 <ChevronLeft size={13} />
               </button>
               <span className="text-[11px] font-bold px-1.5 text-slate-800 dark:text-slate-200 whitespace-nowrap">
-                {formatYearMonthDisplay(selectedBudgetMonth)}
+                {formatYearMonthDisplay(selectedBudgetMonth, true)}
               </span>
               <button
                 type="button"
@@ -267,11 +267,11 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
               )}
             </div>
 
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-1.5 min-w-0">
               {canManage ? (
                 <button
                   onClick={() => setShowBudgetModal(true)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 active:scale-95 transition text-[11px] text-slate-700 dark:text-slate-200 font-medium border border-slate-200 dark:border-slate-600 shrink-0 shadow-2xs"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 active:scale-95 transition text-[10px] sm:text-[11px] text-slate-700 dark:text-slate-200 font-medium border border-slate-200 dark:border-slate-600 shadow-2xs min-w-0 max-w-full"
                   title="Cài đặt hạn mức tháng"
                 >
                   <span className="truncate">
@@ -283,7 +283,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
                   <Pencil size={10} className="text-primary-600 dark:text-primary-400 shrink-0 ml-0.5" />
                 </button>
               ) : (
-                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-[11px] text-slate-600 dark:text-slate-300 font-medium shrink-0 border border-slate-200 dark:border-slate-600">
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-300 font-medium border border-slate-200 dark:border-slate-600 min-w-0 max-w-full">
                   <span className="truncate">
                     {t('dash_budget_limit')}:{' '}
                     <strong className="font-bold text-slate-900 dark:text-white font-mono tabular-nums">
@@ -296,19 +296,19 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
           </div>
 
           {/* Amount & Remaining Split Row */}
-          <div className="flex items-baseline justify-between gap-2 pt-1">
-            <div>
+          <div className="flex items-baseline justify-between gap-2 pt-1 flex-wrap sm:flex-nowrap">
+            <div className="min-w-0">
               <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-0.5">
                 {t('expense_total_monthly')}
               </span>
-              <div className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white font-mono tabular-nums whitespace-nowrap leading-none">
+              <div className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white font-mono tabular-nums whitespace-nowrap leading-none">
                 {totalSpent.toLocaleString('vi-VN')} <span className="text-xs sm:text-sm font-bold font-sans text-slate-400">đ</span>
               </div>
             </div>
 
-            <div className="text-right shrink-0">
+            <div className="text-right min-w-0 ml-auto">
               <div className={cn(
-                "text-xs font-bold font-mono tabular-nums leading-tight",
+                "text-[11px] sm:text-xs font-bold font-mono tabular-nums leading-tight whitespace-nowrap",
                 totalBudget > 0
                   ? totalSpent > totalBudget
                     ? "text-rose-600 dark:text-rose-400"
@@ -327,7 +327,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
               </div>
               {totalBudget > 0 && (
                 <div className={cn(
-                  "text-[10px] font-bold mt-1 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono tabular-nums shadow-2xs",
+                  "text-[10px] font-bold mt-1 px-2 py-0.5 rounded-full inline-flex items-center gap-1 font-mono tabular-nums shadow-2xs whitespace-nowrap",
                   percentSpent > 100 
                     ? "bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-800"
                     : percentSpent >= 80 
@@ -710,10 +710,12 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
                         {cat.label}
                       </span>
                       <span className="font-mono tabular-nums">{exp.date}</span>
-                      <span className="text-slate-300 dark:text-slate-600">•</span>
-                      <span className="truncate max-w-[70px]" title={payerName}>{payerName}</span>
+                      <span className="inline-flex items-center gap-1 min-w-0">
+                        <span className="text-slate-300 dark:text-slate-600">•</span>
+                        <span className="truncate max-w-[70px]" title={payerName}>{payerName}</span>
+                      </span>
                       {linkedAsset && (
-                        <>
+                        <span className="inline-flex items-center gap-1 min-w-0">
                           <span className="text-slate-300 dark:text-slate-600">•</span>
                           <span
                             className="text-primary-600 dark:text-primary-400 font-medium truncate max-w-[90px]"
@@ -721,7 +723,7 @@ export const ExpenseTab: React.FC<ExpenseTabProps> = ({
                           >
                             📦 {linkedAsset}
                           </span>
-                        </>
+                        </span>
                       )}
                     </div>
                   </div>

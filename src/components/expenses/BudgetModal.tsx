@@ -15,10 +15,10 @@ export function shiftYearMonth(ym: string, deltaMonths: number): string {
   return getCurrentYearMonth(d);
 }
 
-export function formatYearMonthDisplay(ym: string): string {
+export function formatYearMonthDisplay(ym: string, short: boolean = false): string {
   const [y, m] = ym.split('-');
   if (!y || !m) return ym;
-  return `Tháng ${Number(m)}/${y}`;
+  return short ? `${Number(m)}/${y}` : `Tháng ${Number(m)}/${y}`;
 }
 
 export const BudgetModal: React.FC<BudgetModalProps> = ({

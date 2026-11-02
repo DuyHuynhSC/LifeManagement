@@ -9,16 +9,18 @@ import {
   MapPin, 
   ChevronRight,
   ChevronLeft,
-  AlertCircle
+  AlertCircle,
+  Edit3
 } from 'lucide-react';
 import { RoomType, Asset } from '../../types';
 import { useAppStore } from '../../store/useAppStore';
 import { getTranslation } from '../../i18n';
 import { AssetDetailModal } from './AssetDetailModal';
 import { AddAssetModal } from './AddAssetModal';
+import { EditAssetModal } from './EditAssetModal';
 
 export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> = ({ initialSelectedAssetId }) => {
-  const { assets, settings } = useAppStore();
+  const { assets, currentUser, settings } = useAppStore();
   const [selectedRoom, setSelectedRoom] = useState<RoomType>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(() => {
@@ -27,7 +29,15 @@ export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> 
     }
     return null;
   });
+  const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  const canEdit = currentUser.role === 'admin' || currentUser.role === 'manager';
+
+  // Always keep current selected asset up to date with store
+  const activeSelectedAsset = selectedAsset
+    ? assets.find(a => a.id === selectedAsset.id) || selectedAsset
+    : null;
 
   // Horizontal scroll state & refs
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -248,13 +258,32 @@ export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> 
                       <div className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
                         <MapPin size={11} />
                         <span className="capitalize">{asset.room}</span>
-                        <span>•</span>
-                        <span>{asset.purchasePlace}</span>
+                        {asset.purchasePlace && (
+                          <>
+                            <span>•</span>
+                            <span>{asset.purchasePlace}</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  <ChevronRight size={16} className="text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                  <div className="flex items-center gap-1">
+                    {canEdit && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingAsset(asset);
+                        }}
+                        className="p-1.5 rounded-xl text-slate-400 hover:text-primary-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                        title={t('action_edit')}
+                      >
+                        <Edit3 size={15} />
+                      </button>
+                    )}
+                    <ChevronRight size={16} className="text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                  </div>
                 </div>
 
                 {/* Sub-Components Wear Bar Summary */}
@@ -292,7 +321,7 @@ export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> 
                 {/* Warranty & Price Footer */}
                 <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100 dark:border-slate-700/80">
                   <div className="font-extrabold text-slate-900 dark:text-slate-100 font-mono tabular-nums">
-                    {asset.price.toLocaleString('vi-VN')} đ
+                    {asset.price ? `${asset.price.toLocaleString('vi-VN')} đ` : 'Chưa nhập giá'}
                   </div>
 
                   {/* Warranty Badge */}
@@ -320,10 +349,18 @@ export const AssetListTab: React.FC<{ initialSelectedAssetId?: string | null }> 
       </div>
 
       {/* Asset Detail Modal */}
-      {selectedAsset && (
+      {activeSelectedAsset && (
         <AssetDetailModal
-          asset={selectedAsset}
+          asset={activeSelectedAsset}
           onClose={() => setSelectedAsset(null)}
+        />
+      )}
+
+      {/* Edit Asset Modal (from Card quick action) */}
+      {editingAsset && (
+        <EditAssetModal
+          asset={editingAsset}
+          onClose={() => setEditingAsset(null)}
         />
       )}
 

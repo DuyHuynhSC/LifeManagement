@@ -76,6 +76,12 @@ export const ja: typeof vi = {
   asset_status_good: '良好',
   asset_status_warning: 'まもなく期限',
   asset_status_critical: '要交換',
+  asset_status_needs_service: '修理・保守が必要',
+  asset_edit_title: '機器の編集',
+  asset_edit_desc: '機器の詳細と状態を更新',
+  asset_save_changes: '変更を保存',
+  asset_category: 'カテゴリ',
+  asset_edit_success: '機器の情報を更新しました！',
 
   // Rooms
   room_all: 'すべての部屋',
@@ -88,6 +94,7 @@ export const ja: typeof vi = {
 
   // Expenses
   expense_title: '家計簿・支出管理',
+  expense_total_monthly: '今月の支出',
   expense_add_new: '支出を入力',
   expense_amount: '金額',
   expense_category: 'カテゴリー',

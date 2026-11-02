@@ -76,6 +76,12 @@ export const en: typeof vi = {
   asset_status_good: 'Good',
   asset_status_warning: 'Due Soon',
   asset_status_critical: 'Replace Now',
+  asset_status_needs_service: 'Needs Service',
+  asset_edit_title: 'Edit Appliance',
+  asset_edit_desc: 'Update appliance details and status',
+  asset_save_changes: 'Save Changes',
+  asset_category: 'Category',
+  asset_edit_success: 'Appliance updated successfully!',
 
   // Rooms
   room_all: 'All Rooms',
@@ -88,6 +94,7 @@ export const en: typeof vi = {
 
   // Expenses
   expense_title: 'Expense Management',
+  expense_total_monthly: 'Monthly Spent',
   expense_add_new: 'Add Expense',
   expense_amount: 'Amount',
   expense_category: 'Category',

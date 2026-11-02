@@ -16,7 +16,7 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, onOpenQRS
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Điện gia dụng');
   const [room, setRoom] = useState<RoomType>('kitchen');
-  const [priceStr, setPriceStr] = useState<string>('5000000');
+  const [priceStr, setPriceStr] = useState<string>('');
   const [purchaseDate, setPurchaseDate] = useState(new Date().toISOString().split('T')[0]);
   
   // Default warranty 2 years from today
@@ -24,7 +24,7 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, onOpenQRS
   defaultWarranty.setFullYear(defaultWarranty.getFullYear() + 2);
   const [warrantyExpiryDate, setWarrantyExpiryDate] = useState(defaultWarranty.toISOString().split('T')[0]);
 
-  const [purchasePlace, setPurchasePlace] = useState('Điện Máy Xanh');
+  const [purchasePlace, setPurchasePlace] = useState('');
   const [serialNumber, setSerialNumber] = useState('');
   const [notes, setNotes] = useState('');
 
@@ -54,7 +54,7 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, onOpenQRS
 
     addAsset({
       name: name.trim(),
-      category,
+      category: category.trim() || 'Điện gia dụng',
       room,
       price: Number(priceStr) || 0,
       purchaseDate,
@@ -128,6 +128,29 @@ export const AddAssetModal: React.FC<AddAssetModalProps> = ({ onClose, onOpenQRS
               onChange={e => setName(e.target.value)}
               className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs focus:ring-1 focus:ring-primary-500 focus:border-primary-500 outline-none"
             />
+          </div>
+
+          <div>
+            <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">
+              {t('asset_category')}
+            </label>
+            <input
+              type="text"
+              list="asset-categories-list"
+              placeholder="VD: Điện gia dụng, Thiết bị bếp..."
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-xs outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+            />
+            <datalist id="asset-categories-list">
+              <option value="Điện gia dụng" />
+              <option value="Thiết bị bếp" />
+              <option value="Điện tử & Giải trí" />
+              <option value="Đồ nội thất" />
+              <option value="Thiết bị làm sạch" />
+              <option value="Thiết bị phòng tắm" />
+              <option value="Khác" />
+            </datalist>
           </div>
 
           <div className="grid grid-cols-2 gap-3">

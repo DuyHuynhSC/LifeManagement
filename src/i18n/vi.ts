@@ -74,6 +74,12 @@ export const vi = {
   asset_status_good: 'Tốt',
   asset_status_warning: 'Sắp đến hạn',
   asset_status_critical: 'Cần thay ngay',
+  asset_status_needs_service: 'Cần sửa chữa / bảo trì',
+  asset_edit_title: 'Chỉnh sửa thông tin đồ dùng',
+  asset_edit_desc: 'Cập nhật thông tin chi tiết và tình trạng của đồ dùng',
+  asset_save_changes: 'Lưu thay đổi',
+  asset_category: 'Danh mục',
+  asset_edit_success: 'Đã cập nhật thông tin đồ dùng thành công!',
 
   // Rooms
   room_all: 'Tất cả phòng',
@@ -86,6 +92,7 @@ export const vi = {
 
   // Expenses
   expense_title: 'Quản lý Chi tiêu',
+  expense_total_monthly: 'Tổng chi tháng',
   expense_add_new: 'Nhập khoản chi tiêu',
   expense_amount: 'Số tiền',
   expense_category: 'Danh mục',
