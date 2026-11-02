@@ -155,10 +155,6 @@ export const InvestmentTab: React.FC<InvestmentTabProps> = ({
           <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight truncate">
             {t('inv_title')}
           </h1>
-          <span className="inline-flex items-center gap-1 text-[10px] bg-sky-50 dark:bg-sky-950/80 text-primary-700 dark:text-primary-300 font-bold px-1.5 sm:px-2 py-0.5 rounded-full border border-sky-200 dark:border-sky-800 shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            {t('inv_realtime_badge')}
-          </span>
         </div>
 
         {/* Action Button: Thêm lệnh hoặc thêm mã */}
