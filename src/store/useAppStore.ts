@@ -76,6 +76,9 @@ interface AppStoreState {
   medicineItems: MedicineItem[];
 }
 
+const sampleBillIds = new Set(['bill-evn', 'bill-water', 'bill-internet', 'bill-building', 'bill-netflix']);
+const sampleMedIds = new Set(['med-para', 'med-oresol', 'med-siro', 'med-saline', 'med-urgo', 'med-entero']);
+
 function getStoredState(): AppStoreState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -96,11 +99,11 @@ function getStoredState(): AppStoreState {
           ...(parsed.settings || {})
         },
         pendingTransactions: Array.isArray(parsed.pendingTransactions) ? parsed.pendingTransactions : [],
-        recurringBills: Array.isArray(parsed.recurringBills) && parsed.recurringBills.length > 0
-          ? parsed.recurringBills
+        recurringBills: Array.isArray(parsed.recurringBills)
+          ? parsed.recurringBills.filter((b: RecurringBill) => !sampleBillIds.has(b.id))
           : initialRecurringBills,
-        medicineItems: Array.isArray(parsed.medicineItems) && parsed.medicineItems.length > 0
-          ? parsed.medicineItems
+        medicineItems: Array.isArray(parsed.medicineItems)
+          ? parsed.medicineItems.filter((m: MedicineItem) => !sampleMedIds.has(m.id))
           : initialMedicineItems
       };
     }
